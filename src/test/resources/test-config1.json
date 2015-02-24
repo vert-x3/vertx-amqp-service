@@ -1,0 +1,9 @@
+// All messages sent to the default hanlder or handlers specfied under handlers will be sent to the given outbound-address.
+// All messages received will be sent to the event bus with the link name the "address".
+{
+"amqp.inbound-host" : "localhost",
+"amqp.inbound-port"  : 5673,
+"amqp.default-outbound-address" : "amqp://localhost:5672/vertx",
+"vertx.default-handler-address" : "vertx.mod-amqp",
+"vertx.handlers" : []   
+}
