@@ -18,6 +18,9 @@ package io.vertx.ext.amqp;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.impl.LoggerFactory;
+import io.vertx.ext.amqp.impl.MessagingException;
+import io.vertx.ext.amqp.impl.RouterConfigImpl;
+import io.vertx.ext.amqp.impl.RouterImpl;
 
 public class AmqpVerticle extends AbstractVerticle
 {
@@ -29,10 +32,10 @@ public class AmqpVerticle extends AbstractVerticle
     public void start() throws Exception
     {
         super.start();
-        RouterConfig config = new RouterConfig(config());
+        RouterConfig config = new RouterConfigImpl(config());
         try
         {
-            _router = new Router(vertx, new MessageFactory(), config);
+            _router = new RouterImpl(vertx, config);
         }
         catch (MessagingException e)
         {

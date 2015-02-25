@@ -15,225 +15,32 @@
  */
 package io.vertx.ext.amqp;
 
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Pattern;
 
-public class RouterConfig
+public interface RouterConfig
 {
-    enum INBOUND_ROUTING_PROPERTY_TYPE
-    {
+    public String getInboundHost();
 
-        LINK_NAME, SUBJECT, MESSAGE_ID, CORRELATION_ID, ADDRESS, REPLY_TO, CUSTOM;
+    public int getInboundPort();
 
-        static INBOUND_ROUTING_PROPERTY_TYPE get(String key)
-        {
-            if (key == null || key.trim().equals(""))
-            {
-                return ADDRESS;
-            }
+    public String getDefaultHandlerAddress();
 
-            try
-            {
-                return INBOUND_ROUTING_PROPERTY_TYPE.valueOf(key);
-            }
-            catch (IllegalArgumentException e)
-            {
-                return CUSTOM;
-            }
-        }
+    public String getDefaultOutboundAddress();
 
-    };
+    public List<String> getHandlerAddressList();
 
-    private String _inboundHost;
+    public boolean isUseCustomPropertyForOutbound();
 
-    private int _inboundPort;
+    public String getOutboundRoutingPropertyName();
 
-    private String _defaultHandlerAddress;
+    public Map<String, RouteEntry> getOutboundRoutes();
 
-    private String _defaultOutboundAddress;
+    public String getInboundRoutingPropertyName();
 
-    private String _defaultInboundAddress = null;
+    public String getDefaultInboundAddress();
 
-    private List<String> _handlerAddressList = new ArrayList<String>();
+    public InboundRoutingPropertyType getInboundRoutingPropertyType();
 
-    boolean _isUseCustomPropertyForOutbound = false;
-
-    String _outboundRoutingPropertyName = null;
-
-    Map<String, RouteEntry> _outboundRoutes = new ConcurrentHashMap<String, RouteEntry>();
-
-    String _inboundRoutingPropertyName = null;
-
-    INBOUND_ROUTING_PROPERTY_TYPE _inboundRoutingPropertyType = INBOUND_ROUTING_PROPERTY_TYPE.ADDRESS;
-
-    Map<String, RouteEntry> _inboundRoutes = new ConcurrentHashMap<String, RouteEntry>();
-
-    public RouterConfig(JsonObject config)
-    {
-        _inboundHost = config.getString("amqp.inbound-host", "localhost");
-        _inboundPort = config.getInteger("amqp.inbound-port", 5673);
-        _defaultOutboundAddress = config.getString("amqp.default-outbound-address", "amqp://localhost:5672/vertx");
-        _defaultHandlerAddress = config.getString("vertx.default-handler-address", "vertx.mod-amqp");
-        _defaultInboundAddress = config.getString("vertx.default-inbound-address", null);
-
-        if (config.containsKey("vertx.handlers"))
-        {
-            JsonArray handlers = config.getJsonArray("vertx.handlers");
-            Iterator<Object> it = handlers.iterator();
-            while (it.hasNext())
-            {
-                _handlerAddressList.add((String) it.next());
-            }
-        }
-
-        if (config.containsKey("vertx.routing-outbound"))
-        {
-            JsonObject _outboundRouting = config.getJsonObject("vertx.routing-outbound");
-
-            if (_outboundRouting.containsKey("routing-property-name"))
-            {
-                _isUseCustomPropertyForOutbound = true;
-                _outboundRoutingPropertyName = _outboundRouting.getString("routing-property-name");
-            }
-
-            if (_outboundRouting.containsKey("routes"))
-            {
-                pouplateRouteMap(_outboundRoutes, _outboundRouting.getJsonObject("routes"));
-            }
-        }
-
-        if (config.containsKey("vertx.routing-inbound"))
-        {
-            JsonObject _inboundRouting = config.getJsonObject("vertx.routing-inbound");
-
-            if (_inboundRouting.containsKey("routing-property-type"))
-            {
-                _inboundRoutingPropertyType = INBOUND_ROUTING_PROPERTY_TYPE.get(_inboundRouting
-                        .getString("routing-property-type"));
-                if (INBOUND_ROUTING_PROPERTY_TYPE.CUSTOM == _inboundRoutingPropertyType)
-                {
-                    _inboundRoutingPropertyName = _inboundRouting.getString("routing-property-name");
-                }
-            }
-
-            if (_inboundRouting.containsKey("routes"))
-            {
-                pouplateRouteMap(_inboundRoutes, _inboundRouting.getJsonObject("routes"));
-            }
-        }
-    }
-
-    private void pouplateRouteMap(Map<String, RouteEntry> map, JsonObject routes)
-    {
-        for (String key : routes.fieldNames())
-        {
-            RouteEntry entry = new RouteEntry(Pattern.compile(key), routes.getString(key));
-            map.put(key, entry);
-        }
-    }
-
-    public String getInboundHost()
-    {
-        return _inboundHost;
-    }
-
-    public int getInboundPort()
-    {
-        return _inboundPort;
-    }
-
-    public String getDefaultHandlerAddress()
-    {
-        return _defaultHandlerAddress;
-    }
-
-    public String getDefaultOutboundAddress()
-    {
-        return _defaultOutboundAddress;
-    }
-
-    public List<String> getHandlerAddressList()
-    {
-        return _handlerAddressList;
-    }
-
-    public boolean isUseCustomPropertyForOutbound()
-    {
-        return _isUseCustomPropertyForOutbound;
-    }
-
-    public String getOutboundRoutingPropertyName()
-    {
-        return _outboundRoutingPropertyName;
-    }
-
-    public Map<String, RouteEntry> getOutboundRoutes()
-    {
-        return _outboundRoutes;
-    }
-
-    public String getInboundRoutingPropertyName()
-    {
-        return _inboundRoutingPropertyName;
-    }
-
-    public String getDefaultInboundAddress()
-    {
-        return _defaultInboundAddress;
-    }
-
-    public INBOUND_ROUTING_PROPERTY_TYPE getInboundRoutingPropertyType()
-    {
-        return _inboundRoutingPropertyType;
-    }
-
-    public Map<String, RouteEntry> getInboundRoutes()
-    {
-        return _inboundRoutes;
-    }
-
-    public static RouteEntry createRouteEntry(RouterConfig config, String pattern, String address)
-    {
-        return config.new RouteEntry(Pattern.compile(pattern), address);
-    }
-
-    class RouteEntry
-    {
-        Pattern _pattern;
-
-        List<String> _addressList = new ArrayList<String>();
-
-        RouteEntry(Pattern p, String addr)
-        {
-            _pattern = p;
-            _addressList.add(addr);
-        }
-
-        void add(String addr)
-        {
-            _addressList.add(addr);
-        }
-
-        void remove(String addr)
-        {
-            _addressList.remove(addr);
-        }
-
-        Pattern getPattern()
-        {
-            return _pattern;
-        }
-
-        List<String> getAddressList()
-        {
-            return _addressList;
-        }
-    }
+    public Map<String, RouteEntry> getInboundRoutes();
 }
