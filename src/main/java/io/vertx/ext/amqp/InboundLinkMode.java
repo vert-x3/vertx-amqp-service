@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 package io.vertx.ext.amqp;
-
-import java.util.List;
-import java.util.regex.Pattern;
-
-public interface RouteEntry
+/**
+ * Specifies the level of reliability expected when receiving messages.
+ *
+ */
+public enum InboundLinkMode
 {
-    public void add(String addr);
-
-    public void remove(String addr);
-
-    public Pattern getPattern();
-
-    public List<String> getAddressList();
+    AT_MOST_ONCE, AT_LEAST_ONCE, EXACTLY_ONCE
 }

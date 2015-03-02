@@ -15,16 +15,28 @@
  */
 package io.vertx.ext.amqp;
 
-import java.util.List;
-import java.util.regex.Pattern;
-
-public interface RouteEntry
+/**
+ * Outgoing message disposition
+ */
+public enum MessageDisposition
 {
-    public void add(String addr);
+    /**
+     * Message has been accepted by the remote peer.
+     */
+    ACCEPTED,
 
-    public void remove(String addr);
+    /**
+     * Message has been rejected by the remote peer.
+     */
+    REJECTED,
 
-    public Pattern getPattern();
+    /**
+     * Message has been released by the remote peer.
+     */
+    RELEASED,
 
-    public List<String> getAddressList();
+    /**
+     * Disposition is not known.
+     */
+    UNKNOWN
 }

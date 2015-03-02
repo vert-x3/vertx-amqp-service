@@ -15,16 +15,19 @@
  */
 package io.vertx.ext.amqp;
 
-import java.util.List;
-import java.util.regex.Pattern;
-
-public interface RouteEntry
+/**
+ * Base class for all messaging exceptions.
+ */
+@SuppressWarnings("serial")
+public class MessagingException extends Exception
 {
-    public void add(String addr);
+    public MessagingException(String msg)
+    {
+        super(msg);
+    }
 
-    public void remove(String addr);
-
-    public Pattern getPattern();
-
-    public List<String> getAddressList();
+    public MessagingException(String msg, Throwable t)
+    {
+        super(msg, t);
+    }
 }

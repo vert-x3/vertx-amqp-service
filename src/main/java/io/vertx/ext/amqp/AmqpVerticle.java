@@ -18,7 +18,6 @@ package io.vertx.ext.amqp;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.impl.LoggerFactory;
-import io.vertx.ext.amqp.impl.MessagingException;
 import io.vertx.ext.amqp.impl.RouterConfigImpl;
 import io.vertx.ext.amqp.impl.RouterImpl;
 

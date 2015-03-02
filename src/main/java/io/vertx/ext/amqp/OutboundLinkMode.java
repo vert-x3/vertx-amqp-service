@@ -15,16 +15,11 @@
  */
 package io.vertx.ext.amqp;
 
-import java.util.List;
-import java.util.regex.Pattern;
-
-public interface RouteEntry
+/**
+ * Specifies the level of reliability expected when sending messages.
+ * 
+ */
+public enum OutboundLinkMode
 {
-    public void add(String addr);
-
-    public void remove(String addr);
-
-    public Pattern getPattern();
-
-    public List<String> getAddressList();
+    AT_MOST_ONCE, AT_LEAST_ONCE;
 }

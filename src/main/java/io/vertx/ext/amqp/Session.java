@@ -15,16 +15,18 @@
  */
 package io.vertx.ext.amqp;
 
-import java.util.List;
-import java.util.regex.Pattern;
 
-public interface RouteEntry
+public interface Session
 {
-    public void add(String addr);
+    public OutboundLink createOutboundLink(String address, OutboundLinkMode mode) throws MessagingException;
 
-    public void remove(String addr);
+    public InboundLink createInboundLink(String address, InboundLinkMode mode, CreditMode creditMode)
+            throws MessagingException;
 
-    public Pattern getPattern();
+    public void disposition(AmqpMessage msg, MessageDisposition disposition, int... flags)
+            throws MessageFormatException, MessagingException;
 
-    public List<String> getAddressList();
+    public void settle(AmqpMessage msg, int... flags) throws MessageFormatException, MessagingException;
+
+    public void close();
 }

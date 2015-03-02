@@ -15,16 +15,17 @@
  */
 package io.vertx.ext.amqp;
 
-import java.util.List;
-import java.util.regex.Pattern;
-
-public interface RouteEntry
+public enum EventType
 {
-    public void add(String addr);
-
-    public void remove(String addr);
-
-    public Pattern getPattern();
-
-    public List<String> getAddressList();
+    CONNECTION_READY,
+    CONNECTION_FINAL,
+    SESSION_READY,
+    SESSION_FINAL,
+    OUTBOUND_LINK_READY,
+    INBOUND_LINK_READY,
+    OUTBOUND_LINK_FINAL,
+    INBOUND_LINK_FINAL,
+    OUTBOUND_LINK_CREDIT,
+    MESSAGE_RECEIVED,
+    MESSAGE_SETTLED
 }

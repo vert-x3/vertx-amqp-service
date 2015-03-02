@@ -15,16 +15,13 @@
  */
 package io.vertx.ext.amqp;
 
-import java.util.List;
-import java.util.regex.Pattern;
 
-public interface RouteEntry
+public interface InboundLink extends Link
 {
-    public void add(String addr);
+    public CreditMode getCreditMode();
 
-    public void remove(String addr);
+    public int getUnsettled() throws MessagingException;
 
-    public Pattern getPattern();
+    public void setCredits(int credits) throws MessagingException;
 
-    public List<String> getAddressList();
 }

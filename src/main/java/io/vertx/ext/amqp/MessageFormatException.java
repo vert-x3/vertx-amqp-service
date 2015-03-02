@@ -15,16 +15,19 @@
  */
 package io.vertx.ext.amqp;
 
-import java.util.List;
-import java.util.regex.Pattern;
-
-public interface RouteEntry
+/**
+ * Thrown when the given Message is invalid or malformed.
+ */
+@SuppressWarnings("serial")
+public class MessageFormatException extends MessagingException
 {
-    public void add(String addr);
+    public MessageFormatException(String msg)
+    {
+        super(msg);
+    }
 
-    public void remove(String addr);
-
-    public Pattern getPattern();
-
-    public List<String> getAddressList();
+    public MessageFormatException(String msg, Throwable t)
+    {
+        super(msg, t);
+    }
 }

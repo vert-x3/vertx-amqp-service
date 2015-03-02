@@ -15,16 +15,17 @@
  */
 package io.vertx.ext.amqp;
 
-import java.util.List;
-import java.util.regex.Pattern;
-
-public interface RouteEntry
+public interface AmqpEvent
 {
-    public void add(String addr);
+    EventType getType();
 
-    public void remove(String addr);
+    Connection getConnection();
 
-    public Pattern getPattern();
+    Session getSession();
 
-    public List<String> getAddressList();
+    Link getLink();
+
+    AmqpMessage getMessage();
+
+    Tracker getDeliveryTracker();
 }

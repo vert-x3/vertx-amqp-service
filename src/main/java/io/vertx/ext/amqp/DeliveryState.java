@@ -15,16 +15,24 @@
  */
 package io.vertx.ext.amqp;
 
-import java.util.List;
-import java.util.regex.Pattern;
-
-public interface RouteEntry
+/**
+ * Outgoing message-delivery state
+ */
+public enum DeliveryState
 {
-    public void add(String addr);
+    /**
+     * Message has been settled by the remote peer.
+     */
+    SETTLED,
 
-    public void remove(String addr);
+    /**
+     * Delivery is still pending and the state is not known.
+     */
+    UNKNOWN,
 
-    public Pattern getPattern();
-
-    public List<String> getAddressList();
+    /**
+     * The link has failed due to the underlying network connection failure. The
+     * message associated with this delivery is in-doubt.
+     */
+    LINK_FAILED
 }

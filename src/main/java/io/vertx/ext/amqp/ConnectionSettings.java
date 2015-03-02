@@ -15,16 +15,32 @@
  */
 package io.vertx.ext.amqp;
 
-import java.util.List;
-import java.util.regex.Pattern;
+/**
+ * Applications could implement this interface to provide their own
+ * implementation of the ConnectionSettings based on their configuration. They
+ * could also use the DefaultConnectionSettings and filling in the details using
+ * the setter methods.
+ */
 
-public interface RouteEntry
+public interface ConnectionSettings
 {
-    public void add(String addr);
+    public String getHost();
 
-    public void remove(String addr);
+    public int getPort();
 
-    public Pattern getPattern();
+    public String getId();
 
-    public List<String> getAddressList();
+    public boolean isTcpNodelay();
+
+    public int getReadBufferSize();
+
+    public int getWriteBufferSize();
+
+    public long getConnectTimeout();
+
+    public long getIdleTimeout();
+
+    public void setTarget(String target);
+
+    public String getTarget();
 }
