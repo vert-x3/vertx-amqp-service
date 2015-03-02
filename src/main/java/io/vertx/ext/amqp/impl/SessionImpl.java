@@ -18,12 +18,12 @@ package io.vertx.ext.amqp.impl;
 import io.vertx.ext.amqp.AmqpMessage;
 import io.vertx.ext.amqp.CreditMode;
 import io.vertx.ext.amqp.InboundLink;
-import io.vertx.ext.amqp.InboundLinkMode;
+import io.vertx.ext.amqp.ReceiverMode;
 import io.vertx.ext.amqp.MessageDisposition;
 import io.vertx.ext.amqp.MessageFormatException;
 import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.OutboundLink;
-import io.vertx.ext.amqp.OutboundLinkMode;
+import io.vertx.ext.amqp.SenderMode;
 import io.vertx.ext.amqp.Session;
 
 import java.util.HashMap;
@@ -92,7 +92,7 @@ class SessionImpl implements Session
     }
 
     @Override
-    public OutboundLink createOutboundLink(String address, OutboundLinkMode mode) throws MessagingException
+    public OutboundLink createOutboundLink(String address, SenderMode mode) throws MessagingException
     {
         checkClosed();
         Sender sender;
@@ -111,7 +111,7 @@ class SessionImpl implements Session
         }
         sender.setTarget(target);
         sender.setSource(source);
-        sender.setSenderSettleMode(mode == OutboundLinkMode.AT_MOST_ONCE ? SenderSettleMode.SETTLED
+        sender.setSenderSettleMode(mode == SenderMode.AT_MOST_ONCE ? SenderSettleMode.SETTLED
                 : SenderSettleMode.UNSETTLED);
         sender.open();
 
@@ -123,7 +123,7 @@ class SessionImpl implements Session
     }
 
     @Override
-    public InboundLink createInboundLink(String address, InboundLinkMode mode, CreditMode creditMode)
+    public InboundLink createInboundLink(String address, ReceiverMode mode, CreditMode creditMode)
             throws MessagingException
     {
         Receiver receiver;

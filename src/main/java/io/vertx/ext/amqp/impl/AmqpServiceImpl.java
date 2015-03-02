@@ -18,12 +18,13 @@ package io.vertx.ext.amqp.impl;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.VertxException;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.amqp.AmqpEvent;
 import io.vertx.ext.amqp.AmqpService;
-import io.vertx.ext.amqp.Connection;
-import io.vertx.ext.amqp.ConnectionSettings;
+import io.vertx.ext.amqp.Consumer;
+import io.vertx.ext.amqp.CreditMode;
+import io.vertx.ext.amqp.MessageDisposition;
+import io.vertx.ext.amqp.ReceiverMode;
+import io.vertx.ext.amqp.Tracker;
 
 public class AmqpServiceImpl implements AmqpService
 {
@@ -45,18 +46,24 @@ public class AmqpServiceImpl implements AmqpService
     }
 
     @Override
-    public void connect(ConnectionSettings settings, Handler<AsyncResult<Connection>> resultHandler,
-            Handler<AmqpEvent> eventHandler) throws VertxException
+    public AmqpService consume(String amqpAddress, String ebAddress, ReceiverMode receiverMode, CreditMode creditMode,
+            Handler<AsyncResult<Consumer>> result)
     {
-        if (resultHandler == null)
-        {
-            throw new VertxException("Result Handler cannot be null");
-        }
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-        if (eventHandler == null)
-        {
-            throw new VertxException("Event Handler cannot be null");
-        }
+    @Override
+    public AmqpService issueCredit(Consumer consumer, int credits)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
+    @Override
+    public AmqpService publish(String address, JsonObject msg, Handler<AsyncResult<Tracker>> result)
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

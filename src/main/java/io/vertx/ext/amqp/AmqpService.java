@@ -15,16 +15,18 @@
  */
 package io.vertx.ext.amqp;
 
+import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.ProxyGen;
 import io.vertx.codegen.annotations.ProxyIgnore;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.VertxException;
+import io.vertx.core.json.JsonObject;
 
 /**
- * AMQP service allows you to handle incoming and outgoing connections to send
- * and receive messages.
+ * AMQP service allows you to directly use API methods to
+ * subscribe, publish, issue credits and message acks without
+ * having to use control-messages via the event bus.
  * 
  * @author <a href="mailto:rajith@redhat.com">Rajith Attapattu</a>
  */
@@ -38,28 +40,28 @@ public interface AmqpService
      */
 
     /**
-     * Attempts to create a connection to an AMQP peer identified by the
-     * <code>ConnectionSettings<code>.
-     * The result is notified via the resultHandler.
+     * The consume method allows an application to create a subscription to an AMQP message source.
+     * The service will receive the messages on behalf of the application and forward it to the
+     * event-bus address specified in the consume method.
+     * The applicaiton will be listening on this address.
      * 
-     * A mandatory event-handler is required to notify the application of the various AMQP events
-     * related to the connection or the objects created off the connection (Session, Out/InboundLinks ..etc).
-     * 
-     * @param settings
-     *            configures the host:port and other behavior for the
-     *            connection.
-     * @param resultHandler
-     *            the handler which is called when the <code>Connection<code> is
-     *            ready to use (or if it fails).
-     * @param eventHanlder
-     *            the handler notifies the application of the various AMQP
-     *            events related to the connection or the objects created off
-     *            the connection (Session, Out/InboundLinks ..etc) See
-     *            <code>AmqpEvent<code> for the type of events.
+     * @param amqpAddress - The address that identifies the AMQP message source to subscribe from.
+     * @param ebAddress - The event-bus address the application is listening on for the messages.
+     * @param receiverMode - Specified the reliability expected.
+     * @param creditMode - Specifies how credit is replenished.
+     * @return - A reference to the service.
      */
-    public void connect(ConnectionSettings settings, Handler<AsyncResult<Connection>> resultHandler,
-            Handler<AmqpEvent> eventHandler) throws VertxException;
-
+    @Fluent
+    public AmqpService consume(String amqpAddress, String ebAddress, ReceiverMode receiverMode, CreditMode creditMode, Handler<AsyncResult<Consumer>> result);
+    
+    @Fluent
+    public AmqpService issueCredit(Consumer consumer, int credits);
+    
+    @Fluent
+    public AmqpService publish(String address, JsonObject msg, Handler<AsyncResult<Tracker>> result);
+    
+    
+    
     /**
      * Start the service
      */

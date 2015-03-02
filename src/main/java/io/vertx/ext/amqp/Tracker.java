@@ -15,6 +15,9 @@
  */
 package io.vertx.ext.amqp;
 
+import io.vertx.codegen.annotations.VertxGen;
+
+@VertxGen
 public interface Tracker
 {
     public DeliveryState getState();

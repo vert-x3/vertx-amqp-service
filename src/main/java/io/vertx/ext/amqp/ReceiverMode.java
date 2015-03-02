@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package io.vertx.ext.amqp;
-
 /**
- * Specifies the level of reliability expected when sending messages.
- * 
+ * Specifies the level of reliability expected when receiving messages.
+ *
  */
-public enum OutboundLinkMode
+public enum ReceiverMode
 {
-    AT_MOST_ONCE, AT_LEAST_ONCE;
+    AT_MOST_ONCE, AT_LEAST_ONCE, EXACTLY_ONCE
 }

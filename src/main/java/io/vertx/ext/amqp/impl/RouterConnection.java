@@ -20,7 +20,7 @@ import io.vertx.ext.amqp.CreditMode;
 import io.vertx.ext.amqp.InboundLink;
 import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.OutboundLink;
-import io.vertx.ext.amqp.OutboundLinkMode;
+import io.vertx.ext.amqp.SenderMode;
 import io.vertx.ext.amqp.Session;
 
 import org.apache.qpid.proton.engine.Event;
@@ -161,7 +161,7 @@ class RouterConnection extends ConnectionImpl
 
     public OutboundLinkImpl createOutBoundLink(String address) throws MessagingException
     {
-        OutboundLinkImpl link = (OutboundLinkImpl) _session.createOutboundLink(address, OutboundLinkMode.AT_LEAST_ONCE);
+        OutboundLinkImpl link = (OutboundLinkImpl) _session.createOutboundLink(address, SenderMode.AT_LEAST_ONCE);
         link.init();
         write();
         return link;
