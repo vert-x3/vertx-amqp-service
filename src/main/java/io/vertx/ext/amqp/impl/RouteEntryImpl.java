@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class RouteEntryImpl implements RouteEntry
+class RouteEntryImpl implements RouteEntry
 {
     Pattern _pattern;
 
@@ -33,36 +33,24 @@ public class RouteEntryImpl implements RouteEntry
         _addressList.add(addr);
     }
 
-    /* (non-Javadoc)
-     * @see io.vertx.ext.amqp.RouteEntry#add(java.lang.String)
-     */
     @Override
     public void add(String addr)
     {
         _addressList.add(addr);
     }
 
-    /* (non-Javadoc)
-     * @see io.vertx.ext.amqp.RouteEntry#remove(java.lang.String)
-     */
     @Override
     public void remove(String addr)
     {
         _addressList.remove(addr);
     }
 
-    /* (non-Javadoc)
-     * @see io.vertx.ext.amqp.RouteEntry#getPattern()
-     */
     @Override
     public Pattern getPattern()
     {
         return _pattern;
     }
 
-    /* (non-Javadoc)
-     * @see io.vertx.ext.amqp.RouteEntry#getAddressList()
-     */
     @Override
     public List<String> getAddressList()
     {

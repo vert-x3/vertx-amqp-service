@@ -15,6 +15,12 @@
  */
 package io.vertx.ext.amqp.impl;
 
+import io.vertx.ext.amqp.Connection;
+import io.vertx.ext.amqp.InboundLink;
+import io.vertx.ext.amqp.OutboundLink;
+import io.vertx.ext.amqp.Session;
+import io.vertx.ext.amqp.Tracker;
+
 public interface EventHandler
 {
     void onConnectionOpen(Connection con);
@@ -25,9 +31,9 @@ public interface EventHandler
 
     void onSessionClosed(Session ssn);
 
-    void onOutboundLinkOpen(OutboundLink link);
+    void onOutboundLinkOpen(OutboundLinkImpl link);
 
-    void onOutboundLinkClosed(OutboundLink link);
+    void onOutboundLinkClosed(OutboundLinkImpl link);
 
     void onOutboundLinkCredit(OutboundLink link, int credits);
 
@@ -41,5 +47,5 @@ public interface EventHandler
 
     void onCreditOffered(InboundLink link, int offered);
 
-    void onMessage(InboundLink link, AmqpMessage msg);
+    void onMessage(InboundLinkImpl link, AmqpMessageImpl msg);
 }

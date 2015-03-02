@@ -1,24 +1,22 @@
 /*
+ * Copyright 2011 the original author or authors.
  *
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.vertx.ext.amqp.impl;
+
+import io.vertx.ext.amqp.ConnectionSettings;
+import io.vertx.ext.amqp.DefaultConnectionSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +25,7 @@ public class URLParser
 {
     public static ConnectionSettings parse(String url)
     {
-        ConnectionSettings settings = new ConnectionSettings();
+        DefaultConnectionSettings settings = new DefaultConnectionSettings();
         int start = 0;
         int schemeEnd = url.indexOf("://", start);
         if (schemeEnd >= 0)
@@ -68,12 +66,11 @@ public class URLParser
         int a = url.lastIndexOf('/');
         if (a > schemeEnd + 3)
         {
-            String target = url.substring(a+1);
+            String target = url.substring(a + 1);
             settings.setTarget(target);
             hp = hp.substring(0, hp.indexOf('/'));
         }
-        
-        
+
         String host = null;
         int port = 5672;
         if (hp.startsWith("["))
@@ -107,20 +104,21 @@ public class URLParser
 
         return settings;
     }
-    
+
     public static void main(String[] args)
     {
         List<String> urls = new ArrayList<String>();
-        //urls.add("example.org:1234");
-        //urls.add("amqps://fred:trustno1@example.org");
+        // urls.add("example.org:1234");
+        // urls.add("amqps://fred:trustno1@example.org");
         urls.add("amqp://example.org:1234/outgoing");
-        
+
         for (String url : urls)
         {
             ConnectionSettings settings = URLParser.parse(url);
             StringBuilder b = new StringBuilder();
-            b.append(url).append(" [host=").append(settings.host).append("] [port=").append(settings.port).append("] ");
-            b.append("[target=").append(settings.target).append("]");
+            b.append(url).append(" [host=").append(settings.getHost()).append("] [port=").append(settings.getPort())
+                    .append("] ");
+            b.append("[target=").append(settings.getTarget()).append("]");
             System.out.println(b.toString());
         }
     }

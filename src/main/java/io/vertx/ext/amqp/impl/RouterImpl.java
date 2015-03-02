@@ -30,10 +30,18 @@ import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
 import io.vertx.core.net.NetSocket;
+import io.vertx.ext.amqp.Connection;
+import io.vertx.ext.amqp.ConnectionSettings;
+import io.vertx.ext.amqp.DefaultConnectionSettings;
+import io.vertx.ext.amqp.InboundLink;
+import io.vertx.ext.amqp.MessagingException;
+import io.vertx.ext.amqp.OutboundLink;
 import io.vertx.ext.amqp.RouteEntry;
 import io.vertx.ext.amqp.Router;
 import io.vertx.ext.amqp.RouterConfig;
-import io.vertx.ext.amqp.impl.Connection.State;
+import io.vertx.ext.amqp.Session;
+import io.vertx.ext.amqp.Tracker;
+import io.vertx.ext.amqp.impl.ConnectionImpl.State;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,13 +59,13 @@ public class RouterImpl implements EventHandler, Handler<Message<JsonObject>>, R
 
     private final MessageFactory _msgFactory;
 
-    private OutboundLink _defaultOutboundLink;
+    private OutboundLinkImpl _defaultOutboundLink;
 
-    private final List<Connection> _outboundConnections = new CopyOnWriteArrayList<Connection>();
+    private final List<RouterConnection> _outboundConnections = new CopyOnWriteArrayList<RouterConnection>();
 
-    private final List<InboundLink> _inboundLinks = new CopyOnWriteArrayList<InboundLink>();
+    private final List<InboundLinkImpl> _inboundLinks = new CopyOnWriteArrayList<InboundLinkImpl>();
 
-    private final Map<String, OutboundLink> _outboundLinks = new ConcurrentHashMap<String, OutboundLink>();
+    private final Map<String, OutboundLinkImpl> _outboundLinks = new ConcurrentHashMap<String, OutboundLinkImpl>();
 
     private final Map<String, Message<JsonObject>> _vertxReplyTo = new ConcurrentHashMap<String, Message<JsonObject>>();
 
@@ -138,9 +146,9 @@ public class RouterImpl implements EventHandler, Handler<Message<JsonObject>>, R
         _server.close();
     }
 
-    Connection findConnection(final ConnectionSettings settings) throws MessagingException
+    RouterConnection findConnection(final ConnectionSettings settings) throws MessagingException
     {
-        for (Connection con : _outboundConnections)
+        for (RouterConnection con : _outboundConnections)
         {
             if (con.getSettings().getHost().equals(settings.getHost())
                     && con.getSettings().getPort() == settings.getPort())
@@ -158,7 +166,7 @@ public class RouterImpl implements EventHandler, Handler<Message<JsonObject>>, R
             }
         }
 
-        Connection connection = new Connection(settings, this, false);
+        RouterConnection connection = new RouterConnection(settings, this, false);
         ConnectionResultHander handler = new ConnectionResultHander(connection);
         _client.connect(settings.getPort(), settings.getHost(), handler);
         _logger.info(String.format("Attempting connection to AMQP peer at %s:%s", settings.getHost(),
@@ -167,11 +175,11 @@ public class RouterImpl implements EventHandler, Handler<Message<JsonObject>>, R
         return connection;
     }
 
-    OutboundLink findOutboundLink(String url) throws MessagingException
+    OutboundLinkImpl findOutboundLink(String url) throws MessagingException
     {
         if (_outboundLinks.containsKey(url))
         {
-            OutboundLink link = _outboundLinks.get(url);
+            OutboundLinkImpl link = _outboundLinks.get(url);
             if (link.getConnection().getState() != State.FAILED)
             {
                 return link;
@@ -184,16 +192,16 @@ public class RouterImpl implements EventHandler, Handler<Message<JsonObject>>, R
         }
 
         final ConnectionSettings settings = URLParser.parse(url);
-        Connection con = findConnection(settings);
-        OutboundLink link = con.createOutBoundLink(settings.getTarget());
+        RouterConnection con = findConnection(settings);
+        OutboundLinkImpl link = con.createOutBoundLink(settings.getTarget());
         _logger.info(String.format("Created outbound link %s @ %s:%s", settings.getTarget(), settings.getHost(),
                 settings.getPort()));
         return link;
     }
 
-    List<OutboundLink> routeOutbound(String address) throws MessagingException
+    List<OutboundLinkImpl> routeOutbound(String address) throws MessagingException
     {
-        List<OutboundLink> links = new ArrayList<OutboundLink>();
+        List<OutboundLinkImpl> links = new ArrayList<OutboundLinkImpl>();
         for (String key : _config.getOutboundRoutes().keySet())
         {
             RouteEntry route = _config.getOutboundRoutes().get(key);
@@ -245,7 +253,7 @@ public class RouterImpl implements EventHandler, Handler<Message<JsonObject>>, R
                 }
             }
 
-            List<OutboundLink> links = routeOutbound(routingKey);
+            List<OutboundLinkImpl> links = routeOutbound(routingKey);
             if (links.size() == 0)
             {
                 if (_defaultOutboundLink.getConnection().getState() == State.FAILED)
@@ -276,7 +284,7 @@ public class RouterImpl implements EventHandler, Handler<Message<JsonObject>>, R
                 _logger.info("============= /Outbound Routing ============/n");
             }
 
-            for (OutboundLink link : links)
+            for (OutboundLinkImpl link : links)
             {
                 link.send(msg);
             }
@@ -307,9 +315,9 @@ public class RouterImpl implements EventHandler, Handler<Message<JsonObject>>, R
 
     }
 
-    public void onOutboundLinkOpen(OutboundLink link)
+    public void onOutboundLinkOpen(OutboundLinkImpl link)
     {
-        Connection con = link.getConnection();
+        ConnectionImpl con = link.getConnection();
         if (con.isInbound())
         {
             String address = link.getAddress();
@@ -335,9 +343,9 @@ public class RouterImpl implements EventHandler, Handler<Message<JsonObject>>, R
         }
     }
 
-    public void onOutboundLinkClosed(OutboundLink link)
+    public void onOutboundLinkClosed(OutboundLinkImpl link)
     {
-        Connection con = link.getConnection();
+        ConnectionImpl con = link.getConnection();
         String address = link.getAddress();
         String url = new StringBuilder(con.getSettings().getHost()).append(":").append(con.getSettings().getPort())
                 .append("/").append(address).toString();
@@ -385,7 +393,7 @@ public class RouterImpl implements EventHandler, Handler<Message<JsonObject>>, R
     {
     }
 
-    public void onMessage(InboundLink link, AmqpMessage msg)
+    public void onMessage(InboundLinkImpl link, AmqpMessageImpl msg)
     {
         JsonObject out = _msgFactory.convert(msg.getProtocolMessage());
 
@@ -519,7 +527,7 @@ public class RouterImpl implements EventHandler, Handler<Message<JsonObject>>, R
                     _logger.info("Reply msg : " + msg.body());
                     _logger.info("============= /Outbound Routing (Reply To) ============\n");
                 }
-                OutboundLink link = findOutboundLink(_protocolMsg.getReplyTo());
+                OutboundLinkImpl link = findOutboundLink(_protocolMsg.getReplyTo());
                 link.send(_msgFactory.convert(msg.body()));
             }
             catch (MessagingException e)
@@ -531,11 +539,11 @@ public class RouterImpl implements EventHandler, Handler<Message<JsonObject>>, R
 
     class ConnectionResultHander implements Handler<AsyncResult<NetSocket>>
     {
-        Connection _connection;
+        ConnectionImpl _connection;
 
         Throwable _cause;
 
-        ConnectionResultHander(Connection conn)
+        ConnectionResultHander(ConnectionImpl conn)
         {
             _connection = conn;
         }
@@ -578,10 +586,10 @@ public class RouterImpl implements EventHandler, Handler<Message<JsonObject>>, R
 
         public void handle(NetSocket sock)
         {
-            ConnectionSettings settings = new ConnectionSettings();
+            DefaultConnectionSettings settings = new DefaultConnectionSettings();
             settings.setHost(sock.remoteAddress().host());
             settings.setPort(sock.remoteAddress().port());
-            Connection connection = new Connection(settings, _handler, true);
+            RouterConnection connection = new RouterConnection(settings, _handler, true);
             connection.setNetSocket(sock);
             connection.open();
         }

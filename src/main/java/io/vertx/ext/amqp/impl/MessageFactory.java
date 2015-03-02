@@ -17,6 +17,7 @@ package io.vertx.ext.amqp.impl;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.amqp.MessageFormatException;
 
 import java.util.List;
 import java.util.Map;
@@ -131,6 +132,7 @@ class MessageFactory
         return out;
     }
 
+    @SuppressWarnings("rawtypes")
     private static Object toJsonable(Object in)
     {
         if (in instanceof Number || in instanceof String)
@@ -163,6 +165,7 @@ class MessageFactory
         }
     }
 
+    @SuppressWarnings("unchecked")
     JsonObject convert(Message in)
     {
         JsonObject out = new JsonObject();
