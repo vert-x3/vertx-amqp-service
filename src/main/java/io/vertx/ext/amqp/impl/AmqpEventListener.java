@@ -21,7 +21,10 @@ import io.vertx.ext.amqp.OutboundLink;
 import io.vertx.ext.amqp.Session;
 import io.vertx.ext.amqp.Tracker;
 
-public interface EventHandler
+/*
+ * A convenience interface for internal implementations.
+ */
+public interface AmqpEventListener
 {
     void onConnectionOpen(Connection con);
 
@@ -47,5 +50,5 @@ public interface EventHandler
 
     void onCreditOffered(InboundLink link, int offered);
 
-    void onMessage(InboundLinkImpl link, AmqpMessageImpl msg);
+    void onMessage(InboundLinkImpl link, InboundMessage msg);
 }

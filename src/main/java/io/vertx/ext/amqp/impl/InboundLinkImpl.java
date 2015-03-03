@@ -18,6 +18,7 @@ package io.vertx.ext.amqp.impl;
 import io.vertx.ext.amqp.CreditMode;
 import io.vertx.ext.amqp.InboundLink;
 import io.vertx.ext.amqp.MessagingException;
+import io.vertx.ext.amqp.ReceiverMode;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,16 +29,21 @@ class InboundLinkImpl extends BaseLink implements InboundLink
 {
     private static int DEFAULT_CREDITS = 1;
 
-    private CreditMode _creditMode;
+    private final CreditMode _creditMode;
 
+    private final ReceiverMode _receiverMode;
+    
     private int _credits = 0;
 
     private AtomicInteger _unsettled = new AtomicInteger(0);
+    
+    private Object _ctx;
 
-    InboundLinkImpl(SessionImpl ssn, String address, Link link, CreditMode creditMode)
+    InboundLinkImpl(SessionImpl ssn, String address, Link link, ReceiverMode receiverMode, CreditMode creditMode)
     {
         super(ssn, address, link);
         _creditMode = creditMode;
+        _receiverMode = receiverMode;
     }
 
     void init()
@@ -83,6 +89,12 @@ class InboundLinkImpl extends BaseLink implements InboundLink
     }
 
     @Override
+    public ReceiverMode getReceiverMode()
+    {
+        return _receiverMode;
+    }
+
+    @Override
     public CreditMode getCreditMode()
     {
         return _creditMode;
@@ -111,5 +123,15 @@ class InboundLinkImpl extends BaseLink implements InboundLink
     public boolean isInbound()
     {
         return true;
+    }
+
+    Object getContext()
+    {
+        return _ctx;
+    }
+
+    void setContext(Object ctx)
+    {
+        _ctx = ctx;
     }
 }

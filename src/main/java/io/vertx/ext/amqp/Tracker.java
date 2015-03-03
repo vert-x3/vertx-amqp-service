@@ -19,7 +19,7 @@ import io.vertx.codegen.annotations.VertxGen;
 
 @VertxGen
 public interface Tracker
-{
+{   
     public DeliveryState getState();
 
     public MessageDisposition getDisposition();

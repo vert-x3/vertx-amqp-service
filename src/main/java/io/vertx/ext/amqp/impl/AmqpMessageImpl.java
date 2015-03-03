@@ -50,6 +50,12 @@ class AmqpMessageImpl implements AmqpMessage
     }
 
     @Override
+    public String getMsgRef()
+    {
+        throw new UnsupportedOperationException("This operation is not supported for outgoing messages");
+    }
+
+    @Override
     public boolean isDurable()
     {
         return _msg.isDurable();

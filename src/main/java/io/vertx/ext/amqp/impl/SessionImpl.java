@@ -159,7 +159,7 @@ class SessionImpl implements Session
         }
         receiver.open();
 
-        InboundLinkImpl inLink = new InboundLinkImpl(this, address, receiver, creditMode);
+        InboundLinkImpl inLink = new InboundLinkImpl(this, address, receiver, mode, creditMode);
         inLink.setDynamicAddress(source.getDynamic());
         _links.put(receiver, inLink);
         receiver.setContext(inLink);
@@ -170,24 +170,34 @@ class SessionImpl implements Session
     public void disposition(AmqpMessage msg, MessageDisposition disposition, int... flags)
             throws MessageFormatException, MessagingException
     {
+        disposition(convertMessage(msg).getSequence(), disposition, flags);
+    }
+    
+    void disposition(long sequence, MessageDisposition disposition, int... flags)
+            throws MessageFormatException, MessagingException
+    {
+        DeliveryState state;
         switch (disposition)
         {
         case ACCEPTED:
-            disposition(convertMessage(msg), ACCEPTED, flags);
+            state = ACCEPTED;
             break;
         case REJECTED:
-            disposition(convertMessage(msg), REJECTED, flags);
+            state = REJECTED;
             break;
         case RELEASED:
-            disposition(convertMessage(msg), RELEASED, flags);
+            state = RELEASED;
             break;
-        }
+        default:
+            throw new MessagingException("UNKNOWN is not a valid option for this method");
+        }    
+        disposition(sequence, state, flags);
     }
-
+        
     @Override
     public void settle(AmqpMessage msg, int... flags) throws MessageFormatException, MessagingException
     {
-        settle(convertMessage(msg), flags.length == 0 ? false : (flags[0] & CUMULATIVE) != 0, true);
+        settle(convertMessage(msg).getSequence(), flags.length == 0 ? false : (flags[0] & CUMULATIVE) != 0, true);
     }
 
     @Override
@@ -245,14 +255,14 @@ class SessionImpl implements Session
         }
     }
 
-    void disposition(InboundMessage msg, DeliveryState state, int... flags)
+    void disposition(long sequence, DeliveryState state, int... flags)
     {
         int flag = flags.length == 1 ? flags[0] : 0;
         boolean cumilative = (flag & CUMULATIVE) != 0;
         boolean settle = (flag & SETTLE) != 0;
 
-        long count = cumilative ? _lastDispositionMark.get() : msg.getSequence();
-        long end = msg.getSequence();
+        long count = cumilative ? _lastDispositionMark.get() : sequence;
+        long end = sequence;
 
         while (count <= end)
         {
@@ -266,15 +276,15 @@ class SessionImpl implements Session
         _lastDispositionMark.set(end);
         if (settle)
         {
-            settle(msg, cumilative, false);
+            settle(sequence, cumilative, false);
         }
         _conn.write();
     }
 
-    void settle(InboundMessage msg, boolean cumilative, boolean write)
+    void settle(long sequence, boolean cumilative, boolean write)
     {
-        long count = cumilative ? _lastSettled.get() : msg.getSequence();
-        long end = msg.getSequence();
+        long count = cumilative ? _lastSettled.get() : sequence;
+        long end = sequence;
 
         while (count <= end)
         {

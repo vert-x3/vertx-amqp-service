@@ -39,6 +39,8 @@ class TrackerImpl implements Tracker
 
     private Session _ssn;
 
+    private Object _ctx;
+
     TrackerImpl(Session ssn)
     {
         _ssn = ssn;
@@ -92,7 +94,13 @@ class TrackerImpl implements Tracker
     void markSettled()
     {
         _settled = true;
+        _state = DeliveryState.SETTLED;
         _pending.setValueAndNotify(false);
+    }
+
+    void setDisposition(MessageDisposition disp)
+    {
+        _disposition = disp;
     }
 
     void setDisposition(org.apache.qpid.proton.amqp.transport.DeliveryState state)
@@ -115,5 +123,15 @@ class TrackerImpl implements Tracker
     {
         _state = DeliveryState.LINK_FAILED;
         _pending.setValueAndNotify(false);
+    }
+
+    Object getContext()
+    {
+        return _ctx;
+    }
+
+    void setContext(Object ctx)
+    {
+        _ctx = ctx;
     }
 }

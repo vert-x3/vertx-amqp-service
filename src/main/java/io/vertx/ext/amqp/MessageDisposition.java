@@ -38,5 +38,5 @@ public enum MessageDisposition
     /**
      * Disposition is not known.
      */
-    UNKNOWN
+    UNKNOWN;
 }

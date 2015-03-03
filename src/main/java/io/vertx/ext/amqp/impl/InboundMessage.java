@@ -25,12 +25,19 @@ class InboundMessage extends AmqpMessageImpl
 
     private boolean _preSettled = false;
 
-    InboundMessage(String ssnID, byte[] deliveryTag, long sequence, boolean preSettled, org.apache.qpid.proton.message.Message msg)
+    InboundMessage(String ssnID, byte[] deliveryTag, long sequence, boolean preSettled,
+            org.apache.qpid.proton.message.Message msg)
     {
         super(msg);
         _ssnID = ssnID;
         _deliveryTag = deliveryTag;
         _sequence = sequence;
+    }
+
+    @Override
+    public String getMsgRef()
+    {
+        return _ssnID.concat("#").concat(String.valueOf(_sequence));
     }
 
     String getSessionID()

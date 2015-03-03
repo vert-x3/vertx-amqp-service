@@ -15,9 +15,10 @@
  */
 package io.vertx.ext.amqp;
 
-
 public interface InboundLink extends Link
 {
+    public ReceiverMode getReceiverMode();
+
     public CreditMode getCreditMode();
 
     public int getUnsettled() throws MessagingException;

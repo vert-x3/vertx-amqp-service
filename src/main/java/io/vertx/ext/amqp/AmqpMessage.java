@@ -19,6 +19,8 @@ import java.util.Map;
 
 public interface AmqpMessage
 {
+    public String getMsgRef();
+
     public boolean isDurable();
 
     public long getDeliveryCount();

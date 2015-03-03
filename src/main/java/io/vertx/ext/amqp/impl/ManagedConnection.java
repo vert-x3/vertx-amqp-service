@@ -20,30 +20,34 @@ import io.vertx.ext.amqp.CreditMode;
 import io.vertx.ext.amqp.InboundLink;
 import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.OutboundLink;
+import io.vertx.ext.amqp.ReceiverMode;
 import io.vertx.ext.amqp.SenderMode;
 import io.vertx.ext.amqp.Session;
 
+import org.apache.qpid.proton.Proton;
+import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Event;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
+import org.apache.qpid.proton.message.Message;
 
 /**
  * A Connection coupled with a session to simplify the RouterImpl.
  * 
  */
-class RouterConnection extends ConnectionImpl
+class ManagedConnection extends ConnectionImpl
 {
     private final org.apache.qpid.proton.engine.Session _protonSession;
 
     private SessionImpl _session;
 
-    private EventHandler _eventHandler;
+    private AmqpEventListener eventListener;
 
-    RouterConnection(ConnectionSettings settings, EventHandler handler, boolean inbound)
+    ManagedConnection(ConnectionSettings settings, AmqpEventListener handler, boolean inbound)
     {
         super(settings, null, inbound);
-        _eventHandler = handler;
+        eventListener = handler;
         _protonSession = protonConnection.session();
         _session = new SessionImpl(this, _protonSession);
     }
@@ -66,10 +70,10 @@ class RouterConnection extends ConnectionImpl
             switch (event.getType())
             {
             case CONNECTION_REMOTE_OPEN:
-                _eventHandler.onConnectionOpen(this);
+                eventListener.onConnectionOpen(this);
                 break;
             case CONNECTION_FINAL:
-                _eventHandler.onConnectionClosed(this);
+                eventListener.onConnectionClosed(this);
                 break;
             case SESSION_REMOTE_OPEN:
                 Session ssn;
@@ -84,11 +88,11 @@ class RouterConnection extends ConnectionImpl
                     amqpSsn.setContext(ssn);
                     event.getSession().open();
                 }
-                _eventHandler.onSessionOpen(ssn);
+                eventListener.onSessionOpen(ssn);
                 break;
             case SESSION_FINAL:
                 ssn = (Session) event.getSession().getContext();
-                _eventHandler.onSessionClosed(ssn);
+                eventListener.onSessionClosed(ssn);
                 break;
             case LINK_REMOTE_OPEN:
                 Link link = event.getLink();
@@ -102,11 +106,11 @@ class RouterConnection extends ConnectionImpl
                     else
                     {
                         inboundLink = new InboundLinkImpl(_session, link.getRemoteTarget().getAddress(), link,
-                                CreditMode.AUTO);
+                                ReceiverMode.AT_LEAST_ONCE, CreditMode.AUTO);
                         link.setContext(inboundLink);
                         inboundLink.init();
                     }
-                    _eventHandler.onInboundLinkOpen(inboundLink);
+                    eventListener.onInboundLinkOpen(inboundLink);
                 }
                 else
                 {
@@ -121,7 +125,7 @@ class RouterConnection extends ConnectionImpl
                         link.setContext(outboundLink);
                         outboundLink.init();
                     }
-                    _eventHandler.onOutboundLinkOpen(outboundLink);
+                    eventListener.onOutboundLinkOpen(outboundLink);
                 }
                 break;
             case LINK_FLOW:
@@ -129,7 +133,7 @@ class RouterConnection extends ConnectionImpl
                 if (link instanceof Sender)
                 {
                     OutboundLink outboundLink = (OutboundLink) link.getContext();
-                    _eventHandler.onOutboundLinkCredit(outboundLink, link.getCredit());
+                    eventListener.onOutboundLinkCredit(outboundLink, link.getCredit());
                 }
                 break;
             case LINK_FINAL:
@@ -137,12 +141,12 @@ class RouterConnection extends ConnectionImpl
                 if (link instanceof Receiver)
                 {
                     InboundLink inboundLink = (InboundLink) link.getContext();
-                    _eventHandler.onInboundLinkClosed(inboundLink);
+                    eventListener.onInboundLinkClosed(inboundLink);
                 }
                 else
                 {
                     OutboundLinkImpl outboundLink = (OutboundLinkImpl) link.getContext();
-                    _eventHandler.onOutboundLinkClosed(outboundLink);
+                    eventListener.onOutboundLinkClosed(outboundLink);
                 }
                 break;
             case TRANSPORT:
@@ -159,9 +163,59 @@ class RouterConnection extends ConnectionImpl
         }
     }
 
-    public OutboundLinkImpl createOutBoundLink(String address) throws MessagingException
+    @Override
+    void onDelivery(Delivery d)
     {
-        OutboundLinkImpl link = (OutboundLinkImpl) _session.createOutboundLink(address, SenderMode.AT_LEAST_ONCE);
+        Link link = d.getLink();
+        if (link instanceof Receiver)
+        {
+            if (d.isPartial())
+            {
+                return;
+            }
+
+            Receiver receiver = (Receiver) link;
+            byte[] bytes = new byte[d.pending()];
+            int read = receiver.recv(bytes, 0, bytes.length);
+            Message pMsg = Proton.message();
+            pMsg.decode(bytes, 0, read);
+            receiver.advance();
+
+            InboundLinkImpl inLink = (InboundLinkImpl) link.getContext();
+            SessionImpl ssn = inLink.getSession();
+            InboundMessage msg = new InboundMessage(ssn.getID(), d.getTag(), ssn.getNextIncommingSequence(),
+                    d.isSettled(), pMsg);
+            eventListener.onMessage(inLink, msg);
+        }
+        else
+        {
+            if (d.remotelySettled())
+            {
+                TrackerImpl tracker = (TrackerImpl) d.getContext();
+                tracker.setDisposition(d.getRemoteState());
+                tracker.markSettled();
+                eventListener.onSettled(tracker);
+            }
+        }
+    }
+
+    public OutboundLinkImpl createOutboundLink(String address) throws MessagingException
+    {
+        return createOutboundLink(address, SenderMode.AT_LEAST_ONCE);
+    }
+
+    public OutboundLinkImpl createOutboundLink(String address, SenderMode mode) throws MessagingException
+    {
+        OutboundLinkImpl link = (OutboundLinkImpl) _session.createOutboundLink(address, mode);
+        link.init();
+        write();
+        return link;
+    }
+
+    public InboundLinkImpl createInboundLink(String address, ReceiverMode receiverMode, CreditMode creditMode)
+            throws MessagingException
+    {
+        InboundLinkImpl link = (InboundLinkImpl) _session.createInboundLink(address, receiverMode, creditMode);
         link.init();
         write();
         return link;
