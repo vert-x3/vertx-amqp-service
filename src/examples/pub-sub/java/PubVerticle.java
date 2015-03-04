@@ -24,15 +24,15 @@ public class PubVerticle extends AbstractVerticle
     public void start()
     {
         JsonObject msg1 = new JsonObject();
-        msg1.put("application-properties", new JsonObject().put("routing-key", "foo.bar"));
+        msg1.put("vertx.routing-key", "foo.bar");
         msg1.put("body", "hello world from foo bar");
-        vertx.eventBus().publish("vertx.mod-amqp", msg1);
+        vertx.eventBus().publish("vertx.service-amqp", msg1);
         System.out.println("Publiser verticle sent msg : " + msg1.encodePrettily());
 
         JsonObject msg2 = new JsonObject();
-        msg2.put("application-properties", new JsonObject().put("routing-key", "foo.baz"));
+        msg2.put("vertx.routing-key", "foo.baz");
         msg2.put("body", "hello world from foo baz");
-        vertx.eventBus().publish("vertx.mod-amqp", msg2);
+        vertx.eventBus().publish("vertx.service-amqp", msg2);
         System.out.println("Publiser verticle sent msg : " + msg2.encodePrettily());
     }
 }
