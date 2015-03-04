@@ -51,7 +51,7 @@ public class TestRouterConfig extends TestCase
         assertEquals("localhost", config.getInboundHost());
         assertEquals(5673, config.getInboundPort());
         assertEquals("amqp://localhost:5672/vertx", config.getDefaultOutboundAddress());
-        assertEquals("vertx.mod-amqp", config.getDefaultHandlerAddress());
+        assertEquals("vertx.service-amqp", config.getDefaultHandlerAddress());
         assertEquals(0, config.getHandlerAddressList().size());
         assertEquals(0, config.getInboundRoutes().size());
         assertEquals(0, config.getOutboundRoutes().size());
@@ -72,7 +72,7 @@ public class TestRouterConfig extends TestCase
         assertEquals("localhost", config.getInboundHost());
         assertEquals(5673, config.getInboundPort());
         assertEquals("amqp://localhost:5672/vertx", config.getDefaultOutboundAddress());
-        assertEquals("vertx.mod-amqp", config.getDefaultHandlerAddress());
+        assertEquals("vertx.service-amqp", config.getDefaultHandlerAddress());
         assertEquals(0, config.getHandlerAddressList().size());
         assertEquals(0, config.getInboundRoutes().size());
         assertEquals(0, config.getOutboundRoutes().size());
@@ -94,7 +94,7 @@ public class TestRouterConfig extends TestCase
         assertEquals("localhost", config.getInboundHost());
         assertEquals(5673, config.getInboundPort());
         assertEquals("amqp://localhost:5672/vertx", config.getDefaultOutboundAddress());
-        assertEquals("vertx.mod-amqp", config.getDefaultHandlerAddress());
+        assertEquals("vertx.service-amqp", config.getDefaultHandlerAddress());
         assertEquals(3, config.getHandlerAddressList().size());
         assertEquals(2, config.getInboundRoutes().size());
         assertEquals(3, config.getOutboundRoutes().size());
@@ -116,7 +116,7 @@ public class TestRouterConfig extends TestCase
         assertEquals("localhost", config.getInboundHost());
         assertEquals(5673, config.getInboundPort());
         assertEquals("amqp://localhost:5672/vertx", config.getDefaultOutboundAddress());
-        assertEquals("vertx.mod-amqp", config.getDefaultHandlerAddress());
+        assertEquals("vertx.service-amqp", config.getDefaultHandlerAddress());
         assertEquals(3, config.getHandlerAddressList().size());
         assertEquals(2, config.getInboundRoutes().size());
         assertEquals(3, config.getOutboundRoutes().size());
