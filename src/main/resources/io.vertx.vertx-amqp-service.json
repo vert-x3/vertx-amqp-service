@@ -1,0 +1,14 @@
+{
+  "main": "io.vertx.ext.amqp.AmqpVerticle",
+  "options": 
+  {
+    "worker": false,
+    "config": 
+    {
+      "amqp.inbound-host" : "localhost",
+      "amqp.inbound-port"  : 5673,
+      "amqp.default-outbound-address" : "amqp://localhost:5672/vertx",
+      "vertx.default-handler-address" : "vertx.service-amqp"
+    }
+  }
+}
