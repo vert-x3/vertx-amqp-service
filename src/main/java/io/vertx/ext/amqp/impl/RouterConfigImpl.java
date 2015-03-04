@@ -59,7 +59,7 @@ public class RouterConfigImpl implements RouterConfig
         _inboundHost = config.getString("amqp.inbound-host", "localhost");
         _inboundPort = config.getInteger("amqp.inbound-port", 5673);
         _defaultOutboundAddress = config.getString("amqp.default-outbound-address", "amqp://localhost:5672/vertx");
-        _defaultHandlerAddress = config.getString("vertx.default-handler-address", "vertx.mod-amqp");
+        _defaultHandlerAddress = config.getString("vertx.default-handler-address", "vertx.service-amqp");
         _defaultInboundAddress = config.getString("vertx.default-inbound-address", null);
 
         if (config.containsKey("vertx.handlers"))

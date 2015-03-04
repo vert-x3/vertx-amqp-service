@@ -423,7 +423,7 @@ class ConnectionImpl implements Connection
         public void handle(Void v)
         {
             setState(State.FAILED);
-            _logger.info("Received EOF. Setting state to FAILED");
+            //_logger.info("Received EOF. Setting state to FAILED");
             for (Handler<Void> h : disconnectHandlers)
             {
                 h.handle(v);

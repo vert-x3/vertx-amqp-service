@@ -151,7 +151,11 @@ public class RouterImpl extends ConnectionManager implements Handler<Message<Jso
             String routingKey = m.address(); // default
             if (_config.isUseCustomPropertyForOutbound() && _config.getOutboundRoutingPropertyName() != null)
             {
-                if (m.body().containsKey("properties")
+                if (m.body().containsKey(_config.getOutboundRoutingPropertyName()))
+                {
+                    routingKey = m.body().getString(_config.getOutboundRoutingPropertyName());
+                }
+                else if (m.body().containsKey("properties")
                         && m.body().getJsonObject("properties").containsKey(_config.getOutboundRoutingPropertyName()))
                 {
                     routingKey = m.body().getJsonObject("properties")
@@ -170,8 +174,12 @@ public class RouterImpl extends ConnectionManager implements Handler<Message<Jso
                     _logger.info("\n============= Custom Routing Property ============");
                     _logger.info("Custom routing property name : " + _config.getOutboundRoutingPropertyName());
                     _logger.info("Routing property value : " + routingKey);
-                    _logger.info("============= /Custom Routing Property ============\n");
+                    _logger.info("============= /Custom Routing Property ============/n");
                 }
+            }
+            else if (m.body().containsKey("vertx.routing-key"))
+            {
+                routingKey = m.body().getString("vertx.routing-key");
             }
 
             List<OutboundLinkImpl> links = routeOutbound(routingKey);
