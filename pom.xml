@@ -26,7 +26,7 @@
     <version>6</version>
   </parent>
 
-  <artifactId>vertx-amqp</artifactId>
+  <artifactId>vertx-amqp-service</artifactId>
   <version>3.0.0-SNAPSHOT</version>
 
   <name>Vert.x - AMQP</name>
