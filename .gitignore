@@ -17,3 +17,5 @@ release.properties
 
 .idea
 *.iml
+
+*~
