@@ -28,7 +28,7 @@ public class ClientVerticle extends AbstractVerticle implements Handler<AsyncRes
         JsonObject requestMsg = new JsonObject();
         requestMsg.put("body", "rajith");
         System.out.println("Client verticle sent request : " + requestMsg.encodePrettily());
-        vertx.eventBus().send("hello-service", requestMsg, this);
+        vertx.eventBus().send("hello-service-amqp", requestMsg, this);
     }
 
     @Override
