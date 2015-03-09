@@ -17,7 +17,7 @@ package io.vertx.ext.amqp;
  */
 
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.amqp.impl.RouterConfigImpl;
+import io.vertx.ext.amqp.impl.AmqpServiceConfigImpl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,7 +46,7 @@ public class TestRouterConfig extends TestCase
     @Test
     public void testConfigDefault()
     {
-        RouterConfig config = new RouterConfigImpl(new JsonObject());
+        AmqpServiceConfig config = new AmqpServiceConfigImpl(new JsonObject());
 
         assertEquals("localhost", config.getInboundHost());
         assertEquals(5673, config.getInboundPort());
@@ -67,7 +67,7 @@ public class TestRouterConfig extends TestCase
         final URL url = getClass().getResource("/test-config1.json");
         JsonObject obj = new JsonObject(new Scanner(new File(url.toURI())).useDelimiter("\\Z").next());
 
-        RouterConfig config = new RouterConfigImpl(obj);
+        AmqpServiceConfig config = new AmqpServiceConfigImpl(obj);
 
         assertEquals("localhost", config.getInboundHost());
         assertEquals(5673, config.getInboundPort());
@@ -89,7 +89,7 @@ public class TestRouterConfig extends TestCase
         final URL url = getClass().getResource("/test-config2.json");
         JsonObject obj = new JsonObject(new Scanner(new File(url.toURI())).useDelimiter("\\Z").next());
 
-        RouterConfig config = new RouterConfigImpl(obj);
+        AmqpServiceConfig config = new AmqpServiceConfigImpl(obj);
 
         assertEquals("localhost", config.getInboundHost());
         assertEquals(5673, config.getInboundPort());
@@ -111,7 +111,7 @@ public class TestRouterConfig extends TestCase
         final URL url = getClass().getResource("/test-config3.json");
         JsonObject obj = new JsonObject(new Scanner(new File(url.toURI())).useDelimiter("\\Z").next());
 
-        RouterConfig config = new RouterConfigImpl(obj);
+        AmqpServiceConfig config = new AmqpServiceConfigImpl(obj);
 
         assertEquals("localhost", config.getInboundHost());
         assertEquals(5673, config.getInboundPort());
