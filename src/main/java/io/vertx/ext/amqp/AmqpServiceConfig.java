@@ -15,10 +15,12 @@
  */
 package io.vertx.ext.amqp;
 
+import io.vertx.ext.amqp.impl.RouteEntry;
+
 import java.util.List;
 import java.util.Map;
 
-public interface RouterConfig
+public interface AmqpServiceConfig
 {
     public String getInboundHost();
 
@@ -43,4 +45,8 @@ public interface RouterConfig
     public InboundRoutingPropertyType getInboundRoutingPropertyType();
 
     public Map<String, RouteEntry> getInboundRoutes();
+
+    public int getMaxedCachedURLEntries();
+
+    public int getDefaultLinkCredit();
 }

@@ -18,8 +18,7 @@ package io.vertx.ext.amqp.impl;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.amqp.InboundRoutingPropertyType;
-import io.vertx.ext.amqp.RouteEntry;
-import io.vertx.ext.amqp.RouterConfig;
+import io.vertx.ext.amqp.AmqpServiceConfig;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
-public class RouterConfigImpl implements RouterConfig
+public class AmqpServiceConfigImpl implements AmqpServiceConfig
 {
     private String _inboundHost;
 
@@ -46,6 +45,10 @@ public class RouterConfigImpl implements RouterConfig
 
     String _outboundRoutingPropertyName = null;
 
+    int _maxedCachedURLEntries = 10;
+
+    int _defaultLinkCredit = 1;
+
     Map<String, RouteEntry> _outboundRoutes = new ConcurrentHashMap<String, RouteEntry>();
 
     String _inboundRoutingPropertyName = null;
@@ -54,12 +57,12 @@ public class RouterConfigImpl implements RouterConfig
 
     Map<String, RouteEntry> _inboundRoutes = new ConcurrentHashMap<String, RouteEntry>();
 
-    public RouterConfigImpl(JsonObject config)
+    public AmqpServiceConfigImpl(JsonObject config)
     {
         _inboundHost = config.getString("amqp.inbound-host", "localhost");
         _inboundPort = config.getInteger("amqp.inbound-port", 5673);
         _defaultOutboundAddress = config.getString("amqp.default-outbound-address", "amqp://localhost:5672/vertx");
-        _defaultHandlerAddress = config.getString("vertx.default-handler-address", "vertx.service-amqp");
+        _defaultHandlerAddress = config.getString("address", "vertx.service-amqp");
         _defaultInboundAddress = config.getString("vertx.default-inbound-address", null);
 
         if (config.containsKey("vertx.handlers"))
@@ -107,6 +110,8 @@ public class RouterConfigImpl implements RouterConfig
                 pouplateRouteMap(_inboundRoutes, _inboundRouting.getJsonObject("routes"));
             }
         }
+
+        // TODO implement other config options
     }
 
     private void pouplateRouteMap(Map<String, RouteEntry> map, JsonObject routes)
@@ -118,140 +123,92 @@ public class RouterConfigImpl implements RouterConfig
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see io.vertx.ext.amqp.RouterConfig#getInboundHost()
-     */
     @Override
     public String getInboundHost()
     {
         return _inboundHost;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see io.vertx.ext.amqp.RouterConfig#getInboundPort()
-     */
     @Override
     public int getInboundPort()
     {
         return _inboundPort;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see io.vertx.ext.amqp.RouterConfig#getDefaultHandlerAddress()
-     */
     @Override
     public String getDefaultHandlerAddress()
     {
         return _defaultHandlerAddress;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see io.vertx.ext.amqp.RouterConfig#getDefaultOutboundAddress()
-     */
     @Override
     public String getDefaultOutboundAddress()
     {
         return _defaultOutboundAddress;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see io.vertx.ext.amqp.RouterConfig#getHandlerAddressList()
-     */
     @Override
     public List<String> getHandlerAddressList()
     {
         return _handlerAddressList;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see io.vertx.ext.amqp.RouterConfig#isUseCustomPropertyForOutbound()
-     */
     @Override
     public boolean isUseCustomPropertyForOutbound()
     {
         return _isUseCustomPropertyForOutbound;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see io.vertx.ext.amqp.RouterConfig#getOutboundRoutingPropertyName()
-     */
     @Override
     public String getOutboundRoutingPropertyName()
     {
         return _outboundRoutingPropertyName;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see io.vertx.ext.amqp.RouterConfig#getOutboundRoutes()
-     */
     @Override
     public Map<String, RouteEntry> getOutboundRoutes()
     {
         return _outboundRoutes;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see io.vertx.ext.amqp.RouterConfig#getInboundRoutingPropertyName()
-     */
     @Override
     public String getInboundRoutingPropertyName()
     {
         return _inboundRoutingPropertyName;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see io.vertx.ext.amqp.RouterConfig#getDefaultInboundAddress()
-     */
     @Override
     public String getDefaultInboundAddress()
     {
         return _defaultInboundAddress;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see io.vertx.ext.amqp.RouterConfig#getInboundRoutingPropertyType()
-     */
     @Override
     public InboundRoutingPropertyType getInboundRoutingPropertyType()
     {
         return _inboundRoutingPropertyType;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see io.vertx.ext.amqp.RouterConfig#getInboundRoutes()
-     */
     @Override
     public Map<String, RouteEntry> getInboundRoutes()
     {
         return _inboundRoutes;
     }
 
-    public static RouteEntry createRouteEntry(RouterConfig config, String pattern, String address)
+    public static RouteEntry createRouteEntry(AmqpServiceConfig config, String pattern, String address)
     {
         return new RouteEntryImpl(Pattern.compile(pattern), address);
+    }
+
+    @Override
+    public int getMaxedCachedURLEntries()
+    {
+        return _maxedCachedURLEntries;
+    }
+
+    @Override
+    public int getDefaultLinkCredit()
+    {
+        return _defaultLinkCredit;
     }
 }

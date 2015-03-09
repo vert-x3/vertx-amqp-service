@@ -18,34 +18,45 @@ package io.vertx.ext.amqp;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.impl.LoggerFactory;
-import io.vertx.ext.amqp.impl.RouterConfigImpl;
-import io.vertx.ext.amqp.impl.RouterImpl;
+import io.vertx.ext.amqp.impl.AmqpServiceConfigImpl;
+import io.vertx.ext.amqp.impl.AmqpServiceImpl;
+import io.vertx.serviceproxy.ProxyHelper;
 
 public class AmqpVerticle extends AbstractVerticle
 {
-    private static final Logger logger = LoggerFactory.getLogger(AmqpVerticle.class);
+    private static final Logger _logger = LoggerFactory.getLogger(AmqpVerticle.class);
 
-    private Router _router;
+    private AmqpServiceImpl _service;
 
     @Override
     public void start() throws Exception
     {
         super.start();
-        RouterConfig config = new RouterConfigImpl(config());
+        AmqpServiceConfig config = new AmqpServiceConfigImpl(config());
         try
         {
-            _router = new RouterImpl(vertx, config);
+            _service = new AmqpServiceImpl(vertx, config);
+            String address = config().getString("address");
+            if (address == null)
+            {
+                throw new IllegalStateException("address field must be specified in config for service verticle");
+            }
+
+            ProxyHelper.registerService(AmqpService.class, vertx, _service, address);
+            _service.start();
+            _logger.info(String.format("AmqpService is now available via the address : %s", address));
         }
         catch (MessagingException e)
         {
-            logger.fatal("Exception when starting router", e);
+            _logger.fatal("Exception when starting AMQP Service", e);
         }
     }
 
     @Override
     public void stop() throws Exception
     {
-        _router.stop();
+        _service.stop();
+        _logger.warn("Stopping AMQP Service");
         super.stop();
     }
 }

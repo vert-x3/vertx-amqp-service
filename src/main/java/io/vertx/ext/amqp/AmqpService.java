@@ -23,7 +23,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.amqp.impl.AmqpServiceImpl;
+import io.vertx.ext.amqp.impl.AmqpServiceImpl2;
 import io.vertx.serviceproxy.ProxyHelper;
 
 /**
@@ -39,7 +39,7 @@ public interface AmqpService
 {
     static AmqpService create(Vertx vertx, JsonObject config) 
     {
-        return new AmqpServiceImpl(vertx, config); 
+        return new AmqpServiceImpl2(vertx, config); 
     }
 
     static AmqpService createEventBusProxy(Vertx vertx, String address) 

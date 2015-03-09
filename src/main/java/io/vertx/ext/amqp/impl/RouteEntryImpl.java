@@ -15,8 +15,6 @@
  */
 package io.vertx.ext.amqp.impl;
 
-import io.vertx.ext.amqp.RouteEntry;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
