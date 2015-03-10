@@ -5,14 +5,10 @@
 "vertx.default-handler-address" : "vertx.service-amqp",
 "vertx.handlers" : [],
 
-//"vertx.routing-outbound" : {
-//                        "routing-property-name" : "routing-key"	
-//	     },
-
 "vertx.routing-inbound" : {
 			"routes" :{
 				     "amqp://localhost:5673/foo.*" : "foo-all",
-                                     "amqp://localhost:5673/foo.bar*" : "foo-bar"
+                     "amqp://localhost:5673/foo.bar*" : "foo-bar"
 	     			  }
 	         
 	     } 

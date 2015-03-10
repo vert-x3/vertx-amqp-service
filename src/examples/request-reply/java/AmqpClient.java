@@ -29,7 +29,7 @@ public class AmqpClient
 
         Message requestMsg = Proton.message();
         requestMsg.setBody(new AmqpValue("rajith"));
-        requestMsg.setAddress("amqp://localhost:5673/hello-service");
+        requestMsg.setAddress("amqp://localhost:5673/hello-service-vertx");
         requestMsg.setReplyTo("amqp://localhost:5672/my-reply-dest");
         mng.put(requestMsg);
         mng.send();

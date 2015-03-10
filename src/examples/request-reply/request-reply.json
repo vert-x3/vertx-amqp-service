@@ -14,7 +14,7 @@
 
 "vertx.routing-inbound" : {
 			"routes" :{
-				     "amqp://localhost:5673/hello-service" : "hello-service"
+				     "amqp://localhost:5673/hello-service-vertx" : "hello-service-vertx"
 	     			  }
 	         
 	     } 
