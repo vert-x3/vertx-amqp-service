@@ -19,7 +19,7 @@ import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.messenger.Messenger;
 
-public class AmqpServer
+public class HelloServiceAmqp
 {
     public static void main(String[] args) throws Exception
     {
@@ -35,14 +35,14 @@ public class AmqpServer
                 Message requestMsg = mng.get();
                 mng.accept(mng.incomingTracker(), 0);
                 String body = (String) ((AmqpValue) requestMsg.getBody()).getValue();
-                System.out.println("AMQP server received request : " + body);
+                System.out.println("Hello-Service-AMQP received request : " + body);
 
                 Message replyMsg = Proton.message();
                 replyMsg.setBody(new AmqpValue("HELLO " + body.toUpperCase()));
                 replyMsg.setAddress(requestMsg.getReplyTo());
                 mng.put(replyMsg);
                 mng.send();
-                System.out.println("AMQP server sent response : " + body.toUpperCase());
+                System.out.println("Hello-Service-AMQP sent response : " + body.toUpperCase());
             }
         }
     }
