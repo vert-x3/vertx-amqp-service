@@ -17,7 +17,7 @@ package io.vertx.ext.amqp;
 
 public interface InboundLink extends Link
 {
-    public ReceiverMode getReceiverMode();
+    public ReliabilityMode getReceiverMode();
 
     public CreditMode getCreditMode();
 

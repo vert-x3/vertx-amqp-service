@@ -17,13 +17,13 @@ package io.vertx.ext.amqp.impl;
 
 import io.vertx.ext.amqp.AmqpMessage;
 import io.vertx.ext.amqp.CreditMode;
+import io.vertx.ext.amqp.ErrorCode;
 import io.vertx.ext.amqp.InboundLink;
-import io.vertx.ext.amqp.ReceiverMode;
 import io.vertx.ext.amqp.MessageDisposition;
 import io.vertx.ext.amqp.MessageFormatException;
 import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.OutboundLink;
-import io.vertx.ext.amqp.SenderMode;
+import io.vertx.ext.amqp.ReliabilityMode;
 import io.vertx.ext.amqp.Session;
 
 import java.util.HashMap;
@@ -92,7 +92,7 @@ class SessionImpl implements Session
     }
 
     @Override
-    public OutboundLink createOutboundLink(String address, SenderMode mode) throws MessagingException
+    public OutboundLink createOutboundLink(String address, ReliabilityMode mode) throws MessagingException
     {
         checkClosed();
         Sender sender;
@@ -111,7 +111,7 @@ class SessionImpl implements Session
         }
         sender.setTarget(target);
         sender.setSource(source);
-        sender.setSenderSettleMode(mode == SenderMode.AT_MOST_ONCE ? SenderSettleMode.SETTLED
+        sender.setSenderSettleMode(mode == ReliabilityMode.UNRELIABLE ? SenderSettleMode.SETTLED
                 : SenderSettleMode.UNSETTLED);
         sender.open();
 
@@ -123,7 +123,7 @@ class SessionImpl implements Session
     }
 
     @Override
-    public InboundLink createInboundLink(String address, ReceiverMode mode, CreditMode creditMode)
+    public InboundLink createInboundLink(String address, ReliabilityMode mode, CreditMode creditMode)
             throws MessagingException
     {
         Receiver receiver;
@@ -144,7 +144,7 @@ class SessionImpl implements Session
         receiver.setTarget(target);
         switch (mode)
         {
-        case AT_MOST_ONCE:
+        case UNRELIABLE:
             receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
             receiver.setSenderSettleMode(SenderSettleMode.SETTLED);
             break;
@@ -172,9 +172,9 @@ class SessionImpl implements Session
     {
         disposition(convertMessage(msg).getSequence(), disposition, flags);
     }
-    
-    void disposition(long sequence, MessageDisposition disposition, int... flags)
-            throws MessageFormatException, MessagingException
+
+    void disposition(long sequence, MessageDisposition disposition, int... flags) throws MessageFormatException,
+            MessagingException
     {
         DeliveryState state;
         switch (disposition)
@@ -189,11 +189,11 @@ class SessionImpl implements Session
             state = RELEASED;
             break;
         default:
-            throw new MessagingException("UNKNOWN is not a valid option for this method");
-        }    
+            throw new MessagingException("UNKNOWN is not a valid option for this method", ErrorCode.INTERNAL_ERROR);
+        }
         disposition(sequence, state, flags);
     }
-        
+
     @Override
     public void settle(AmqpMessage msg, int... flags) throws MessageFormatException, MessagingException
     {
@@ -251,7 +251,7 @@ class SessionImpl implements Session
     {
         if (_closed.get())
         {
-            throw new MessagingException("Session is closed");
+            throw new MessagingException("Session is closed", ErrorCode.SESSION_CLOSED);
         }
     }
 
@@ -308,14 +308,16 @@ class SessionImpl implements Session
     {
         if (!(msg instanceof InboundMessage))
         {
-            throw new MessageFormatException("The supplied message is not a recognized type");
+            throw new MessageFormatException("The supplied message is not a recognized type",
+                    ErrorCode.INVALID_MSG_FORMAT);
         }
 
         InboundMessage m = (InboundMessage) msg;
 
         if (m.getSessionID() != _id)
         {
-            throw new MessagingException("The supplied message is not associated with this session");
+            throw new MessagingException("The supplied message is not associated with this session",
+                    ErrorCode.INVALID_MSG_REF);
         }
 
         return m;

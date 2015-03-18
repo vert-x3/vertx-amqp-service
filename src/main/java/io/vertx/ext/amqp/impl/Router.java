@@ -25,6 +25,7 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.impl.LoggerFactory;
 import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.AmqpServiceConfig;
+import io.vertx.ext.amqp.RouteEntry;
 
 /**
  * Contains the routing logic used by the AMQP Service
@@ -124,7 +125,7 @@ public class Router
         }
         return routingKey;
     }
-    
+
     List<String> routeInbound(String routingKey)
     {
         List<String> addressList = new ArrayList<String>();
@@ -150,34 +151,67 @@ public class Router
         }
         return addressList;
     }
-    
-    void addOutboundRoute(String address, String amqpURL)
+
+    void addOutboundRoute(String eventbusAddress, String amqpAddress)
     {
-        if (_config.getOutboundRoutes().containsKey(address))
+        if (_config.getOutboundRoutes().containsKey(eventbusAddress))
         {
-            _config.getOutboundRoutes().get(address).add(amqpURL);
+            _config.getOutboundRoutes().get(eventbusAddress).add(amqpAddress);
         }
         else
         {
-            _config.getOutboundRoutes().put(address, AmqpServiceConfigImpl.createRouteEntry(_config, address, amqpURL));
+            _config.getOutboundRoutes().put(eventbusAddress,
+                    AmqpServiceConfigImpl.createRouteEntry(eventbusAddress, amqpAddress));
         }
         if (_logger.isInfoEnabled())
         {
             _logger.info("\n============= Outbound Route ============");
-            _logger.info(String.format("Adding a mapping for {%s : %s}", address, amqpURL));
+            _logger.info(String.format("Adding a mapping for {%s : %s}", eventbusAddress, amqpAddress));
             _logger.info("============= /Outbound Route) ============\n");
         }
     }
- 
-    void removeOutboundRoute(String address, String amqpURL)
+
+    void removeOutboundRoute(String eventbusAddress, String amqpAddress)
     {
-        if (_config.getOutboundRoutes().containsKey(address))
+        if (_config.getOutboundRoutes().containsKey(eventbusAddress))
         {
-            RouteEntry entry = _config.getOutboundRoutes().get(address);
-            entry.remove(amqpURL);
+            RouteEntry entry = _config.getOutboundRoutes().get(eventbusAddress);
+            entry.remove(amqpAddress);
             if (entry.getAddressList().size() == 0)
             {
-                _config.getOutboundRoutes().remove(address);
+                _config.getOutboundRoutes().remove(eventbusAddress);
+            }
+        }
+    }
+
+    void addInboundRoute(String amqpAddress, String eventbusAddress)
+    {
+        if (_config.getInboundRoutes().containsKey(amqpAddress))
+        {
+            _config.getInboundRoutes().get(amqpAddress).add(eventbusAddress);
+        }
+        else
+        {
+            _config.getInboundRoutes().put(amqpAddress,
+                    AmqpServiceConfigImpl.createRouteEntry(amqpAddress, eventbusAddress));
+        }
+        if (_logger.isInfoEnabled())
+        {
+            _logger.info("\n============= Inbound Route ============");
+            _logger.info(String.format("Adding a mapping for {%s : %s}", amqpAddress, eventbusAddress));
+            _logger.info("============= /Inbound Route) ============\n");
+        }
+    }
+
+    void removeInboundRoute(String amqpAddress, String eventbusAddress)
+    {
+        if (_config.getOutboundRoutes().containsKey(amqpAddress))
+        {
+            RouteEntry entry = _config.getOutboundRoutes().get(amqpAddress);
+            entry.remove(eventbusAddress);
+            if (entry.getAddressList().size() == 0)
+            {
+                _config.getOutboundRoutes().remove(amqpAddress);
             }
         }
     }

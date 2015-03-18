@@ -21,13 +21,13 @@ package io.vertx.ext.amqp;
 @SuppressWarnings("serial")
 public class MessageFormatException extends MessagingException
 {
-    public MessageFormatException(String msg)
+    public MessageFormatException(String msg, ErrorCode code)
     {
-        super(msg);
+        super(msg, code);
     }
 
-    public MessageFormatException(String msg, Throwable t)
+    public MessageFormatException(String msg, Throwable t, ErrorCode code)
     {
-        super(msg, t);
+        super(msg, t, code);
     }
 }

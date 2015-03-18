@@ -13,24 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.vertx.ext.amqp.impl;
-
-import io.vertx.ext.amqp.ErrorCode;
-import io.vertx.ext.amqp.MessagingException;
+package io.vertx.ext.amqp;
 
 /**
- * Thrown when an operation fails to complete within the given timeout.
+ * Specifies the number of retry attempts to be made before giving up.
+ *
  */
-@SuppressWarnings("serial")
-public class TimeoutException extends MessagingException
+public enum RetryPolicy
 {
-    public TimeoutException(String msg)
-    {
-        super(msg, ErrorCode.OPERATION_TIMED_OUT);
-    }
+    /**
+     * No retry. An error will be sent, notifying the link failed.
+     */
+    NO_RETRY,
 
-    public TimeoutException(String msg, Throwable t)
-    {
-        super(msg, t, ErrorCode.OPERATION_TIMED_OUT);
-    }
+    /**
+     * Stop retrying once the number of unsuccessful retries have reached the
+     * limit set by {@link RecoveryOptions#setMaxRetryLimit(int)}
+     */
+    RETRY_UPTO_MAX_LIMIT,
+
+    /**
+     * Continue to retry until the link is successfully re-established.
+     */
+    RETRY_UNTIL_SUCCESS;
 }

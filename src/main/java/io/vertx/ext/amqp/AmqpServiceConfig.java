@@ -15,8 +15,6 @@
  */
 package io.vertx.ext.amqp;
 
-import io.vertx.ext.amqp.impl.RouteEntry;
-
 import java.util.List;
 import java.util.Map;
 

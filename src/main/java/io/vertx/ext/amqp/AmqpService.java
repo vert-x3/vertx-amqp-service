@@ -23,13 +23,21 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.amqp.impl.AmqpServiceImpl2;
 import io.vertx.serviceproxy.ProxyHelper;
 
 /**
- * AMQP service allows you to directly use API methods to subscribe, publish,
- * issue credits and message acks without having to use control-messages via the
- * event bus.
+ * AMQP service allows a Vert.x application to,
+ * <ul>
+ * <li>Establish and cancel incoming/outgoing AMQP links, and map the link it to
+ * an event-bus address.</li>
+ * <li>Configure the link behavior</li>
+ * <li>Control the flow of messages both incoming and outgoing to maintain QoS</li>
+ * <li>Send and Receive messages from AMQP peers with different reliability
+ * guarantees</li>
+ * </ul>
+ * 
+ * For more information on AMQP visit www.amqp.org This service speaks AMQP 1.0
+ * and use QPid Proton(http://qpid.apache.org/proton) for protocol support.
  * 
  * @author <a href="mailto:rajith@redhat.com">Rajith Attapattu</a>
  */
@@ -37,96 +45,157 @@ import io.vertx.serviceproxy.ProxyHelper;
 @ProxyGen
 public interface AmqpService
 {
-    static AmqpService create(Vertx vertx, JsonObject config) 
+    static AmqpService createEventBusProxy(Vertx vertx, String address)
     {
-        return new AmqpServiceImpl2(vertx, config); 
-    }
-
-    static AmqpService createEventBusProxy(Vertx vertx, String address) 
-    {
-         return ProxyHelper.createProxy(AmqpService.class, vertx, address); 
+        return ProxyHelper.createProxy(AmqpService.class, vertx, address);
     }
 
     /**
-     * Allows an application to create a subscription to an AMQP message source.
-     * The service will receive the messages on behalf of the application and
-     * forward it to the event-bus address specified in the consume method. The
-     * application will be listening on this address.
+     * Allows an application to establish a link to an AMQP message-source for
+     * receiving messages. The service will receive the messages on behalf of
+     * the application and forward it to the event-bus address specified in the
+     * consume method. The application will be listening on this address.
      * 
      * @param amqpAddress
-     *            The address that identifies the AMQP message source to
-     *            subscribe from.
-     * @param ebAddress
-     *            The event-bus address the application is listening on for the
-     *            messages.
-     * @param receiverMode
-     *            Specified the reliability expected.
-     * @param creditMode
-     *            Specifies how credit is replenished.
+     *            A link will be created to the the AMQP message-source
+     *            identified by this address. .
+     * @param eventbusAddress
+     *            The event-bus address to be mapped to the above link. The
+     *            application should register a handler for this address on the
+     *            event bus to receive the messages.
+     * @param notificationAddress
+     *            The event-bus address to which notifications about the
+     *            incoming link is sent. Ex. Errors. The application should
+     *            register a handler with the event-bus to receive these
+     *            updates.
+     * @param options
+     *            Options to configure the link behavior (Ex prefetch,
+     *            reliability). {@link IncommingLinkOptions}
      * @param result
-     *            AsyncResult that contains a String ref to the AMQP 'consumer',
-     *            if successfully created.
+     *            The AsyncResult contains a ref (string) to the mapping
+     *            created. This is required when changing behavior or canceling
+     *            the link and it' association.
      * @return A reference to the service.
      */
     @Fluent
-    public AmqpService consume(String amqpAddress, String ebAddress, ReceiverMode receiverMode, CreditMode creditMode,
-            Handler<AsyncResult<String>> result);
+    public AmqpService establishIncommingLink(String amqpAddress, String eventbusAddress, String notificationAddress,
+            IncomingLinkOptions options, Handler<AsyncResult<String>> result);
 
     /**
-     * Allows an application to issue message credits for flow control purposes.
+     * If prefetch was set to zero, this method allows the application to
+     * explicitly fetch a certain number of messages. If prefetch > 0, the AMQP
+     * service will prefetch messages for you automatically.
      * 
-     * @see CreditMode to understand how msg credits works.
+     * @see IncomingLinkOptions on how to set prefetch.
      * 
-     * @param consumerRef
-     *            The String ref return by the consume method.
-     * @param credits
-     *            The message credits
-     * @param result
-     *            Notifies if there is an error.
-     * @return A reference to the service.
-     */
-    @Fluent
-    public AmqpService issueCredit(String consumerRef, int credits, Handler<AsyncResult<Void>> result);
-
-    /**
-     * Allows an application to cancel a subscription it has previously created.
-     * 
-     * @param consumerRef
-     *            The String ref return by the consume method.
+     * @param incomingLinkRef
+     *            The String ref return by the establishIncommingLink method.
+     *            This uniquely identifies the incoming link and it's mapping to
+     *            an event-bus address.
+     * @param messages
+     *            The number of message to fetch.
      * @param result
      *            Notifies if there is an error.
      * @return A reference to the service.
      */
     @Fluent
-    public AmqpService unregisterConsume(String consumerRef, Handler<AsyncResult<Void>> result);
+    public AmqpService fetch(String incomingLinkRef, int messages, Handler<AsyncResult<Void>> result);
 
     /**
-     * Allows an application to acknowledge a message and set it's disposition.
+     * Allows an application to cancel an incoming link and remove it's mapping
+     * to an event-bus address.
+     * 
+     * @param incomingLinkRef
+     *            The String ref return by the establishIncommingLink method.
+     *            This uniquely identifies the incoming link and it's mapping to
+     *            an event-bus address.
+     * @param result
+     *            Notifies if there is an error.
+     * @return A reference to the service.
+     */
+    @Fluent
+    public AmqpService cancelIncommingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result);
+
+    /**
+     * Allows an application to establish a link to an AMQP message-sink for
+     * sending messages. The application will send the messages to the event-bus
+     * address. The AMQP service will receive these messages via the event-bus
+     * and forward it to the respective AMQP message sink.
+     * 
+     * @param amqpAddress
+     *            A link will be created to the the AMQP message-sink identified
+     *            by this address.
+     * @param eventbusAddress
+     *            The event-bus address to be mapped to the above link. The
+     *            application should send the messages using this address.
+     * @param notificationAddress
+     *            The event-bus address to which notifications about the
+     *            outgoing link is sent. Ex. Errors, Delivery Status, credit
+     *            availability. The application should register a handler with
+     *            the event-bus to receive these updates.
+     * @param options
+     *            Options to configure the link behavior (Ex reliability).
+     *            {@link IncommingLinkOptions}
+     * @param result
+     *            The AsyncResult contains a ref (string) to the mapping
+     *            created. This is required when changing behavior or canceling
+     *            the link and it' association.
+     * @return A reference to the service.
+     */
+    @Fluent
+    public AmqpService establishOutgoingLink(String amqpAddress, String eventbusAddress, String notificationAddress,
+            OutgoingLinkOptions options, Handler<AsyncResult<String>> result);
+
+    /**
+     * Allows an application to cancel an outgoing link and remove it's mapping
+     * to an event-bus address.
+     * 
+     * @param outgoingLinkRef
+     *            The String ref return by the establishOutgoingLink method.
+     *            This uniquely identifies the outgoing link and it's mapping to
+     *            an event-bus address.
+     * @param result
+     *            Notifies if there is an error.
+     * @return A reference to the service.
+     */
+    @Fluent
+    public AmqpService cancelOutgoingLink(String outgoingLinkRef, Handler<AsyncResult<Void>> result);
+
+    /**
+     * Allows an application to accept a message it has received.
      * 
      * @param msgRef
      *            - The string ref. Use {@link AmqpMessage#getMsgRef()}
-     * @param disposition
-     *            - One of ACCEPT, REJECT OR RELEASED.
      * @param result
      *            Notifies if there is an error.
      * @return A reference to the service.
      */
     @Fluent
-    public AmqpService acknowledge(String msgRef, MessageDisposition disposition, Handler<AsyncResult<Void>> result);
+    public AmqpService accept(String msgRef, Handler<AsyncResult<Void>> result);
 
     /**
-     * Allows an application to publish a message to an AMQP target.
+     * Allows an application to reject a message it has received.
      * 
-     * @param address
-     *            The AMQP target to which the messages should be sent.
-     * @param msg
-     *            The message to be sent.
+     * @param msgRef
+     *            - The string ref. Use {@link AmqpMessage#getMsgRef()}
      * @param result
-     *            A JsonObject containing the delivery state and disposition.
-     * @return
+     *            Notifies if there is an error.
+     * @return A reference to the service.
      */
     @Fluent
-    public AmqpService publish(String address, JsonObject msg, Handler<AsyncResult<JsonObject>> result);
+    public AmqpService reject(String msgRef, Handler<AsyncResult<Void>> result);
+
+    /**
+     * Allows an application to release a message it has received.
+     * 
+     * @param msgRef
+     *            - The string ref. Use {@link AmqpMessage#getMsgRef()}
+     * @param result
+     *            Notifies if there is an error.
+     * @return A reference to the service.
+     */
+    @Fluent
+    public AmqpService release(String msgRef, Handler<AsyncResult<Void>> result);
 
     /**
      * Start the service

@@ -15,40 +15,34 @@
  */
 package io.vertx.ext.amqp.impl;
 
-import io.vertx.ext.amqp.Connection;
-import io.vertx.ext.amqp.InboundLink;
-import io.vertx.ext.amqp.OutboundLink;
-import io.vertx.ext.amqp.Session;
-import io.vertx.ext.amqp.Tracker;
-
 /*
  * A convenience interface for internal implementations.
  */
 public interface AmqpEventListener
 {
-    void onConnectionOpen(Connection con);
+    void onConnectionOpen(ConnectionImpl con);
 
-    void onConnectionClosed(Connection conn);
+    void onConnectionClosed(ConnectionImpl conn);
 
-    void onSessionOpen(Session ssn);
+    void onSessionOpen(SessionImpl ssn);
 
-    void onSessionClosed(Session ssn);
+    void onSessionClosed(SessionImpl ssn);
 
     void onOutboundLinkOpen(OutboundLinkImpl link);
 
     void onOutboundLinkClosed(OutboundLinkImpl link);
 
-    void onOutboundLinkCredit(OutboundLink link, int credits);
+    void onOutboundLinkCredit(OutboundLinkImpl link, int credits);
 
-    void onClearToSend(OutboundLink link);
+    void onClearToSend(OutboundLinkImpl link);
 
-    void onSettled(Tracker tracker);
+    void onSettled(TrackerImpl tracker);
 
-    void onInboundLinkOpen(InboundLink link);
+    void onInboundLinkOpen(InboundLinkImpl link);
 
-    void onInboundLinkClosed(InboundLink link);
+    void onInboundLinkClosed(InboundLinkImpl link);
 
-    void onCreditOffered(InboundLink link, int offered);
+    void onCreditOffered(InboundLinkImpl link, int offered);
 
     void onMessage(InboundLinkImpl link, InboundMessage msg);
 }

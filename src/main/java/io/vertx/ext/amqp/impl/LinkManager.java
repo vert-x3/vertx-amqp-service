@@ -31,9 +31,14 @@ import io.vertx.core.net.NetSocket;
 import io.vertx.ext.amqp.AmqpServiceConfig;
 import io.vertx.ext.amqp.Connection;
 import io.vertx.ext.amqp.ConnectionSettings;
+import io.vertx.ext.amqp.CreditMode;
 import io.vertx.ext.amqp.DefaultConnectionSettings;
+import io.vertx.ext.amqp.ErrorCode;
 import io.vertx.ext.amqp.InboundLink;
+import io.vertx.ext.amqp.IncomingLinkOptions;
 import io.vertx.ext.amqp.MessagingException;
+import io.vertx.ext.amqp.OutgoingLinkOptions;
+import io.vertx.ext.amqp.RecoveryOptions;
 import io.vertx.ext.amqp.impl.ConnectionImpl.State;
 import io.vertx.ext.amqp.impl.AmqpServiceImpl.ReplyHandler;
 
@@ -42,6 +47,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -51,9 +57,9 @@ public class LinkManager extends AbstractAmqpEventListener
 
     protected final List<ManagedConnection> _outboundConnections = new CopyOnWriteArrayList<ManagedConnection>();
 
-    protected final Map<String, InboundLinkImpl> _inboundLinks = new ConcurrentHashMap<String, InboundLinkImpl>();
+    protected final Map<String, Incoming> _inboundLinks = new ConcurrentHashMap<String, Incoming>();
 
-    protected final Map<String, OutboundLinkImpl> _outboundLinks = new ConcurrentHashMap<String, OutboundLinkImpl>();
+    protected final Map<String, Outgoing> _outboundLinks = new ConcurrentHashMap<String, Outgoing>();
 
     protected final NetClient _client;
 
@@ -96,8 +102,8 @@ public class LinkManager extends AbstractAmqpEventListener
             {
                 if (result.failed())
                 {
-                    _logger.warn(String.format("Server was unable to bind to %s:%s", _config.getInboundHost(),
-                            _config.getInboundPort()));
+                    _logger.warn(String.format("Error {%s} Server was unable to bind to %s:%s", result.cause(), _config.getInboundHost(),
+                            _config.getInboundPort()), result.cause());
                     // We need to stop the verticle
                 }
             }
@@ -114,21 +120,21 @@ public class LinkManager extends AbstractAmqpEventListener
         _server.close();
     }
 
-    ConnectionSettings getConnectionSettings(String url)
+    ConnectionSettings getConnectionSettings(String address) throws MessagingException
     {
-        if (URL_CACHE.containsKey(url))
+        if (URL_CACHE.containsKey(address))
         {
-            return URL_CACHE.get(url);
+            return URL_CACHE.get(address);
         }
         else
         {
-            final ConnectionSettings settings = URLParser.parse(url);
-            URL_CACHE.put(url, settings);
+            final ConnectionSettings settings = AddressParser.parse(address);
+            URL_CACHE.put(address, settings);
             return settings;
         }
     }
 
-    ManagedConnection findConnection(final ConnectionSettings settings) throws MessagingException
+    ManagedConnection getConnection(final ConnectionSettings settings) throws MessagingException
     {
         for (ManagedConnection con : _outboundConnections)
         {
@@ -157,38 +163,119 @@ public class LinkManager extends AbstractAmqpEventListener
         return connection;
     }
 
-    OutboundLinkImpl findOutboundLink(String url) throws MessagingException
+    // Validate if the link is connected. If not use RecoveryOptions to
+    // determine course of action.
+    <T extends BaseLink> T validateLink(T link, RecoveryOptions options) throws MessagingException
     {
-        if (_outboundLinks.containsKey(url))
+        link.checkClosed();
+        switch (link.getConnection().getState())
         {
-            OutboundLinkImpl link = _outboundLinks.get(url);
-            if (link.getConnection().getState() != State.FAILED)
+        case CONNECTED:
+            return link;
+        case NEW:
+            throw new MessagingException("Link is not ready yet", ErrorCode.LINK_NOT_READY);
+        case RETRY_IN_PROGRESS:
+            throw new MessagingException("Link has failed. Retry in progress", ErrorCode.LINK_RETRY_IN_PROGRESS);
+        case FAILED:
+            if (link.getConnection().isInbound())
             {
-                return link;
+                throw new MessagingException("Link created from an AMQP peer into the bridge failed", ErrorCode.LINK_FAILED);
             }
-            else
+            switch (options.getRetryPolicy())
             {
-                // remove dead link
-                _outboundLinks.remove(url);
+            case NO_RETRY:
+                throw new MessagingException("Link has failed. No retry instructions specified", ErrorCode.LINK_FAILED);
+            default:
+                // TODO initiate failover
+                return null;
+            }
+        default:
+            throw new MessagingException("Invalid link state", ErrorCode.INTERNAL_ERROR);
+        }
+    }
+
+    // Lookup method for outbound-link. Create if it doesn't exist.
+    OutboundLinkImpl getOutboundLink(String amqpAddress) throws MessagingException
+    {
+        if (_outboundLinks.containsKey(amqpAddress))
+        {
+            try
+            {
+                Outgoing outgoing = _outboundLinks.get(amqpAddress);
+                return validateLink(outgoing._link, outgoing._options.getRecoveryOptions());
+            }
+            catch (MessagingException e)
+            {
+                if (e.getErrorCode() == ErrorCode.LINK_FAILED)
+                {
+                    _outboundLinks.remove(amqpAddress);
+                }
+                throw e;
             }
         }
+        else
+        {
+            // TODO link options should be grabbed from the configuration
+            return createOutboundLink(UUID.randomUUID().toString(), amqpAddress, new OutgoingLinkOptions());
+        }
+    }
 
-        final ConnectionSettings settings = getConnectionSettings(url);
-        ManagedConnection con = findConnection(settings);
-        OutboundLinkImpl link = con.createOutboundLink(settings.getTarget());
+    // Method for explicitly creating an outbound link
+    OutboundLinkImpl createOutboundLink(String id, String amqpAddress, OutgoingLinkOptions options)
+            throws MessagingException
+    {
+        final ConnectionSettings settings = getConnectionSettings(amqpAddress);
+        ManagedConnection con = getConnection(settings);
+        OutboundLinkImpl link = con.createOutboundLink(settings.getTarget(), options.getReliability());
         _logger.info(String.format("Created outbound link %s @ %s:%s", settings.getTarget(), settings.getHost(),
                 settings.getPort()));
+        link.setContext(id);
+        _outboundLinks.put(amqpAddress, new Outgoing(id, link, options));
         return link;
     }
 
-    List<OutboundLinkImpl> getOutboundLinks(List<String> amqpAddressList) throws MessagingException
+    // lookup method for inbound-link. Throw an exception if not in the map.
+    InboundLinkImpl getInboundLink(String amqpAddress) throws MessagingException
     {
-        List<OutboundLinkImpl> links = new ArrayList<OutboundLinkImpl>();
-        for (String addr : amqpAddressList)
+        if (_inboundLinks.containsKey(amqpAddress))
         {
-            links.add(findOutboundLink(addr));
+            try
+            {
+                Incoming incoming = _inboundLinks.get(amqpAddress);
+                return validateLink(incoming._link, incoming._options.getRecoveryOptions());
+            }
+            catch (MessagingException e)
+            {
+                if (e.getErrorCode() == ErrorCode.LINK_FAILED)
+                {
+                    _inboundLinks.remove(amqpAddress);
+                }
+                throw e;
+            }
         }
-        return links;
+        else
+        {
+            throw new MessagingException("Incoming link ref doesn't match any AMQP links", ErrorCode.INVALID_LINK_REF);
+        }
+    }
+
+    // Method for explicitly creating an inbound link
+    InboundLinkImpl createInboundLink(String id, String amqpAddress, IncomingLinkOptions options)
+            throws MessagingException
+    {
+        final ConnectionSettings settings = getConnectionSettings(amqpAddress);
+        ManagedConnection con = getConnection(settings);
+        InboundLinkImpl link = con.createInboundLink(settings.getTarget(), options.getReliability(),
+                options.getPrefetch() > 0 ? CreditMode.AUTO : CreditMode.EXPLICT);
+        if (options.getPrefetch() > 0)
+        {
+            link.setCredits(options.getPrefetch());
+        }
+        link.setContext(id);
+        _inboundLinks.put(amqpAddress, new Incoming(id, link, options));
+        _logger.info(String.format("Created inbound link %s @ %s:%s", settings.getTarget(), settings.getHost(),
+                settings.getPort()));
+        return link;
     }
 
     // ------------ Event Handler ------------------------
@@ -199,11 +286,13 @@ public class LinkManager extends AbstractAmqpEventListener
         if (con.isInbound())
         {
             String name = link.getAddress();
-            String url = new StringBuilder(con.getSettings().getHost()).append(":").append(con.getSettings().getPort())
-                    .append("/").append(name).toString();
-            _outboundLinks.put(url, link);
+            String amqpAddress = new StringBuilder(con.getSettings().getHost()).append(":")
+                    .append(con.getSettings().getPort()).append("/").append(name).toString();
+            String id = "inbound-connection:" + UUID.randomUUID().toString();
+            link.setContext(id);
+            _outboundLinks.put(id, new Outgoing(amqpAddress, link, null));
 
-            _listener.outboundLinkReady(name, url, true);
+            _listener.outboundLinkReady(name, amqpAddress, true);
         }
     }
 
@@ -212,20 +301,36 @@ public class LinkManager extends AbstractAmqpEventListener
     {
         ConnectionImpl con = link.getConnection();
         String name = link.getAddress();
-        String url = new StringBuilder(con.getSettings().getHost()).append(":").append(con.getSettings().getPort())
+        String address = new StringBuilder(con.getSettings().getHost()).append(":").append(con.getSettings().getPort())
                 .append("/").append(name).toString();
-        _outboundLinks.remove(url);
+        _outboundLinks.remove(address);
         if (link.getConnection().isInbound())
         {
-            _listener.outboundLinkFinal(name, url, true);
+            _listener.outboundLinkFinal(name, address, true);
         }
     }
 
     @Override
-    public void onInboundLinkOpen(InboundLink link)
+    public void onInboundLinkClosed(InboundLinkImpl link)
+    {
+        // TODO if it's an outbound connection, then we need to notify an error
+        if (!link.getConnection().isInbound())
+        {
+            ConnectionImpl con = link.getConnection();
+            String name = link.getAddress();
+            String address = new StringBuilder(con.getSettings().getHost()).append(":")
+                    .append(con.getSettings().getPort()).append("/").append(name).toString();
+            _inboundLinks.remove(address);
+            _listener.inboundLinkFinal(name, address, true);
+        }
+    }
+
+    @Override
+    public void onInboundLinkOpen(InboundLinkImpl link)
     {
         try
         {
+            link.setContext(UUID.randomUUID().toString());
             link.setCredits(_config.getDefaultLinkCredit());
         }
         catch (MessagingException e)
@@ -298,6 +403,38 @@ public class LinkManager extends AbstractAmqpEventListener
             ManagedConnection connection = new ManagedConnection(settings, _handler, true);
             connection.setNetSocket(sock);
             connection.open();
+        }
+    }
+
+    class Outgoing
+    {
+        String _id;
+
+        OutboundLinkImpl _link;
+
+        OutgoingLinkOptions _options;
+
+        Outgoing(String id, OutboundLinkImpl link, OutgoingLinkOptions options)
+        {
+            _id = id;
+            _link = link;
+            _options = options;
+        }
+    }
+
+    class Incoming
+    {
+        String _id;
+
+        InboundLinkImpl _link;
+
+        IncomingLinkOptions _options;
+
+        Incoming(String id, InboundLinkImpl link, IncomingLinkOptions options)
+        {
+            _id = id;
+            _link = link;
+            _options = options;
         }
     }
 }

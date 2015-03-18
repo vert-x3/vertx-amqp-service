@@ -13,24 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.vertx.ext.amqp.impl;
+package io.vertx.ext.amqp;
 
-import io.vertx.ext.amqp.ErrorCode;
-import io.vertx.ext.amqp.MessagingException;
-
-/**
- * Thrown when an operation fails to complete within the given timeout.
- */
-@SuppressWarnings("serial")
-public class TimeoutException extends MessagingException
+public enum ErrorCode
 {
-    public TimeoutException(String msg)
-    {
-        super(msg, ErrorCode.OPERATION_TIMED_OUT);
-    }
+    INTERNAL_ERROR,
 
-    public TimeoutException(String msg, Throwable t)
-    {
-        super(msg, t, ErrorCode.OPERATION_TIMED_OUT);
-    }
+    AUTHENTICATION_ERROR_AT_AMQP_PEER,
+
+    ACCESS_DENIED_BY_AMQP_PEER,
+
+    INVALID_ADDRESS_FORMAT,
+
+    ADDRESS_NOT_FOUND_AT_AMQP_PEER,
+
+    ALREADY_EXISTS,
+
+    LINK_CLOSED,
+
+    LINK_NOT_READY,
+
+    LINK_RETRY_IN_PROGRESS,
+
+    LINK_FAILED,
+
+    LINK_RETRY_FAILED,
+
+    INVALID_LINK_REF,
+
+    INVALID_MSG_REF,
+
+    INVALID_MSG_FORMAT,
+
+    SESSION_CLOSED,
+
+    SESSION_ERROR,
+
+    OPERATION_TIMED_OUT
 }

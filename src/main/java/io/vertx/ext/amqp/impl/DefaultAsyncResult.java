@@ -35,6 +35,14 @@ public class DefaultAsyncResult<T> implements AsyncResult<T>
         this(null, false, th);
     }
 
+    /*
+     * error could be an int code or a string msg, depending on the type of T.
+     */
+    DefaultAsyncResult(T error, Throwable th)
+    {
+        this(error, false, th);
+    }
+
     DefaultAsyncResult(T result, boolean success, Throwable th)
     {
         _result = result;

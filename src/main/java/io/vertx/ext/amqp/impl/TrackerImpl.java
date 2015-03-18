@@ -16,6 +16,7 @@
 package io.vertx.ext.amqp.impl;
 
 import io.vertx.ext.amqp.DeliveryState;
+import io.vertx.ext.amqp.ErrorCode;
 import io.vertx.ext.amqp.MessageDisposition;
 import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.Session;
@@ -64,7 +65,8 @@ class TrackerImpl implements Tracker
         if (_state == DeliveryState.LINK_FAILED)
         {
             throw new MessagingException(
-                    "The link has failed due to the underlying network connection failure. The message associated with this delivery is in-doubt");
+                    "The link has failed due to the underlying network connection failure. The message associated with this delivery is in-doubt",
+                    ErrorCode.LINK_FAILED);
         }
     }
 
@@ -76,7 +78,8 @@ class TrackerImpl implements Tracker
             if (_state == DeliveryState.LINK_FAILED)
             {
                 throw new MessagingException(
-                        "The link has failed due to the underlying network connection failure. The message associated with this delivery is in-doubt");
+                        "The link has failed due to the underlying network connection failure. The message associated with this delivery is in-doubt",
+                        ErrorCode.LINK_FAILED);
             }
         }
         catch (ConditionManagerTimeoutException e)

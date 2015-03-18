@@ -27,7 +27,7 @@ import io.vertx.ext.amqp.CreditMode;
 import io.vertx.ext.amqp.EventType;
 import io.vertx.ext.amqp.InboundLink;
 import io.vertx.ext.amqp.OutboundLink;
-import io.vertx.ext.amqp.ReceiverMode;
+import io.vertx.ext.amqp.ReliabilityMode;
 import io.vertx.ext.amqp.Session;
 
 import java.nio.ByteBuffer;
@@ -49,7 +49,7 @@ class ConnectionImpl implements Connection
 {
     enum State
     {
-        NEW, CONNECTED, FAILED
+        NEW, CONNECTED, FAILED, RETRY_IN_PROGRESS
     };
 
     private static final Logger _logger = LoggerFactory.getLogger(ConnectionImpl.class);
@@ -228,7 +228,7 @@ class ConnectionImpl implements Connection
                     else
                     {
                         inboundLink = new InboundLinkImpl(session, link.getRemoteTarget().getAddress(), link,
-                                ReceiverMode.AT_LEAST_ONCE, CreditMode.AUTO);
+                                ReliabilityMode.AT_LEAST_ONCE, CreditMode.AUTO);
                         link.setContext(inboundLink);
                         inboundLink.init();
                     }

@@ -15,6 +15,7 @@
  */
 package io.vertx.ext.amqp.impl;
 
+import io.vertx.ext.amqp.ErrorCode;
 import io.vertx.ext.amqp.MessagingException;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -35,6 +36,8 @@ abstract class BaseLink
 
     boolean _dynamic = false;
 
+    private Object _ctx;
+
     BaseLink(SessionImpl ssn, String address, Link link)
     {
         _address = address;
@@ -52,7 +55,7 @@ abstract class BaseLink
     {
         if (_closed.get())
         {
-            throw new MessagingException("Link is closed");
+            throw new MessagingException("Link is closed", ErrorCode.LINK_CLOSED);
         }
     }
 
@@ -88,5 +91,15 @@ abstract class BaseLink
     public String toString()
     {
         return _toString;
+    }
+
+    Object getContext()
+    {
+        return _ctx;
+    }
+
+    void setContext(Object ctx)
+    {
+        _ctx = ctx;
     }
 }

@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.vertx.ext.amqp.impl;
-
-import io.vertx.ext.amqp.ErrorCode;
-import io.vertx.ext.amqp.MessagingException;
+package io.vertx.ext.amqp;
 
 /**
- * Thrown when an operation fails to complete within the given timeout.
+ * Specifies the level of reliability expected when sending and receiving
+ * messages.
+ *
  */
-@SuppressWarnings("serial")
-public class TimeoutException extends MessagingException
+public enum ReliabilityMode
 {
-    public TimeoutException(String msg)
-    {
-        super(msg, ErrorCode.OPERATION_TIMED_OUT);
-    }
+    /**
+     * Best effort (a.k.a fire-and-forget) message delivery.
+     */
+    UNRELIABLE,
 
-    public TimeoutException(String msg, Throwable t)
-    {
-        super(msg, t, ErrorCode.OPERATION_TIMED_OUT);
-    }
+    /**
+     * Guaranteed message delivery. Duplicates allowed.
+     */
+    AT_LEAST_ONCE,
+
+    /**
+     * Guaranteed message delivery. Duplicates not allowed. Only applicable when
+     * receiving messages.
+     */
+    EXACTLY_ONCE
 }

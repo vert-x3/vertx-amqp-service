@@ -15,90 +15,71 @@
  */
 package io.vertx.ext.amqp.impl;
 
-import io.vertx.ext.amqp.Connection;
-import io.vertx.ext.amqp.InboundLink;
-import io.vertx.ext.amqp.OutboundLink;
-import io.vertx.ext.amqp.Session;
-import io.vertx.ext.amqp.Tracker;
-
 public abstract class AbstractAmqpEventListener implements AmqpEventListener
 {
     @Override
-    public void onConnectionOpen(Connection con)
+    public void onConnectionOpen(ConnectionImpl con)
     {
-
     }
 
     @Override
-    public void onConnectionClosed(Connection conn)
+    public void onConnectionClosed(ConnectionImpl conn)
     {
-
     }
 
     @Override
-    public void onSessionOpen(Session ssn)
+    public void onSessionOpen(SessionImpl ssn)
     {
-
     }
 
     @Override
-    public void onSessionClosed(Session ssn)
+    public void onSessionClosed(SessionImpl ssn)
     {
-
     }
 
     @Override
     public void onOutboundLinkOpen(OutboundLinkImpl link)
     {
-
     }
 
     @Override
     public void onOutboundLinkClosed(OutboundLinkImpl link)
     {
-
     }
 
     @Override
-    public void onOutboundLinkCredit(OutboundLink link, int credits)
+    public void onOutboundLinkCredit(OutboundLinkImpl link, int credits)
     {
-
     }
 
     @Override
-    public void onClearToSend(OutboundLink link)
+    public void onClearToSend(OutboundLinkImpl link)
     {
-
     }
 
     @Override
-    public void onSettled(Tracker tracker)
+    public void onSettled(TrackerImpl tracker)
     {
-
     }
 
     @Override
-    public void onInboundLinkOpen(InboundLink link)
+    public void onInboundLinkOpen(InboundLinkImpl link)
     {
-
     }
 
     @Override
-    public void onInboundLinkClosed(InboundLink link)
+    public void onInboundLinkClosed(InboundLinkImpl link)
     {
-
     }
 
     @Override
-    public void onCreditOffered(InboundLink link, int offered)
+    public void onCreditOffered(InboundLinkImpl link, int offered)
     {
-
     }
 
     @Override
     public void onMessage(InboundLinkImpl link, InboundMessage msg)
     {
-
     }
 
 }

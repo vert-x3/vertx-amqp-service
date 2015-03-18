@@ -17,6 +17,7 @@ package io.vertx.ext.amqp.impl;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.amqp.ErrorCode;
 import io.vertx.ext.amqp.MessageFormatException;
 
 import java.util.List;
@@ -126,7 +127,7 @@ class MessageFactory
             }
             else
             {
-                throw new MessageFormatException("Unrecognised body type: " + bodyType);
+                throw new MessageFormatException("Unrecognised body type: " + bodyType, ErrorCode.INVALID_MSG_FORMAT);
             }
         }
         return out;

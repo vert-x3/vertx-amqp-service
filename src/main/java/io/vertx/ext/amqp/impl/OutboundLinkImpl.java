@@ -16,6 +16,7 @@
 package io.vertx.ext.amqp.impl;
 
 import io.vertx.ext.amqp.AmqpMessage;
+import io.vertx.ext.amqp.ErrorCode;
 import io.vertx.ext.amqp.MessageFormatException;
 import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.OutboundLink;
@@ -70,7 +71,7 @@ class OutboundLinkImpl extends BaseLink implements OutboundLink
         }
         else
         {
-            throw new MessageFormatException("Unsupported message implementation");
+            throw new MessageFormatException("Unsupported message implementation", ErrorCode.INVALID_MSG_FORMAT);
         }
     }
 

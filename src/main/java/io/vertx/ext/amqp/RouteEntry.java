@@ -13,24 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.vertx.ext.amqp.impl;
+package io.vertx.ext.amqp;
 
-import io.vertx.ext.amqp.ErrorCode;
-import io.vertx.ext.amqp.MessagingException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
-/**
- * Thrown when an operation fails to complete within the given timeout.
- */
-@SuppressWarnings("serial")
-public class TimeoutException extends MessagingException
+public class RouteEntry
 {
-    public TimeoutException(String msg)
+    Pattern _pattern;
+
+    List<String> _addressList = new ArrayList<String>();
+
+    public RouteEntry(Pattern p, String addr)
     {
-        super(msg, ErrorCode.OPERATION_TIMED_OUT);
+        _pattern = p;
+        _addressList.add(addr);
     }
 
-    public TimeoutException(String msg, Throwable t)
+    public void add(String addr)
     {
-        super(msg, t, ErrorCode.OPERATION_TIMED_OUT);
+        _addressList.add(addr);
+    }
+
+    public void remove(String addr)
+    {
+        _addressList.remove(addr);
+    }
+
+    public Pattern getPattern()
+    {
+        return _pattern;
+    }
+
+    public List<String> getAddressList()
+    {
+        return _addressList;
     }
 }

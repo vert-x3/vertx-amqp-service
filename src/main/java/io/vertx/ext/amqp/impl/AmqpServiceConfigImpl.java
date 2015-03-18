@@ -19,6 +19,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.amqp.InboundRoutingPropertyType;
 import io.vertx.ext.amqp.AmqpServiceConfig;
+import io.vertx.ext.amqp.RouteEntry;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -118,7 +119,7 @@ public class AmqpServiceConfigImpl implements AmqpServiceConfig
     {
         for (String key : routes.fieldNames())
         {
-            RouteEntryImpl entry = new RouteEntryImpl(Pattern.compile(key), routes.getString(key));
+            RouteEntry entry = new RouteEntry(Pattern.compile(key), routes.getString(key));
             map.put(key, entry);
         }
     }
@@ -195,9 +196,9 @@ public class AmqpServiceConfigImpl implements AmqpServiceConfig
         return _inboundRoutes;
     }
 
-    public static RouteEntry createRouteEntry(AmqpServiceConfig config, String pattern, String address)
+    public static RouteEntry createRouteEntry(String pattern, String address)
     {
-        return new RouteEntryImpl(Pattern.compile(pattern), address);
+        return new RouteEntry(Pattern.compile(pattern), address);
     }
 
     @Override

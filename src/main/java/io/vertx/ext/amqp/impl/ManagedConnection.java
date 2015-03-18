@@ -17,12 +17,8 @@ package io.vertx.ext.amqp.impl;
 
 import io.vertx.ext.amqp.ConnectionSettings;
 import io.vertx.ext.amqp.CreditMode;
-import io.vertx.ext.amqp.InboundLink;
 import io.vertx.ext.amqp.MessagingException;
-import io.vertx.ext.amqp.OutboundLink;
-import io.vertx.ext.amqp.ReceiverMode;
-import io.vertx.ext.amqp.SenderMode;
-import io.vertx.ext.amqp.Session;
+import io.vertx.ext.amqp.ReliabilityMode;
 
 import org.apache.qpid.proton.Proton;
 import org.apache.qpid.proton.engine.Delivery;
@@ -76,11 +72,11 @@ class ManagedConnection extends ConnectionImpl
                 eventListener.onConnectionClosed(this);
                 break;
             case SESSION_REMOTE_OPEN:
-                Session ssn;
+                SessionImpl ssn;
                 org.apache.qpid.proton.engine.Session amqpSsn = event.getSession();
                 if (amqpSsn.getContext() != null)
                 {
-                    ssn = (Session) amqpSsn.getContext();
+                    ssn = (SessionImpl) amqpSsn.getContext();
                 }
                 else
                 {
@@ -91,7 +87,7 @@ class ManagedConnection extends ConnectionImpl
                 eventListener.onSessionOpen(ssn);
                 break;
             case SESSION_FINAL:
-                ssn = (Session) event.getSession().getContext();
+                ssn = (SessionImpl) event.getSession().getContext();
                 eventListener.onSessionClosed(ssn);
                 break;
             case LINK_REMOTE_OPEN:
@@ -106,7 +102,7 @@ class ManagedConnection extends ConnectionImpl
                     else
                     {
                         inboundLink = new InboundLinkImpl(_session, link.getRemoteTarget().getAddress(), link,
-                                ReceiverMode.AT_LEAST_ONCE, CreditMode.AUTO);
+                                ReliabilityMode.AT_LEAST_ONCE, CreditMode.AUTO);
                         link.setContext(inboundLink);
                         inboundLink.init();
                     }
@@ -132,7 +128,7 @@ class ManagedConnection extends ConnectionImpl
                 link = event.getLink();
                 if (link instanceof Sender)
                 {
-                    OutboundLink outboundLink = (OutboundLink) link.getContext();
+                    OutboundLinkImpl outboundLink = (OutboundLinkImpl) link.getContext();
                     eventListener.onOutboundLinkCredit(outboundLink, link.getCredit());
                 }
                 break;
@@ -140,7 +136,7 @@ class ManagedConnection extends ConnectionImpl
                 link = event.getLink();
                 if (link instanceof Receiver)
                 {
-                    InboundLink inboundLink = (InboundLink) link.getContext();
+                    InboundLinkImpl inboundLink = (InboundLinkImpl) link.getContext();
                     eventListener.onInboundLinkClosed(inboundLink);
                 }
                 else
@@ -199,12 +195,7 @@ class ManagedConnection extends ConnectionImpl
         }
     }
 
-    public OutboundLinkImpl createOutboundLink(String address) throws MessagingException
-    {
-        return createOutboundLink(address, SenderMode.AT_LEAST_ONCE);
-    }
-
-    public OutboundLinkImpl createOutboundLink(String address, SenderMode mode) throws MessagingException
+    public OutboundLinkImpl createOutboundLink(String address, ReliabilityMode mode) throws MessagingException
     {
         OutboundLinkImpl link = (OutboundLinkImpl) _session.createOutboundLink(address, mode);
         link.init();
@@ -212,7 +203,7 @@ class ManagedConnection extends ConnectionImpl
         return link;
     }
 
-    public InboundLinkImpl createInboundLink(String address, ReceiverMode receiverMode, CreditMode creditMode)
+    public InboundLinkImpl createInboundLink(String address, ReliabilityMode receiverMode, CreditMode creditMode)
             throws MessagingException
     {
         InboundLinkImpl link = (InboundLinkImpl) _session.createInboundLink(address, receiverMode, creditMode);
