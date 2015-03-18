@@ -15,34 +15,25 @@
  */
 package io.vertx.ext.amqp.impl;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.AsyncResultHandler;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.Message;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.impl.LoggerFactory;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
-import io.vertx.core.net.NetSocket;
 import io.vertx.ext.amqp.AmqpServiceConfig;
 import io.vertx.ext.amqp.Connection;
 import io.vertx.ext.amqp.ConnectionSettings;
 import io.vertx.ext.amqp.CreditMode;
 import io.vertx.ext.amqp.DefaultConnectionSettings;
 import io.vertx.ext.amqp.ErrorCode;
-import io.vertx.ext.amqp.InboundLink;
 import io.vertx.ext.amqp.IncomingLinkOptions;
 import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.OutgoingLinkOptions;
 import io.vertx.ext.amqp.RecoveryOptions;
 import io.vertx.ext.amqp.impl.ConnectionImpl.State;
-import io.vertx.ext.amqp.impl.AmqpServiceImpl.ReplyHandler;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -95,17 +86,23 @@ public class LinkManager extends AbstractAmqpEventListener
         serverOp.setHost(config.getInboundHost());
         serverOp.setPort(config.getInboundPort());
         _server = _vertx.createNetServer(serverOp);
-        _server.connectHandler(new InboundConnectionHandler(this));
-        _server.listen(new AsyncResultHandler<NetServer>()
-        {
-            public void handle(AsyncResult<NetServer> result)
+        _server.connectHandler(sock -> {
+            DefaultConnectionSettings settings = new DefaultConnectionSettings();
+            settings.setHost(sock.remoteAddress().host());
+            settings.setPort(sock.remoteAddress().port());
+            ManagedConnection connection = new ManagedConnection(settings, this, true);
+            connection.setNetSocket(sock);
+            connection.open();
+        });
+
+        _server.listen(5673, result -> {
+            if (result.failed())
             {
-                if (result.failed())
-                {
-                    _logger.warn(String.format("Error {%s} Server was unable to bind to %s:%s", result.cause(), _config.getInboundHost(),
-                            _config.getInboundPort()), result.cause());
-                    // We need to stop the verticle
-                }
+                result.cause().printStackTrace();
+                _logger.warn(
+                        String.format("Error {%s} Server was unable to bind to %s:%s", result.cause(),
+                                _config.getInboundHost(), _config.getInboundPort()), result.cause());
+                // We need to stop the verticle
             }
         });
     }
@@ -134,6 +131,7 @@ public class LinkManager extends AbstractAmqpEventListener
         }
     }
 
+    //TODO handle reconnection.
     ManagedConnection getConnection(final ConnectionSettings settings) throws MessagingException
     {
         for (ManagedConnection con : _outboundConnections)
@@ -155,8 +153,22 @@ public class LinkManager extends AbstractAmqpEventListener
         }
 
         ManagedConnection connection = new ManagedConnection(settings, this, false);
-        ConnectionResultHander handler = new ConnectionResultHander(connection);
-        _client.connect(settings.getPort(), settings.getHost(), handler);
+        _client.connect(settings.getPort(), settings.getHost(), result -> {
+            if (result.succeeded())
+            {
+                connection.setNetSocket(result.result());
+                connection.open();
+                _logger.info(String.format("Connected to AMQP peer at %s:%s", connection.getSettings().getHost(),
+                        connection.getSettings().getPort()));
+            }
+            else
+            {
+                _logger.warn(String.format("Error {%s}, when connecting to AMQP peer at %s:%s", result.cause(), connection
+                        .getSettings().getHost(), connection.getSettings().getPort()));
+                connection.setState(State.FAILED);
+                _outboundConnections.remove(connection);
+            }
+        });
         _logger.info(String.format("Attempting connection to AMQP peer at %s:%s", settings.getHost(),
                 settings.getPort()));
         _outboundConnections.add(connection);
@@ -179,7 +191,8 @@ public class LinkManager extends AbstractAmqpEventListener
         case FAILED:
             if (link.getConnection().isInbound())
             {
-                throw new MessagingException("Link created from an AMQP peer into the bridge failed", ErrorCode.LINK_FAILED);
+                throw new MessagingException("Link created from an AMQP peer into the bridge failed",
+                        ErrorCode.LINK_FAILED);
             }
             switch (options.getRetryPolicy())
             {
@@ -348,64 +361,6 @@ public class LinkManager extends AbstractAmqpEventListener
     // ---------- / Event Handler -----------------------
 
     // ---------- Helper classes
-    class ConnectionResultHander implements Handler<AsyncResult<NetSocket>>
-    {
-        ConnectionImpl _connection;
-
-        Throwable _cause;
-
-        ConnectionResultHander(ConnectionImpl conn)
-        {
-            _connection = conn;
-        }
-
-        @Override
-        public void handle(AsyncResult<NetSocket> result)
-        {
-            if (result.succeeded())
-            {
-                _connection.setNetSocket(result.result());
-                _connection.open();
-                _logger.info(String.format("Connected to AMQP peer at %s:%s", _connection.getSettings().getHost(),
-                        _connection.getSettings().getPort()));
-            }
-            else
-            {
-                _cause = result.cause();
-                /*
-                 * _logger.info("-------- Connection failure ----------");
-                 * _logger.info(String.format(
-                 * "Failed to establish a connection to AMQP peer at %s:%s",
-                 * _connection .getSettings().getHost(),
-                 * _connection.getSettings().getPort()));
-                 * _logger.info("Exception received", _cause);
-                 * _logger.info("-------- /Connection failure ----------");
-                 */
-                _outboundConnections.remove(_connection);
-            }
-        }
-    }
-
-    class InboundConnectionHandler implements Handler<NetSocket>
-    {
-        AmqpEventListener _handler;
-
-        InboundConnectionHandler(AmqpEventListener handler)
-        {
-            _handler = handler;
-        }
-
-        public void handle(NetSocket sock)
-        {
-            DefaultConnectionSettings settings = new DefaultConnectionSettings();
-            settings.setHost(sock.remoteAddress().host());
-            settings.setPort(sock.remoteAddress().port());
-            ManagedConnection connection = new ManagedConnection(settings, _handler, true);
-            connection.setNetSocket(sock);
-            connection.open();
-        }
-    }
-
     class Outgoing
     {
         String _id;
