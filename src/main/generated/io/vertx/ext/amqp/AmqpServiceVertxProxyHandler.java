@@ -29,13 +29,11 @@ import java.util.ArrayList;import java.util.HashSet;import java.util.List;import
 import io.vertx.serviceproxy.ProxyHelper;
 import io.vertx.serviceproxy.ProxyHandler;
 import io.vertx.ext.amqp.AmqpService;
-import io.vertx.ext.amqp.MessageDisposition;
-import io.vertx.ext.amqp.ReceiverMode;
-import io.vertx.ext.amqp.CreditMode;
+import io.vertx.ext.amqp.OutgoingLinkOptions;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.ext.amqp.IncomingLinkOptions;
 
 /*
   Generated Proxy code - DO NOT EDIT
@@ -61,25 +59,36 @@ public class AmqpServiceVertxProxyHandler extends ProxyHandler {
     }
     switch (action) {
 
-
-      case "consume": {
-        service.consume((java.lang.String)json.getValue("amqpAddress"), (java.lang.String)json.getValue("ebAddress"), io.vertx.ext.amqp.ReceiverMode.valueOf(json.getString("receiverMode")), io.vertx.ext.amqp.CreditMode.valueOf(json.getString("creditMode")), createHandler(msg));
+      case "establishIncommingLink": {
+        service.establishIncommingLink((java.lang.String)json.getValue("amqpAddress"), (java.lang.String)json.getValue("eventbusAddress"), (java.lang.String)json.getValue("notificationAddress"), new io.vertx.ext.amqp.IncomingLinkOptions(json.getJsonObject("options")), createHandler(msg));
         break;
       }
-      case "issueCredit": {
-        service.issueCredit((java.lang.String)json.getValue("consumerRef"), (int)json.getValue("credits"), createHandler(msg));
+      case "fetch": {
+        service.fetch((java.lang.String)json.getValue("incomingLinkRef"), (int)json.getValue("messages"), createHandler(msg));
         break;
       }
-      case "unregisterConsume": {
-        service.unregisterConsume((java.lang.String)json.getValue("consumerRef"), createHandler(msg));
+      case "cancelIncommingLink": {
+        service.cancelIncommingLink((java.lang.String)json.getValue("incomingLinkRef"), createHandler(msg));
         break;
       }
-      case "acknowledge": {
-        service.acknowledge((java.lang.String)json.getValue("msgRef"), io.vertx.ext.amqp.MessageDisposition.valueOf(json.getString("disposition")), createHandler(msg));
+      case "establishOutgoingLink": {
+        service.establishOutgoingLink((java.lang.String)json.getValue("amqpAddress"), (java.lang.String)json.getValue("eventbusAddress"), (java.lang.String)json.getValue("notificationAddress"), new io.vertx.ext.amqp.OutgoingLinkOptions(json.getJsonObject("options")), createHandler(msg));
         break;
       }
-      case "publish": {
-        service.publish((java.lang.String)json.getValue("address"), (io.vertx.core.json.JsonObject)json.getValue("msg"), createHandler(msg));
+      case "cancelOutgoingLink": {
+        service.cancelOutgoingLink((java.lang.String)json.getValue("outgoingLinkRef"), createHandler(msg));
+        break;
+      }
+      case "accept": {
+        service.accept((java.lang.String)json.getValue("msgRef"), createHandler(msg));
+        break;
+      }
+      case "reject": {
+        service.reject((java.lang.String)json.getValue("msgRef"), createHandler(msg));
+        break;
+      }
+      case "release": {
+        service.release((java.lang.String)json.getValue("msgRef"), createHandler(msg));
         break;
       }
       case "start": {

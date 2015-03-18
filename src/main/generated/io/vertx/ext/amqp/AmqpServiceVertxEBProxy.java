@@ -24,13 +24,11 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
 import java.util.ArrayList;import java.util.HashSet;import java.util.List;import java.util.Map;import java.util.Set;import io.vertx.serviceproxy.ProxyHelper;
 import io.vertx.ext.amqp.AmqpService;
-import io.vertx.ext.amqp.MessageDisposition;
-import io.vertx.ext.amqp.ReceiverMode;
-import io.vertx.ext.amqp.CreditMode;
+import io.vertx.ext.amqp.OutgoingLinkOptions;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.ext.amqp.IncomingLinkOptions;
 
 /*
   Generated Proxy code - DO NOT EDIT
@@ -47,18 +45,18 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     this._address = address;
   }
 
-  public AmqpService consume(String amqpAddress, String ebAddress, ReceiverMode receiverMode, CreditMode creditMode, Handler<AsyncResult<String>> result) {
+  public AmqpService establishIncommingLink(String amqpAddress, String eventbusAddress, String notificationAddress, IncomingLinkOptions options, Handler<AsyncResult<String>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
     }
     JsonObject _json = new JsonObject();
     _json.put("amqpAddress", amqpAddress);
-    _json.put("ebAddress", ebAddress);
-    _json.put("receiverMode", receiverMode.toString());
-    _json.put("creditMode", creditMode.toString());
+    _json.put("eventbusAddress", eventbusAddress);
+    _json.put("notificationAddress", notificationAddress);
+    _json.put("options", options.toJson());
     DeliveryOptions _deliveryOptions = new DeliveryOptions();
-    _deliveryOptions.addHeader("action", "consume");
+    _deliveryOptions.addHeader("action", "establishIncommingLink");
     _vertx.eventBus().<String>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
         result.handle(Future.failedFuture(res.cause()));
@@ -69,16 +67,16 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService issueCredit(String consumerRef, int credits, Handler<AsyncResult<Void>> result) {
+  public AmqpService fetch(String incomingLinkRef, int messages, Handler<AsyncResult<Void>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
     }
     JsonObject _json = new JsonObject();
-    _json.put("consumerRef", consumerRef);
-    _json.put("credits", credits);
+    _json.put("incomingLinkRef", incomingLinkRef);
+    _json.put("messages", messages);
     DeliveryOptions _deliveryOptions = new DeliveryOptions();
-    _deliveryOptions.addHeader("action", "issueCredit");
+    _deliveryOptions.addHeader("action", "fetch");
     _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
         result.handle(Future.failedFuture(res.cause()));
@@ -89,15 +87,15 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService unregisterConsume(String consumerRef, Handler<AsyncResult<Void>> result) {
+  public AmqpService cancelIncommingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
     }
     JsonObject _json = new JsonObject();
-    _json.put("consumerRef", consumerRef);
+    _json.put("incomingLinkRef", incomingLinkRef);
     DeliveryOptions _deliveryOptions = new DeliveryOptions();
-    _deliveryOptions.addHeader("action", "unregisterConsume");
+    _deliveryOptions.addHeader("action", "cancelIncommingLink");
     _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
         result.handle(Future.failedFuture(res.cause()));
@@ -108,16 +106,56 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService acknowledge(String msgRef, MessageDisposition disposition, Handler<AsyncResult<Void>> result) {
+  public AmqpService establishOutgoingLink(String amqpAddress, String eventbusAddress, String notificationAddress, OutgoingLinkOptions options, Handler<AsyncResult<String>> result) {
+    if (closed) {
+      result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
+      return this;
+    }
+    JsonObject _json = new JsonObject();
+    _json.put("amqpAddress", amqpAddress);
+    _json.put("eventbusAddress", eventbusAddress);
+    _json.put("notificationAddress", notificationAddress);
+    _json.put("options", options.toJson());
+    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    _deliveryOptions.addHeader("action", "establishOutgoingLink");
+    _vertx.eventBus().<String>send(_address, _json, _deliveryOptions, res -> {
+      if (res.failed()) {
+        result.handle(Future.failedFuture(res.cause()));
+      } else {
+        result.handle(Future.succeededFuture(res.result().body()));
+      }
+    });
+    return this;
+  }
+
+  public AmqpService cancelOutgoingLink(String outgoingLinkRef, Handler<AsyncResult<Void>> result) {
+    if (closed) {
+      result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
+      return this;
+    }
+    JsonObject _json = new JsonObject();
+    _json.put("outgoingLinkRef", outgoingLinkRef);
+    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    _deliveryOptions.addHeader("action", "cancelOutgoingLink");
+    _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
+      if (res.failed()) {
+        result.handle(Future.failedFuture(res.cause()));
+      } else {
+        result.handle(Future.succeededFuture(res.result().body()));
+      }
+    });
+    return this;
+  }
+
+  public AmqpService accept(String msgRef, Handler<AsyncResult<Void>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
     }
     JsonObject _json = new JsonObject();
     _json.put("msgRef", msgRef);
-    _json.put("disposition", disposition.toString());
     DeliveryOptions _deliveryOptions = new DeliveryOptions();
-    _deliveryOptions.addHeader("action", "acknowledge");
+    _deliveryOptions.addHeader("action", "accept");
     _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
         result.handle(Future.failedFuture(res.cause()));
@@ -128,17 +166,35 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService publish(String address, JsonObject msg, Handler<AsyncResult<JsonObject>> result) {
+  public AmqpService reject(String msgRef, Handler<AsyncResult<Void>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
     }
     JsonObject _json = new JsonObject();
-    _json.put("address", address);
-    _json.put("msg", msg);
+    _json.put("msgRef", msgRef);
     DeliveryOptions _deliveryOptions = new DeliveryOptions();
-    _deliveryOptions.addHeader("action", "publish");
-    _vertx.eventBus().<JsonObject>send(_address, _json, _deliveryOptions, res -> {
+    _deliveryOptions.addHeader("action", "reject");
+    _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
+      if (res.failed()) {
+        result.handle(Future.failedFuture(res.cause()));
+      } else {
+        result.handle(Future.succeededFuture(res.result().body()));
+      }
+    });
+    return this;
+  }
+
+  public AmqpService release(String msgRef, Handler<AsyncResult<Void>> result) {
+    if (closed) {
+      result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
+      return this;
+    }
+    JsonObject _json = new JsonObject();
+    _json.put("msgRef", msgRef);
+    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    _deliveryOptions.addHeader("action", "release");
+    _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
         result.handle(Future.failedFuture(res.cause()));
       } else {

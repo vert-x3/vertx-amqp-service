@@ -19,22 +19,28 @@ package io.vertx.rxjava.ext.amqp;
 import java.util.Map;
 import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
-import io.vertx.ext.amqp.MessageDisposition;
-import io.vertx.ext.amqp.ReceiverMode;
-import io.vertx.ext.amqp.CreditMode;
+import io.vertx.ext.amqp.OutgoingLinkOptions;
 import io.vertx.rxjava.core.Vertx;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.ext.amqp.IncomingLinkOptions;
 
 /**
- * AMQP service allows you to directly use API methods to subscribe, publish,
- * issue credits and message acks without having to use control-messages via the
- * event bus.
+ * AMQP service allows a Vert.x application to,
+ * <ul>
+ * <li>Establish and cancel incoming/outgoing AMQP links, and map the link it to
+ * an event-bus address.</li>
+ * <li>Configure the link behavior</li>
+ * <li>Control the flow of messages both incoming and outgoing to maintain QoS</li>
+ * <li>Send and Receive messages from AMQP peers with different reliability
+ * guarantees</li>
+ * </ul>
  * 
- * @author <a href="mailto:rajith@redhat.com">Rajith Attapattu</a>
+ * For more information on AMQP visit www.amqp.org This service speaks AMQP 1.0
+ * and use QPid Proton(http://qpid.apache.org/proton) for protocol support.
  *
- * NOTE: This class has been automatically generated from the original non RX-ified interface using Vert.x codegen.
+ * <p/>
+ * NOTE: This class has been automatically generated from the {@link io.vertx.ext.amqp.AmqpService original} non RX-ified interface using Vert.x codegen.
  */
 
 public class AmqpService {
@@ -49,147 +55,232 @@ public class AmqpService {
     return delegate;
   }
 
-  public static AmqpService create(Vertx vertx, JsonObject config) {
-    AmqpService ret= AmqpService.newInstance(io.vertx.ext.amqp.AmqpService.create((io.vertx.core.Vertx) vertx.getDelegate(), config));
-    return ret;
-  }
-
-  public static AmqpService createEventBusProxy(Vertx vertx, String address) {
+  public static AmqpService createEventBusProxy(Vertx vertx, String address) { 
     AmqpService ret= AmqpService.newInstance(io.vertx.ext.amqp.AmqpService.createEventBusProxy((io.vertx.core.Vertx) vertx.getDelegate(), address));
     return ret;
   }
 
   /**
-   * Allows an application to create a subscription to an AMQP message source.
-   * The service will receive the messages on behalf of the application and
-   * forward it to the event-bus address specified in the consume method. The
-   * application will be listening on this address.
-   * 
-   * @param amqpAddress
-   *            The address that identifies the AMQP message source to
-   *            subscribe from.
-   * @param ebAddress
-   *            The event-bus address the application is listening on for the
-   *            messages.
-   * @param receiverMode
-   *            Specified the reliability expected.
-   * @param creditMode
-   *            Specifies how credit is replenished.
-   * @param result
-   *            AsyncResult that contains a String ref to the AMQP 'consumer',
-   *            if successfully created.
+   * Allows an application to establish a link to an AMQP message-source for
+   * receiving messages. The service will receive the messages on behalf of
+   * the application and forward it to the event-bus address specified in the
+   * consume method. The application will be listening on this address.
+   * @param amqpAddress A link will be created to the the AMQP message-source identified by this address. .
+   * @param eventbusAddress The event-bus address to be mapped to the above link. The application should register a handler for this address on the event bus to receive the messages.
+   * @param notificationAddress The event-bus address to which notifications about the incoming link is sent. Ex. Errors. The application should register a handler with the event-bus to receive these updates.
+   * @param options Options to configure the link behavior (Ex prefetch, reliability). {@link IncommingLinkOptions}
+   * @param result The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association.
    * @return A reference to the service.
    */
-  public AmqpService consume(String amqpAddress, String ebAddress, ReceiverMode receiverMode, CreditMode creditMode, Handler<AsyncResult<String>> result) {
-    this.delegate.consume(amqpAddress, ebAddress, receiverMode, creditMode, result);
+  public AmqpService establishIncommingLink(String amqpAddress, String eventbusAddress, String notificationAddress, IncomingLinkOptions options, Handler<AsyncResult<String>> result) { 
+    this.delegate.establishIncommingLink(amqpAddress, eventbusAddress, notificationAddress, options, result);
     return this;
   }
 
-  public Observable<String> consumeObservable(String amqpAddress, String ebAddress, ReceiverMode receiverMode, CreditMode creditMode) {
+  /**
+   * Allows an application to establish a link to an AMQP message-source for
+   * receiving messages. The service will receive the messages on behalf of
+   * the application and forward it to the event-bus address specified in the
+   * consume method. The application will be listening on this address.
+   * @param amqpAddress A link will be created to the the AMQP message-source identified by this address. .
+   * @param eventbusAddress The event-bus address to be mapped to the above link. The application should register a handler for this address on the event bus to receive the messages.
+   * @param notificationAddress The event-bus address to which notifications about the incoming link is sent. Ex. Errors. The application should register a handler with the event-bus to receive these updates.
+   * @param options Options to configure the link behavior (Ex prefetch, reliability). {@link IncommingLinkOptions}
+   * @return 
+   */
+  public Observable<String> establishIncommingLinkObservable(String amqpAddress, String eventbusAddress, String notificationAddress, IncomingLinkOptions options) { 
     io.vertx.rx.java.ObservableFuture<String> result = io.vertx.rx.java.RxHelper.observableFuture();
-    consume(amqpAddress, ebAddress, receiverMode, creditMode, result.toHandler());
+    establishIncommingLink(amqpAddress, eventbusAddress, notificationAddress, options, result.toHandler());
     return result;
   }
 
   /**
-   * Allows an application to issue message credits for flow control purposes.
-   * 
-   * @see CreditMode to understand how msg credits works.
-   * 
-   * @param consumerRef
-   *            The String ref return by the consume method.
-   * @param credits
-   *            The message credits
-   * @param result
-   *            Notifies if there is an error.
+   * If prefetch was set to zero, this method allows the application to
+   * explicitly fetch a certain number of messages. If prefetch > 0, the AMQP
+   * service will prefetch messages for you automatically.
+   * @param incomingLinkRef The String ref return by the establishIncommingLink method. This uniquely identifies the incoming link and it's mapping to an event-bus address.
+   * @param messages The number of message to fetch.
+   * @param result Notifies if there is an error.
    * @return A reference to the service.
    */
-  public AmqpService issueCredit(String consumerRef, int credits, Handler<AsyncResult<Void>> result) {
-    this.delegate.issueCredit(consumerRef, credits, result);
+  public AmqpService fetch(String incomingLinkRef, int messages, Handler<AsyncResult<Void>> result) { 
+    this.delegate.fetch(incomingLinkRef, messages, result);
     return this;
   }
 
-  public Observable<Void> issueCreditObservable(String consumerRef, int credits) {
+  /**
+   * If prefetch was set to zero, this method allows the application to
+   * explicitly fetch a certain number of messages. If prefetch > 0, the AMQP
+   * service will prefetch messages for you automatically.
+   * @param incomingLinkRef The String ref return by the establishIncommingLink method. This uniquely identifies the incoming link and it's mapping to an event-bus address.
+   * @param messages The number of message to fetch.
+   * @return 
+   */
+  public Observable<Void> fetchObservable(String incomingLinkRef, int messages) { 
     io.vertx.rx.java.ObservableFuture<Void> result = io.vertx.rx.java.RxHelper.observableFuture();
-    issueCredit(consumerRef, credits, result.toHandler());
+    fetch(incomingLinkRef, messages, result.toHandler());
     return result;
   }
 
   /**
-   * Allows an application to cancel a subscription it has previously created.
-   * 
-   * @param consumerRef
-   *            The String ref return by the consume method.
-   * @param result
-   *            Notifies if there is an error.
+   * Allows an application to cancel an incoming link and remove it's mapping
+   * to an event-bus address.
+   * @param incomingLinkRef The String ref return by the establishIncommingLink method. This uniquely identifies the incoming link and it's mapping to an event-bus address.
+   * @param result Notifies if there is an error.
    * @return A reference to the service.
    */
-  public AmqpService unregisterConsume(String consumerRef, Handler<AsyncResult<Void>> result) {
-    this.delegate.unregisterConsume(consumerRef, result);
+  public AmqpService cancelIncommingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result) { 
+    this.delegate.cancelIncommingLink(incomingLinkRef, result);
     return this;
   }
 
-  public Observable<Void> unregisterConsumeObservable(String consumerRef) {
+  /**
+   * Allows an application to cancel an incoming link and remove it's mapping
+   * to an event-bus address.
+   * @param incomingLinkRef The String ref return by the establishIncommingLink method. This uniquely identifies the incoming link and it's mapping to an event-bus address.
+   * @return 
+   */
+  public Observable<Void> cancelIncommingLinkObservable(String incomingLinkRef) { 
     io.vertx.rx.java.ObservableFuture<Void> result = io.vertx.rx.java.RxHelper.observableFuture();
-    unregisterConsume(consumerRef, result.toHandler());
+    cancelIncommingLink(incomingLinkRef, result.toHandler());
     return result;
   }
 
   /**
-   * Allows an application to acknowledge a message and set it's disposition.
-   * 
-   * @param msgRef
-   *            - The string ref. Use {@link AmqpMessage#getMsgRef()}
-   * @param disposition
-   *            - One of ACCEPT, REJECT OR RELEASED.
-   * @param result
-   *            Notifies if there is an error.
+   * Allows an application to establish a link to an AMQP message-sink for
+   * sending messages. The application will send the messages to the event-bus
+   * address. The AMQP service will receive these messages via the event-bus
+   * and forward it to the respective AMQP message sink.
+   * @param amqpAddress A link will be created to the the AMQP message-sink identified by this address.
+   * @param eventbusAddress The event-bus address to be mapped to the above link. The application should send the messages using this address.
+   * @param notificationAddress The event-bus address to which notifications about the outgoing link is sent. Ex. Errors, Delivery Status, credit availability. The application should register a handler with the event-bus to receive these updates.
+   * @param options Options to configure the link behavior (Ex reliability). {@link IncommingLinkOptions}
+   * @param result The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association.
    * @return A reference to the service.
    */
-  public AmqpService acknowledge(String msgRef, MessageDisposition disposition, Handler<AsyncResult<Void>> result) {
-    this.delegate.acknowledge(msgRef, disposition, result);
+  public AmqpService establishOutgoingLink(String amqpAddress, String eventbusAddress, String notificationAddress, OutgoingLinkOptions options, Handler<AsyncResult<String>> result) { 
+    this.delegate.establishOutgoingLink(amqpAddress, eventbusAddress, notificationAddress, options, result);
     return this;
   }
 
-  public Observable<Void> acknowledgeObservable(String msgRef, MessageDisposition disposition) {
-    io.vertx.rx.java.ObservableFuture<Void> result = io.vertx.rx.java.RxHelper.observableFuture();
-    acknowledge(msgRef, disposition, result.toHandler());
+  /**
+   * Allows an application to establish a link to an AMQP message-sink for
+   * sending messages. The application will send the messages to the event-bus
+   * address. The AMQP service will receive these messages via the event-bus
+   * and forward it to the respective AMQP message sink.
+   * @param amqpAddress A link will be created to the the AMQP message-sink identified by this address.
+   * @param eventbusAddress The event-bus address to be mapped to the above link. The application should send the messages using this address.
+   * @param notificationAddress The event-bus address to which notifications about the outgoing link is sent. Ex. Errors, Delivery Status, credit availability. The application should register a handler with the event-bus to receive these updates.
+   * @param options Options to configure the link behavior (Ex reliability). {@link IncommingLinkOptions}
+   * @return 
+   */
+  public Observable<String> establishOutgoingLinkObservable(String amqpAddress, String eventbusAddress, String notificationAddress, OutgoingLinkOptions options) { 
+    io.vertx.rx.java.ObservableFuture<String> result = io.vertx.rx.java.RxHelper.observableFuture();
+    establishOutgoingLink(amqpAddress, eventbusAddress, notificationAddress, options, result.toHandler());
     return result;
   }
 
   /**
-   * Allows an application to publish a message to an AMQP target.
-   * 
-   * @param address
-   *            The AMQP target to which the messages should be sent.
-   * @param msg
-   *            The message to be sent.
-   * @param result
-   *            A JsonObject containing the delivery state and disposition.
-   * @return
+   * Allows an application to cancel an outgoing link and remove it's mapping
+   * to an event-bus address.
+   * @param outgoingLinkRef The String ref return by the establishOutgoingLink method. This uniquely identifies the outgoing link and it's mapping to an event-bus address.
+   * @param result Notifies if there is an error.
+   * @return A reference to the service.
    */
-  public AmqpService publish(String address, JsonObject msg, Handler<AsyncResult<JsonObject>> result) {
-    this.delegate.publish(address, msg, result);
+  public AmqpService cancelOutgoingLink(String outgoingLinkRef, Handler<AsyncResult<Void>> result) { 
+    this.delegate.cancelOutgoingLink(outgoingLinkRef, result);
     return this;
   }
 
-  public Observable<JsonObject> publishObservable(String address, JsonObject msg) {
-    io.vertx.rx.java.ObservableFuture<JsonObject> result = io.vertx.rx.java.RxHelper.observableFuture();
-    publish(address, msg, result.toHandler());
+  /**
+   * Allows an application to cancel an outgoing link and remove it's mapping
+   * to an event-bus address.
+   * @param outgoingLinkRef The String ref return by the establishOutgoingLink method. This uniquely identifies the outgoing link and it's mapping to an event-bus address.
+   * @return 
+   */
+  public Observable<Void> cancelOutgoingLinkObservable(String outgoingLinkRef) { 
+    io.vertx.rx.java.ObservableFuture<Void> result = io.vertx.rx.java.RxHelper.observableFuture();
+    cancelOutgoingLink(outgoingLinkRef, result.toHandler());
+    return result;
+  }
+
+  /**
+   * Allows an application to accept a message it has received.
+   * @param msgRef - The string ref. Use {@link AmqpMessage#getMsgRef()}
+   * @param result Notifies if there is an error.
+   * @return A reference to the service.
+   */
+  public AmqpService accept(String msgRef, Handler<AsyncResult<Void>> result) { 
+    this.delegate.accept(msgRef, result);
+    return this;
+  }
+
+  /**
+   * Allows an application to accept a message it has received.
+   * @param msgRef - The string ref. Use {@link AmqpMessage#getMsgRef()}
+   * @return 
+   */
+  public Observable<Void> acceptObservable(String msgRef) { 
+    io.vertx.rx.java.ObservableFuture<Void> result = io.vertx.rx.java.RxHelper.observableFuture();
+    accept(msgRef, result.toHandler());
+    return result;
+  }
+
+  /**
+   * Allows an application to reject a message it has received.
+   * @param msgRef - The string ref. Use {@link AmqpMessage#getMsgRef()}
+   * @param result Notifies if there is an error.
+   * @return A reference to the service.
+   */
+  public AmqpService reject(String msgRef, Handler<AsyncResult<Void>> result) { 
+    this.delegate.reject(msgRef, result);
+    return this;
+  }
+
+  /**
+   * Allows an application to reject a message it has received.
+   * @param msgRef - The string ref. Use {@link AmqpMessage#getMsgRef()}
+   * @return 
+   */
+  public Observable<Void> rejectObservable(String msgRef) { 
+    io.vertx.rx.java.ObservableFuture<Void> result = io.vertx.rx.java.RxHelper.observableFuture();
+    reject(msgRef, result.toHandler());
+    return result;
+  }
+
+  /**
+   * Allows an application to release a message it has received.
+   * @param msgRef - The string ref. Use {@link AmqpMessage#getMsgRef()}
+   * @param result Notifies if there is an error.
+   * @return A reference to the service.
+   */
+  public AmqpService release(String msgRef, Handler<AsyncResult<Void>> result) { 
+    this.delegate.release(msgRef, result);
+    return this;
+  }
+
+  /**
+   * Allows an application to release a message it has received.
+   * @param msgRef - The string ref. Use {@link AmqpMessage#getMsgRef()}
+   * @return 
+   */
+  public Observable<Void> releaseObservable(String msgRef) { 
+    io.vertx.rx.java.ObservableFuture<Void> result = io.vertx.rx.java.RxHelper.observableFuture();
+    release(msgRef, result.toHandler());
     return result;
   }
 
   /**
    * Start the service
    */
-  public void start() {
+  public void start() { 
     this.delegate.start();
   }
 
   /**
    * Stop the service
    */
-  public void stop() {
+  public void stop() { 
     this.delegate.stop();
   }
 

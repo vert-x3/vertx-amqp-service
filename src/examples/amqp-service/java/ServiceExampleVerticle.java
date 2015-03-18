@@ -18,7 +18,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.amqp.AmqpService;
 import io.vertx.ext.amqp.CreditMode;
 import io.vertx.ext.amqp.MessageDisposition;
-import io.vertx.ext.amqp.ReceiverMode;
+import io.vertx.ext.amqp.ReliabilityMode;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -61,7 +61,7 @@ public class ServiceExampleVerticle extends AbstractVerticle
 
         // Setup the AMQP subscription and pass on the vertx consumer address
         final Consumer consumer = new ServiceExampleVerticle.Consumer();
-        service.consume("amqp://localhost:5672/my-queue", "my-vertx-address", ReceiverMode.AT_LEAST_ONCE,
+        service.consume("amqp://localhost:5672/my-queue", "my-vertx-address", ReliabilityMode.AT_LEAST_ONCE,
                 CreditMode.AUTO, result -> {
                     if (result.succeeded())
                     {
