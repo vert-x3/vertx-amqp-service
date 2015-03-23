@@ -20,8 +20,8 @@ import io.vertx.ext.amqp.IncomingLinkOptions;
 import io.vertx.ext.amqp.OutgoingLinkOptions;
 
 /**
- * Demonstrates how to use the AmqpService interface to send and receive from a
- * traditional message broker.
+ * Demonstrates how to use the AmqpService interface for consuming from a queue
+ * within a message broker.
  * 
  * This example assumes an ActiveMQ broker (or another AMQP 1.0 broker) is
  * running at localhost:6672
@@ -29,20 +29,17 @@ import io.vertx.ext.amqp.OutgoingLinkOptions;
  * 1. Create a vert.x consumer for address 'my-sub-queue'. <br>
  * 2. Setup an incoming-link to 'amqp://localhost:6672/my-queue' and map it to
  * 'my-sub-queue' using the Service API.<br>
- * 3. Setup an outgoing-link to 'amqp://localhost:6672/my-queue' and map it to
- * vert.x address 'my-pub-queue'.<br>
- * 4. Send a message to vert.x address 'my-pub-queue'. <br>
- * 5. The message should be received by the consumer created for 'my-sub-queue'.
- * 6. Accept the message. 7. Cancel the incoming and outgoing link mappings.
+ * 3. Run PublishToQueueVerticle or use some other means to send a message to the above queue. <br>
+ * 4. The message should be received by the consumer created for 'my-sub-queue'.<br>
+ * 5. Accept the message. <br>
+ * 6. Cancel the incoming link mapping.
  * 
  * @author <a href="mailto:rajith77@gmail.com">Rajith Attapattu</a>
  *
  */
-public class MessageBrokerExampleVerticle extends AbstractVerticle
+public class ConsumeFromQueueVerticle extends AbstractVerticle
 {
     private String incomingLinkRef = null;
-
-    private String outgoingLinkRef = null;
 
     @Override
     public void start() throws Exception
@@ -52,12 +49,12 @@ public class MessageBrokerExampleVerticle extends AbstractVerticle
         // 1. Create a vert.x consumer for address 'my-sub-queue'
         System.out.println("Creating a vertx consumer for my-sub-queue");
         vertx.eventBus().consumer("my-sub-queue", message -> {
-            // 5. The message should be received by the consumer created for
+            // 4. The message should be received by the consumer created for
             // 'my-sub-queue'.
             JsonObject msg = (JsonObject) message.body();
             System.out.println("Received a message: " + msg);
 
-            // 6. Accept the message.
+            // 5. Accept the message.
             service.accept(msg.getString("vertx.msg-ref"), result -> {
                 System.out.println("Handler accepting the message : " + result.failed());
                 System.out.println("Handler (cause) accepting the message : " + result.cause());
@@ -66,12 +63,10 @@ public class MessageBrokerExampleVerticle extends AbstractVerticle
                     System.out.println("Error accepting the message : " + result.cause());
                     result.cause().printStackTrace();
                 }
-                // 7. Cancel the incoming and outgoing link mappings.
+                // 6. Cancel the incoming and outgoing link mappings.
                 service.cancelIncommingLink(incomingLinkRef, r -> {
                 });
-                service.cancelOutgoingLink(outgoingLinkRef, r -> {
-                });
-                // Note we are not waiting for the results of step #7.
+                // Note we are not waiting for the results of step #6.
             });
         });
 
@@ -87,7 +82,6 @@ public class MessageBrokerExampleVerticle extends AbstractVerticle
                         System.out.println("Incoming link ref : " + incomingLinkRef);
                         // Incoming link was successfully established. Now setup
                         // outgoing link and send message.
-                        sendMessage(service);
                     }
                     else
                     {
@@ -95,32 +89,6 @@ public class MessageBrokerExampleVerticle extends AbstractVerticle
                                 + result.cause());
                         result.cause().printStackTrace();
                         System.exit(-1);
-                    }
-                });
-    }
-
-    private void sendMessage(final AmqpService service)
-    {
-        // 3. Setup an outgoing-link to 'amqp://localhost:6672/my-queue' and map
-        // it to vert.x address 'my-pub-queue'
-        System.out
-        .println("Attempting to establish an outgoing link from the bridge to 'amqp://localhost:5672/my-queue'");
-        service.establishOutgoingLink("amqp://localhost:6672/my-queue", "my-pub-queue", "my-pub-notifications",
-                new OutgoingLinkOptions(), result -> {
-                    if (result.succeeded())
-                    {
-                        outgoingLinkRef = result.result();
-                        System.out.println("Outgoing link ref : " + outgoingLinkRef);
-
-                        // 4. Send a message to vert.x address 'my-pub-queue'
-                        System.out.println("Sending a message to vertx address my-pub-queue");
-                        vertx.eventBus().publish("my-pub-queue", new JsonObject().put("body", "rajith"));
-                    }
-                    else
-                    {
-                        System.out.println("Error occured while setting up outgoing link from application to AMQP peer: "
-                                + result.cause());
-                        result.cause().printStackTrace();
                     }
                 });
     }

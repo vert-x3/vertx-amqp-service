@@ -60,11 +60,6 @@ public class OutgoingLinkOptions
 
     public void setReliability(ReliabilityMode reliability)
     {
-        if (reliability == ReliabilityMode.EXACTLY_ONCE)
-        {
-            throw new IllegalArgumentException(
-                    "EXACTLY_ONCE is not an allowed option. Choose one of {UNRELIABLE|AT_LEAST_ONCE}");
-        }
         this.reliability = reliability;
     }
 

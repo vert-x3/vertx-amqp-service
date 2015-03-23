@@ -28,13 +28,7 @@ public enum ReliabilityMode
     UNRELIABLE,
 
     /**
-     * Guaranteed message delivery. Duplicates allowed.
+     * Guaranteed message delivery. There maybe duplicates.
      */
     AT_LEAST_ONCE,
-
-    /**
-     * Guaranteed message delivery. Duplicates not allowed. Only applicable when
-     * receiving messages.
-     */
-    EXACTLY_ONCE
 }

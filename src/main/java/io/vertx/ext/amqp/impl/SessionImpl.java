@@ -147,10 +147,10 @@ class SessionImpl implements Session
             receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
             receiver.setSenderSettleMode(SenderSettleMode.UNSETTLED);
             break;
-        case EXACTLY_ONCE:
-            receiver.setReceiverSettleMode(ReceiverSettleMode.SECOND);
-            receiver.setSenderSettleMode(SenderSettleMode.UNSETTLED);
-            break;
+        //case EXACTLY_ONCE:
+        //    receiver.setReceiverSettleMode(ReceiverSettleMode.SECOND);
+        //    receiver.setSenderSettleMode(SenderSettleMode.UNSETTLED);
+        //    break;
         }
         receiver.open();
 
