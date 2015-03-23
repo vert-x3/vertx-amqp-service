@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.vertx.ext.amqp;
+package io.vertx.ext.amqp.impl;
+
+import io.vertx.ext.amqp.CreditMode;
+import io.vertx.ext.amqp.MessageFormatException;
+import io.vertx.ext.amqp.MessagingException;
+import io.vertx.ext.amqp.ReliabilityMode;
 
 
 public interface Session

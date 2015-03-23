@@ -13,16 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.vertx.ext.amqp;
+package io.vertx.ext.amqp.impl;
 
-public interface IncomingLink extends Link
+public enum InboundRoutingPropertyType
 {
-    public ReliabilityMode getReceiverMode();
 
-    public CreditMode getCreditMode();
+    LINK_NAME, SUBJECT, MESSAGE_ID, CORRELATION_ID, ADDRESS, REPLY_TO, CUSTOM;
 
-    public int getUnsettled() throws MessagingException;
+    public static InboundRoutingPropertyType get(String key)
+    {
+        if (key == null || key.trim().equals(""))
+        {
+            return ADDRESS;
+        }
 
-    public void setCredits(int credits) throws MessagingException;
-
+        try
+        {
+            return InboundRoutingPropertyType.valueOf(key);
+        }
+        catch (IllegalArgumentException e)
+        {
+            return CUSTOM;
+        }
+    }
 }

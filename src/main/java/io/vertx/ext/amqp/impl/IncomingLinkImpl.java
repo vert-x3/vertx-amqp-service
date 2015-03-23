@@ -17,7 +17,6 @@ package io.vertx.ext.amqp.impl;
 
 import io.vertx.ext.amqp.CreditMode;
 import io.vertx.ext.amqp.ErrorCode;
-import io.vertx.ext.amqp.IncomingLink;
 import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.ReliabilityMode;
 

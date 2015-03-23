@@ -13,30 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.vertx.ext.amqp;
+package io.vertx.ext.amqp.impl;
 
-/**
- * Outgoing message disposition
- */
-public enum MessageDisposition
+import io.vertx.ext.amqp.CreditMode;
+import io.vertx.ext.amqp.MessagingException;
+import io.vertx.ext.amqp.ReliabilityMode;
+
+public interface IncomingLink extends Link
 {
-    /**
-     * Message has been accepted by the remote peer.
-     */
-    ACCEPTED,
+    public ReliabilityMode getReceiverMode();
 
-    /**
-     * Message has been rejected by the remote peer.
-     */
-    REJECTED,
+    public CreditMode getCreditMode();
 
-    /**
-     * Message has been released by the remote peer.
-     */
-    RELEASED,
+    public int getUnsettled() throws MessagingException;
 
-    /**
-     * Disposition is not known.
-     */
-    UNKNOWN;
+    public void setCredits(int credits) throws MessagingException;
+
 }

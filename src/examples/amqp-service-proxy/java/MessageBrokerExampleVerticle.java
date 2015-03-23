@@ -19,19 +19,17 @@ import io.vertx.ext.amqp.AmqpService;
 import io.vertx.ext.amqp.IncomingLinkOptions;
 import io.vertx.ext.amqp.OutgoingLinkOptions;
 
-import java.util.concurrent.CountDownLatch;
-
 /**
  * Demonstrates how to use the AmqpService interface to send and receive from a
  * traditional message broker.
  * 
  * This example assumes an ActiveMQ broker (or another AMQP 1.0 broker) is
- * running at localhost:5672
+ * running at localhost:6672
  * 
  * 1. Create a vert.x consumer for address 'my-sub-queue'. <br>
- * 2. Setup an incoming-link to 'amqp://localhost:5672/my-queue' and map it to
+ * 2. Setup an incoming-link to 'amqp://localhost:6672/my-queue' and map it to
  * 'my-sub-queue' using the Service API.<br>
- * 3. Setup an outgoing-link to 'amqp://localhost:5672/my-queue' and map it to
+ * 3. Setup an outgoing-link to 'amqp://localhost:6672/my-queue' and map it to
  * vert.x address 'my-pub-queue'.<br>
  * 4. Send a message to vert.x address 'my-pub-queue'. <br>
  * 5. The message should be received by the consumer created for 'my-sub-queue'.
@@ -56,71 +54,74 @@ public class MessageBrokerExampleVerticle extends AbstractVerticle
         vertx.eventBus().consumer("my-sub-queue", message -> {
             // 5. The message should be received by the consumer created for
             // 'my-sub-queue'.
-                JsonObject msg = (JsonObject) message.body();
-                System.out.println("Received a message: " + msg);
+            JsonObject msg = (JsonObject) message.body();
+            System.out.println("Received a message: " + msg);
 
-                // 6. Accept the message.
-                service.accept(msg.getString("vertx.msg-ref"), result -> {
-                    if (result.failed())
-                    {
-                        System.out.println("Error accepting the message : " + result.cause());
-                        result.cause().printStackTrace();
-                    }
+            // 6. Accept the message.
+            service.accept(msg.getString("vertx.msg-ref"), result -> {
+                System.out.println("Handler accepting the message : " + result.failed());
+                System.out.println("Handler (cause) accepting the message : " + result.cause());
+                if (result.failed())
+                {
+                    System.out.println("Error accepting the message : " + result.cause());
+                    result.cause().printStackTrace();
+                }
+                // 7. Cancel the incoming and outgoing link mappings.
+                service.cancelIncommingLink(incomingLinkRef, r -> {
                 });
+                service.cancelOutgoingLink(outgoingLinkRef, r -> {
+                });
+                // Note we are not waiting for the results of step #7.
             });
+        });
 
-        // 2. Setup an incoming-link to 'amqp://localhost:5672/my-queue' and map
+        // 2. Setup an incoming-link to 'amqp://localhost:6672/my-queue' and map
         // it to 'my-sub-queue' using the Service API.
         System.out
-                .println("Attempting to establish an incoming link from 'amqp://localhost:5672/my-queue' to the bridge");
-        service.establishIncommingLink("amqp://localhost:5672/my-queue", "my-sub-queue", "my-sub-notifications",
+        .println("Attempting to establish an incoming link from 'amqp://localhost:6672/my-queue' to the bridge");
+        service.establishIncommingLink("amqp://localhost:6672/my-queue", "my-sub-queue", "my-sub-notifications",
                 new IncomingLinkOptions(), result -> {
                     if (result.succeeded())
                     {
                         incomingLinkRef = result.result();
                         System.out.println("Incoming link ref : " + incomingLinkRef);
+                        // Incoming link was successfully established. Now setup
+                        // outgoing link and send message.
+                        sendMessage(service);
                     }
                     else
                     {
-                        System.out
-                                .println("Error occured while setting up incoming link from AMQP peer to application: "
-                                        + result.cause());
+                        System.out.println("Error occured while setting up incoming link from AMQP peer to application: "
+                                + result.cause());
                         result.cause().printStackTrace();
                         System.exit(-1);
                     }
                 });
+    }
 
-        // 3. Setup an outgoing-link to 'amqp://localhost:5672/my-queue' and map
+    private void sendMessage(final AmqpService service)
+    {
+        // 3. Setup an outgoing-link to 'amqp://localhost:6672/my-queue' and map
         // it to vert.x address 'my-pub-queue'
         System.out
-                .println("Attempting to establish an outgoing link from the bridge to 'amqp://localhost:5672/my-queue'");
-        service.establishOutgoingLink("amqp://localhost:5672/my-queue", "my-pub-queue", "my-pub-notifications",
+        .println("Attempting to establish an outgoing link from the bridge to 'amqp://localhost:5672/my-queue'");
+        service.establishOutgoingLink("amqp://localhost:6672/my-queue", "my-pub-queue", "my-pub-notifications",
                 new OutgoingLinkOptions(), result -> {
                     if (result.succeeded())
                     {
                         outgoingLinkRef = result.result();
                         System.out.println("Outgoing link ref : " + outgoingLinkRef);
+
+                        // 4. Send a message to vert.x address 'my-pub-queue'
+                        System.out.println("Sending a message to vertx address my-pub-queue");
+                        vertx.eventBus().publish("my-pub-queue", new JsonObject().put("body", "rajith"));
                     }
                     else
                     {
-                        System.out
-                                .println("Error occured while setting up outgoing link from application to AMQP peer: "
-                                        + result.cause());
+                        System.out.println("Error occured while setting up outgoing link from application to AMQP peer: "
+                                + result.cause());
                         result.cause().printStackTrace();
-                        System.exit(-1);
                     }
                 });
-
-        // 4. Send a message to vert.x address 'my-pub-queue'
-        System.out.println("Sending a message to vertx address my-pub-queue");
-        vertx.eventBus().publish("my-pub-queue", new JsonObject().put("name", "rajith"));
-
-        // 7. Cancel the incoming and outgoing link mappings.
-        service.cancelIncommingLink(incomingLinkRef, result -> {
-        });
-        service.cancelOutgoingLink(outgoingLinkRef, result -> {
-        });
-
-        // Note we are not waiting for the results of step #7.
     }
 }

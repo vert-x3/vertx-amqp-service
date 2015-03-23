@@ -15,13 +15,6 @@
  */
 package io.vertx.ext.amqp.impl;
 
-import io.vertx.ext.amqp.AmqpEvent;
-import io.vertx.ext.amqp.AmqpMessage;
-import io.vertx.ext.amqp.Connection;
-import io.vertx.ext.amqp.EventType;
-import io.vertx.ext.amqp.Link;
-import io.vertx.ext.amqp.Session;
-import io.vertx.ext.amqp.Tracker;
 
 class AmqpEventImpl implements AmqpEvent
 {

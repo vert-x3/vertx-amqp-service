@@ -32,7 +32,7 @@ import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.amqp.messaging.Section;
 import org.apache.qpid.proton.message.Message;
 
-class MessageFactory
+class MessageTranslator
 {
     private void convert(JsonObject in, Properties out)
     {

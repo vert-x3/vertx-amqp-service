@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.vertx.ext.amqp;
+package io.vertx.ext.amqp.impl;
 
-public interface AmqpEvent
+import io.vertx.ext.amqp.MessageFormatException;
+import io.vertx.ext.amqp.MessagingException;
+
+public interface OutgoingLink extends Link
 {
-    EventType getType();
+    public void offerCredits(int credits) throws MessagingException;
 
-    Connection getConnection();
+    public int getUnsettled() throws MessagingException;
 
-    Session getSession();
-
-    Link getLink();
-
-    AmqpMessage getMessage();
-
-    Tracker getDeliveryTracker();
+    public Tracker send(AmqpMessage msg) throws MessageFormatException, MessagingException;
 }

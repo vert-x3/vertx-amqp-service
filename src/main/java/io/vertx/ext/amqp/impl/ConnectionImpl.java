@@ -20,18 +20,16 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.impl.LoggerFactory;
 import io.vertx.core.net.NetSocket;
-import io.vertx.ext.amqp.AmqpEvent;
-import io.vertx.ext.amqp.Connection;
 import io.vertx.ext.amqp.ConnectionSettings;
 import io.vertx.ext.amqp.CreditMode;
-import io.vertx.ext.amqp.EventType;
-import io.vertx.ext.amqp.IncomingLink;
-import io.vertx.ext.amqp.OutgoingLink;
 import io.vertx.ext.amqp.ReliabilityMode;
-import io.vertx.ext.amqp.Session;
 
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.qpid.proton.Proton;
 import org.apache.qpid.proton.engine.Collector;
@@ -76,6 +74,10 @@ class ConnectionImpl implements Connection
 
     private State _state = State.NEW;
 
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+    private static final AtomicLong CONN_NUMBER_GENERATOR = new AtomicLong();
+
     ConnectionImpl(ConnectionSettings settings, Handler<AmqpEvent> handler, boolean inbound)
     {
         _toString = "amqp://" + settings.getHost() + ":" + settings.getPort();
@@ -87,6 +89,8 @@ class ConnectionImpl implements Connection
         _transport = org.apache.qpid.proton.engine.Transport.Factory.create();
         _collector = Collector.Factory.create();
 
+        protonConnection.setContainer(String.format("vertx-amqp-bridge:num-%s:timestamp-%s",
+                CONN_NUMBER_GENERATOR.incrementAndGet(), DATE_FORMAT.format(new Date(System.currentTimeMillis()))));
         protonConnection.setContext(this);
         protonConnection.collect(_collector);
         Sasl sasl = _transport.sasl();
@@ -381,7 +385,7 @@ class ConnectionImpl implements Connection
                 AmqpEventImpl amqpEvent = new AmqpEventImpl(EventType.MESSAGE_SETTLED);
                 amqpEvent.setConnection(this);
                 amqpEvent.setSession((SessionImpl) d.getLink().getSession().getContext());
-                amqpEvent.setLink((io.vertx.ext.amqp.Link) d.getLink());
+                amqpEvent.setLink((io.vertx.ext.amqp.impl.Link) d.getLink());
                 amqpEvent.setTracker(tracker);
                 _eventHandler.handle(amqpEvent);
             }

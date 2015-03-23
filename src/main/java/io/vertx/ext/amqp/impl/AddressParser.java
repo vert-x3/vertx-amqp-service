@@ -16,7 +16,6 @@
 package io.vertx.ext.amqp.impl;
 
 import io.vertx.ext.amqp.ConnectionSettings;
-import io.vertx.ext.amqp.DefaultConnectionSettings;
 import io.vertx.ext.amqp.ErrorCode;
 import io.vertx.ext.amqp.MessagingException;
 
@@ -128,7 +127,7 @@ public class AddressParser
             StringBuilder b = new StringBuilder();
             b.append(url).append(" [host=").append(settings.getHost()).append("] [port=").append(settings.getPort())
                     .append("] ");
-            b.append("[target=").append(settings.getTarget()).append("]");
+            b.append("[target=").append(settings.getNode()).append("]");
             System.out.println(b.toString());
         }
     }

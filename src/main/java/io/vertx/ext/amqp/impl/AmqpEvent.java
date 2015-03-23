@@ -13,13 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.vertx.ext.amqp;
+package io.vertx.ext.amqp.impl;
 
-public interface Tracker
-{   
-    public DeliveryState getState();
+public interface AmqpEvent
+{
+    EventType getType();
 
-    public MessageDisposition getDisposition();
+    Connection getConnection();
 
-    public boolean isSettled();
+    Session getSession();
+
+    Link getLink();
+
+    AmqpMessage getMessage();
+
+    Tracker getDeliveryTracker();
 }

@@ -42,5 +42,5 @@ public interface ConnectionSettings
 
     public void setTarget(String target);
 
-    public String getTarget();
+    public String getNode();
 }

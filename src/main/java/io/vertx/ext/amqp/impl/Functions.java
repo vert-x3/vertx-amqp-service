@@ -17,8 +17,6 @@ package io.vertx.ext.amqp.impl;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.amqp.DeliveryState;
-import io.vertx.ext.amqp.MessageDisposition;
-import io.vertx.ext.amqp.Tracker;
 
 class Functions
 {

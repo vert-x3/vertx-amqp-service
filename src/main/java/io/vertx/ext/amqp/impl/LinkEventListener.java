@@ -21,15 +21,15 @@ package io.vertx.ext.amqp.impl;
  */
 public interface LinkEventListener
 {
-    void incomingLinkReady(String linkName, String address, boolean isFromInboundConnection);
+    void incomingLinkReady(String id, String linkName, String address, boolean isFromInboundConnection);
 
-    void incomingLinkFinal(String linkName, String address, boolean isFromInboundConnection);
+    void incomingLinkFinal(String id, String linkName, String address, boolean isFromInboundConnection);
 
-    void outgoingLinkReady(String linkName, String address, boolean isFromInboundConnection);
+    void outgoingLinkReady(String id, String linkName, String address, boolean isFromInboundConnection);
 
-    void outgoingLinkFinal(String linkName, String address, boolean isFromInboundConnection);
+    void outgoingLinkFinal(String id, String linkName, String address, boolean isFromInboundConnection);
 
-    void message(String linkName, InboundMessage msg);
+    void message(String id, String linkName, String peerAddress, InboundMessage msg);
 
-    void outgoingLinkCreditGiven(String linkName, String address, int credits);
+    void outgoingLinkCreditGiven(String id, String linkName, String address, int credits);
 }

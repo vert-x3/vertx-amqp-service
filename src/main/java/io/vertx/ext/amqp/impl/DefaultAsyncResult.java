@@ -25,6 +25,8 @@ public class DefaultAsyncResult<T> implements AsyncResult<T>
 
     private Throwable _th;
 
+    public static DefaultAsyncResult<Void> VOID_SUCCESS = new DefaultAsyncResult<Void>(null, true, null);
+
     DefaultAsyncResult(T result)
     {
         this(result, true, null);
@@ -46,7 +48,7 @@ public class DefaultAsyncResult<T> implements AsyncResult<T>
     DefaultAsyncResult(T result, boolean success, Throwable th)
     {
         _result = result;
-        _success = true;
+        _success = success;
         _th = th;
     }
 

@@ -15,8 +15,6 @@
  */
 package io.vertx.ext.amqp.impl;
 
-import io.vertx.ext.amqp.AmqpMessage;
-
 import java.util.Map;
 
 import org.apache.qpid.proton.Proton;

@@ -17,10 +17,7 @@ package io.vertx.ext.amqp.impl;
 
 import io.vertx.ext.amqp.DeliveryState;
 import io.vertx.ext.amqp.ErrorCode;
-import io.vertx.ext.amqp.MessageDisposition;
 import io.vertx.ext.amqp.MessagingException;
-import io.vertx.ext.amqp.Session;
-import io.vertx.ext.amqp.Tracker;
 
 import java.util.concurrent.TimeUnit;
 

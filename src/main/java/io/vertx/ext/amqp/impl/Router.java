@@ -24,8 +24,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.impl.LoggerFactory;
 import io.vertx.ext.amqp.MessagingException;
-import io.vertx.ext.amqp.AmqpServiceConfig;
-import io.vertx.ext.amqp.RouteEntry;
 
 /**
  * Contains the routing logic used by the AMQP Service

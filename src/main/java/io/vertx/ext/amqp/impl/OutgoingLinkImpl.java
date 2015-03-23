@@ -15,12 +15,9 @@
  */
 package io.vertx.ext.amqp.impl;
 
-import io.vertx.ext.amqp.AmqpMessage;
 import io.vertx.ext.amqp.ErrorCode;
 import io.vertx.ext.amqp.MessageFormatException;
 import io.vertx.ext.amqp.MessagingException;
-import io.vertx.ext.amqp.OutgoingLink;
-import io.vertx.ext.amqp.Tracker;
 
 import java.nio.ByteBuffer;
 

@@ -17,9 +17,6 @@ package io.vertx.ext.amqp.impl;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.amqp.InboundRoutingPropertyType;
-import io.vertx.ext.amqp.AmqpServiceConfig;
-import io.vertx.ext.amqp.RouteEntry;
 
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -15,16 +15,11 @@
  */
 package io.vertx.ext.amqp.impl;
 
-import io.vertx.ext.amqp.AmqpMessage;
 import io.vertx.ext.amqp.CreditMode;
 import io.vertx.ext.amqp.ErrorCode;
-import io.vertx.ext.amqp.IncomingLink;
-import io.vertx.ext.amqp.MessageDisposition;
 import io.vertx.ext.amqp.MessageFormatException;
 import io.vertx.ext.amqp.MessagingException;
-import io.vertx.ext.amqp.OutgoingLink;
 import io.vertx.ext.amqp.ReliabilityMode;
-import io.vertx.ext.amqp.Session;
 
 import java.util.HashMap;
 import java.util.Map;

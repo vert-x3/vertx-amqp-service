@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.vertx.ext.amqp;
+package io.vertx.ext.amqp.impl;
 
-public interface OutgoingLink extends Link
+public interface Connection
 {
-    public void offerCredits(int credits) throws MessagingException;
+    public void open();
 
-    public int getUnsettled() throws MessagingException;
+    public boolean isOpen();
 
-    public Tracker send(AmqpMessage msg) throws MessageFormatException, MessagingException;
+    public boolean isInbound();
+
+    public void close();
 }

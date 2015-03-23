@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.vertx.ext.amqp;
+package io.vertx.ext.amqp.impl;
+
+import io.vertx.ext.amqp.ConnectionSettings;
 
 /**
  * Applications could extend this class to provide their own implementation of
@@ -155,7 +157,7 @@ public class DefaultConnectionSettings implements ConnectionSettings
     }
 
     @Override
-    public String getTarget()
+    public String getNode()
     {
         return target;
     }

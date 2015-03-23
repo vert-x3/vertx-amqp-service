@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.vertx.ext.amqp;
+package io.vertx.ext.amqp.impl;
 
-public interface Connection
+public enum EventType
 {
-    public void open();
-
-    public boolean isOpen();
-
-    public boolean isInbound();
-
-    public void close();
+    CONNECTION_READY,
+    CONNECTION_FINAL,
+    SESSION_READY,
+    SESSION_FINAL,
+    OUTGOING_LINK_READY,
+    INCOMING_LINK_READY,
+    OUTGOING_LINK_FINAL,
+    INCOMING_LINK_FINAL,
+    OUTGOING_LINK_CREDIT,
+    MESSAGE_RECEIVED,
+    MESSAGE_SETTLED
 }

@@ -13,19 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.vertx.ext.amqp;
+package io.vertx.ext.amqp.impl;
 
-public enum EventType
+/**
+ * Outgoing message disposition
+ */
+public enum MessageDisposition
 {
-    CONNECTION_READY,
-    CONNECTION_FINAL,
-    SESSION_READY,
-    SESSION_FINAL,
-    OUTGOING_LINK_READY,
-    INCOMING_LINK_READY,
-    OUTGOING_LINK_FINAL,
-    INCOMING_LINK_FINAL,
-    OUTGOING_LINK_CREDIT,
-    MESSAGE_RECEIVED,
-    MESSAGE_SETTLED
+    /**
+     * Message has been accepted by the remote peer.
+     */
+    ACCEPTED,
+
+    /**
+     * Message has been rejected by the remote peer.
+     */
+    REJECTED,
+
+    /**
+     * Message has been released by the remote peer.
+     */
+    RELEASED,
+
+    /**
+     * Disposition is not known.
+     */
+    UNKNOWN;
 }
