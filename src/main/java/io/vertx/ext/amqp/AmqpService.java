@@ -22,7 +22,6 @@ import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ProxyHelper;
 
 /**
@@ -197,14 +196,20 @@ public interface AmqpService
     @Fluent
     public AmqpService release(String msgRef, Handler<AsyncResult<Void>> result);
 
+    @Fluent
+    public AmqpService registerService(String eventbusAddress, ServiceOptions options, Handler<AsyncResult<Void>> result);
+
+    @Fluent
+    public AmqpService unregisterService(String eventbusAddress, Handler<AsyncResult<Void>> result);
+
     /**
-     * Start the service
+     * Start the AMQP Service
      */
     @ProxyIgnore
     public void start();
 
     /**
-     * Stop the service
+     * Stop the AMQP Service
      */
     @ProxyIgnore
     public void stop();

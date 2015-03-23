@@ -2,7 +2,7 @@
 "amqp.inbound-host" : "localhost",
 "amqp.inbound-port"  : 5673,
 "amqp.default-outbound-address" : "amqp://localhost:5672/vertx",
-"vertx.default-handler-address" : "vertx.service-amqp",
+"vertx.default-handler-address" : "vertx.service-amqp.bridge",
 "vertx.handlers" : ["toronto-weather", "bos-weather", "nyc-weather"],
 
 "vertx.routing-outbound" : {

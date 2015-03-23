@@ -19,7 +19,7 @@ import io.vertx.ext.amqp.AmqpMessage;
 import io.vertx.ext.amqp.ErrorCode;
 import io.vertx.ext.amqp.MessageFormatException;
 import io.vertx.ext.amqp.MessagingException;
-import io.vertx.ext.amqp.OutboundLink;
+import io.vertx.ext.amqp.OutgoingLink;
 import io.vertx.ext.amqp.Tracker;
 
 import java.nio.ByteBuffer;
@@ -29,9 +29,9 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Sender;
 
-class OutboundLinkImpl extends BaseLink implements OutboundLink
+class OutgoingLinkImpl extends BaseLink implements OutgoingLink
 {
-    OutboundLinkImpl(SessionImpl ssn, String address, Link link)
+    OutgoingLinkImpl(SessionImpl ssn, String address, Link link)
     {
         super(ssn, address, link);
     }
@@ -83,11 +83,6 @@ class OutboundLinkImpl extends BaseLink implements OutboundLink
         Delivery delivery = sender.delivery(tag);
         TrackerImpl tracker = new TrackerImpl(_ssn);
         delivery.setContext(tracker);
-        if (sender.getSenderSettleMode() == SenderSettleMode.SETTLED)
-        {
-            delivery.settle();
-            tracker.markSettled();
-        }
 
         if (m.getAddress() == null)
         {
@@ -96,6 +91,11 @@ class OutboundLinkImpl extends BaseLink implements OutboundLink
         byte[] buffer = new byte[1024];
         int encoded = m.encode(buffer, 0, buffer.length);
         sender.send(buffer, 0, encoded);
+        if (sender.getSenderSettleMode() == SenderSettleMode.SETTLED)
+        {
+            delivery.settle();
+            tracker.markSettled();
+        }
         sender.advance();
         _ssn.getConnection().write();
         return tracker;

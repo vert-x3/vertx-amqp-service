@@ -35,7 +35,7 @@ public class AmqpVerticle extends AbstractVerticle
         AmqpServiceConfig config = new AmqpServiceConfigImpl(config());
         try
         {
-            _service = new AmqpServiceImpl(vertx, config);
+            _service = new AmqpServiceImpl(vertx, config, this);
             String address = config().getString("address");
             if (address == null)
             {

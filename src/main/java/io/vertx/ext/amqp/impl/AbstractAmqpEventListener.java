@@ -38,22 +38,22 @@ public abstract class AbstractAmqpEventListener implements AmqpEventListener
     }
 
     @Override
-    public void onOutboundLinkOpen(OutboundLinkImpl link)
+    public void onOutgoingLinkOpen(OutgoingLinkImpl link)
     {
     }
 
     @Override
-    public void onOutboundLinkClosed(OutboundLinkImpl link)
+    public void onOutgoingLinkClosed(OutgoingLinkImpl link)
     {
     }
 
     @Override
-    public void onOutboundLinkCredit(OutboundLinkImpl link, int credits)
+    public void onOutgoingLinkCredit(OutgoingLinkImpl link, int credits)
     {
     }
 
     @Override
-    public void onClearToSend(OutboundLinkImpl link)
+    public void onClearToSend(OutgoingLinkImpl link)
     {
     }
 
@@ -63,22 +63,22 @@ public abstract class AbstractAmqpEventListener implements AmqpEventListener
     }
 
     @Override
-    public void onInboundLinkOpen(InboundLinkImpl link)
+    public void onIncomingLinkOpen(IncomingLinkImpl link)
     {
     }
 
     @Override
-    public void onInboundLinkClosed(InboundLinkImpl link)
+    public void onIncomingLinkClosed(IncomingLinkImpl link)
     {
     }
 
     @Override
-    public void onCreditOffered(InboundLinkImpl link, int offered)
+    public void onCreditOffered(IncomingLinkImpl link, int offered)
     {
     }
 
     @Override
-    public void onMessage(InboundLinkImpl link, InboundMessage msg)
+    public void onMessage(IncomingLinkImpl link, InboundMessage msg)
     {
     }
 

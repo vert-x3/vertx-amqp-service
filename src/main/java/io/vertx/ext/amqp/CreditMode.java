@@ -16,20 +16,25 @@
 package io.vertx.ext.amqp;
 
 /**
- * Determines how and when message credits are issued. 
- * 
- * If the CreditMode is {@link CreditMode#AUTO}, the application only needs to
- * set the capacity once and library will automatically replenish credits when a
- * certain number of messages are marked as either accepted, rejected or
- * released. The library will determine the optimum threshold for when the
- * re-issue happens. <br>
- * 
- * If the CreditMode is {@link CreditMode#EXPLICT}, the application needs to
- * explicitly manage it's message credit and use
- * {@link OutboundLinkImpl#setCapacity(int)} to issue credits when it is ready to
- * process more messages.
+ * Determines how and when message fetched by the AMQP-Service.
  */
 public enum CreditMode
 {
-    EXPLICT, AUTO;
+    /**
+     * If this option is chosen, the application only needs to set the prefetch
+     * value using {@link IncomingLinkOptions#setPrefetch(int)}. Once set, the
+     * AMQP-Service will automatically fetch more messages when a certain number
+     * of messages are marked as either accepted, rejected or released. The
+     * AMQP-Service will determine the optimum threshold for when the fetch
+     * happens and how much to fetch.
+     */
+    AUTO,
+
+    /**
+     * If this option is chosen, the application needs to explicitly manage it's
+     * capacity by fetching the desired number of messages via
+     * {@link AmqpService#fetch(String, int, io.vertx.core.Handler)}, once it is
+     * ready to process more.
+     */
+    EXPLICT;
 }

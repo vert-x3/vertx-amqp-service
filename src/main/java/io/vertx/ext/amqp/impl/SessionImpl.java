@@ -18,11 +18,11 @@ package io.vertx.ext.amqp.impl;
 import io.vertx.ext.amqp.AmqpMessage;
 import io.vertx.ext.amqp.CreditMode;
 import io.vertx.ext.amqp.ErrorCode;
-import io.vertx.ext.amqp.InboundLink;
+import io.vertx.ext.amqp.IncomingLink;
 import io.vertx.ext.amqp.MessageDisposition;
 import io.vertx.ext.amqp.MessageFormatException;
 import io.vertx.ext.amqp.MessagingException;
-import io.vertx.ext.amqp.OutboundLink;
+import io.vertx.ext.amqp.OutgoingLink;
 import io.vertx.ext.amqp.ReliabilityMode;
 import io.vertx.ext.amqp.Session;
 
@@ -92,7 +92,7 @@ class SessionImpl implements Session
     }
 
     @Override
-    public OutboundLink createOutboundLink(String address, ReliabilityMode mode) throws MessagingException
+    public OutgoingLink createOutboundLink(String address, ReliabilityMode mode) throws MessagingException
     {
         checkClosed();
         Sender sender;
@@ -115,7 +115,7 @@ class SessionImpl implements Session
                 : SenderSettleMode.UNSETTLED);
         sender.open();
 
-        OutboundLinkImpl outLink = new OutboundLinkImpl(this, address, sender);
+        OutgoingLinkImpl outLink = new OutgoingLinkImpl(this, address, sender);
         outLink.setDynamicAddress(target.getDynamic());
         _links.put(sender, outLink);
         sender.setContext(outLink);
@@ -123,7 +123,7 @@ class SessionImpl implements Session
     }
 
     @Override
-    public InboundLink createInboundLink(String address, ReliabilityMode mode, CreditMode creditMode)
+    public IncomingLink createInboundLink(String address, ReliabilityMode mode, CreditMode creditMode)
             throws MessagingException
     {
         Receiver receiver;
@@ -159,7 +159,7 @@ class SessionImpl implements Session
         }
         receiver.open();
 
-        InboundLinkImpl inLink = new InboundLinkImpl(this, address, receiver, mode, creditMode);
+        IncomingLinkImpl inLink = new IncomingLinkImpl(this, address, receiver, mode, creditMode);
         inLink.setDynamicAddress(source.getDynamic());
         _links.put(receiver, inLink);
         receiver.setContext(inLink);
@@ -294,7 +294,7 @@ class SessionImpl implements Session
                 if (!d.isSettled() && d.getLink().getReceiverSettleMode() == ReceiverSettleMode.FIRST)
                 {
                     d.settle();
-                    ((InboundLinkImpl) d.getLink().getContext()).decrementUnsettledCount();
+                    ((IncomingLinkImpl) d.getLink().getContext()).decrementUnsettledCount();
                     _unsettled.remove(count);
                 }
             }

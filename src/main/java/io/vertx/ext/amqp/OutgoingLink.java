@@ -15,14 +15,11 @@
  */
 package io.vertx.ext.amqp;
 
-public interface InboundLink extends Link
+public interface OutgoingLink extends Link
 {
-    public ReliabilityMode getReceiverMode();
-
-    public CreditMode getCreditMode();
+    public void offerCredits(int credits) throws MessagingException;
 
     public int getUnsettled() throws MessagingException;
 
-    public void setCredits(int credits) throws MessagingException;
-
+    public Tracker send(AmqpMessage msg) throws MessageFormatException, MessagingException;
 }

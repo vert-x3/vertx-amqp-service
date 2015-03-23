@@ -25,8 +25,8 @@ import io.vertx.ext.amqp.Connection;
 import io.vertx.ext.amqp.ConnectionSettings;
 import io.vertx.ext.amqp.CreditMode;
 import io.vertx.ext.amqp.EventType;
-import io.vertx.ext.amqp.InboundLink;
-import io.vertx.ext.amqp.OutboundLink;
+import io.vertx.ext.amqp.IncomingLink;
+import io.vertx.ext.amqp.OutgoingLink;
 import io.vertx.ext.amqp.ReliabilityMode;
 import io.vertx.ext.amqp.Session;
 
@@ -49,7 +49,7 @@ class ConnectionImpl implements Connection
 {
     enum State
     {
-        NEW, CONNECTED, FAILED, RETRY_IN_PROGRESS
+        NEW, CONNECTED, CLOSED, FAILED, RETRY_IN_PROGRESS
     };
 
     private static final Logger _logger = LoggerFactory.getLogger(ConnectionImpl.class);
@@ -60,7 +60,7 @@ class ConnectionImpl implements Connection
 
     protected final Collector _collector;
 
-    private final ArrayList<Handler<Void>> disconnectHandlers = new ArrayList<Handler<Void>>();
+    private final ArrayList<Handler<ConnectionImpl>> disconnectHandlers = new ArrayList<Handler<ConnectionImpl>>();
 
     private final Object _lock = new Object();
 
@@ -109,7 +109,7 @@ class ConnectionImpl implements Connection
         return _settings;
     }
 
-    void addDisconnectHandler(Handler<Void> handler)
+    void addDisconnectHandler(Handler<ConnectionImpl> handler)
     {
         disconnectHandlers.add(handler);
     }
@@ -119,9 +119,38 @@ class ConnectionImpl implements Connection
         synchronized (_lock)
         {
             _socket = s;
-            _socket.handler(new DataHandler());
-            _socket.drainHandler(new DrainHandler());
-            _socket.endHandler(new EosHandler());
+            _socket.handler(data -> {
+                byte[] bytes = data.getBytes();
+                int start = 0;
+                while (start < bytes.length)
+                {
+                    int count = Math.min(_transport.getInputBuffer().remaining(), bytes.length - start);
+                    _transport.getInputBuffer().put(bytes, start, count);
+                    start += count;
+                    _transport.processInput();
+                    processEvents();
+                }
+                write();
+            });
+
+            _socket.drainHandler(v -> {
+                write();
+            });
+
+            _socket.endHandler(v -> {
+                if (getState() != State.CLOSED)
+                {
+                    _logger.info(String.format(
+                            "Received EOF for connection {%s:%s}, prev-state = %s. Setting state to FAILED",
+                            _settings.getHost(), _settings.getPort(), getState()));
+                    setState(State.FAILED);
+                }
+
+                for (Handler<ConnectionImpl> h : disconnectHandlers)
+                {
+                    h.handle(this);
+                }
+            });
             _state = State.CONNECTED;
         }
         write();
@@ -169,6 +198,7 @@ class ConnectionImpl implements Connection
     @Override
     public void close()
     {
+        setState(State.CLOSED);
         protonConnection.close();
     }
 
@@ -219,20 +249,20 @@ class ConnectionImpl implements Connection
                 Link link = event.getLink();
                 if (link instanceof Receiver)
                 {
-                    InboundLinkImpl inboundLink;
+                    IncomingLinkImpl inboundLink;
                     SessionImpl session = (SessionImpl) link.getSession().getContext();
                     if (link.getContext() != null)
                     {
-                        inboundLink = (InboundLinkImpl) link.getContext();
+                        inboundLink = (IncomingLinkImpl) link.getContext();
                     }
                     else
                     {
-                        inboundLink = new InboundLinkImpl(session, link.getRemoteTarget().getAddress(), link,
+                        inboundLink = new IncomingLinkImpl(session, link.getRemoteTarget().getAddress(), link,
                                 ReliabilityMode.AT_LEAST_ONCE, CreditMode.AUTO);
                         link.setContext(inboundLink);
                         inboundLink.init();
                     }
-                    amqpEvent = new AmqpEventImpl(EventType.INBOUND_LINK_READY);
+                    amqpEvent = new AmqpEventImpl(EventType.INCOMING_LINK_READY);
                     amqpEvent.setConnection(this);
                     amqpEvent.setSession(session);
                     amqpEvent.setLink(inboundLink);
@@ -240,19 +270,19 @@ class ConnectionImpl implements Connection
                 }
                 else
                 {
-                    OutboundLinkImpl outboundLink;
+                    OutgoingLinkImpl outboundLink;
                     SessionImpl session = (SessionImpl) link.getSession().getContext();
                     if (link.getContext() != null)
                     {
-                        outboundLink = (OutboundLinkImpl) link.getContext();
+                        outboundLink = (OutgoingLinkImpl) link.getContext();
                     }
                     else
                     {
-                        outboundLink = new OutboundLinkImpl(session, link.getRemoteSource().getAddress(), link);
+                        outboundLink = new OutgoingLinkImpl(session, link.getRemoteSource().getAddress(), link);
                         link.setContext(outboundLink);
                         outboundLink.init();
                     }
-                    amqpEvent = new AmqpEventImpl(EventType.OUTBOUND_LINK_READY);
+                    amqpEvent = new AmqpEventImpl(EventType.OUTGOING_LINK_READY);
                     amqpEvent.setConnection(this);
                     amqpEvent.setSession(session);
                     amqpEvent.setLink(outboundLink);
@@ -263,8 +293,8 @@ class ConnectionImpl implements Connection
                 link = event.getLink();
                 if (link instanceof Sender)
                 {
-                    OutboundLink outboundLink = (OutboundLink) link.getContext();
-                    amqpEvent = new AmqpEventImpl(EventType.OUTBOUND_LINK_CREDIT);
+                    OutgoingLink outboundLink = (OutgoingLink) link.getContext();
+                    amqpEvent = new AmqpEventImpl(EventType.OUTGOING_LINK_CREDIT);
                     amqpEvent.setConnection(this);
                     amqpEvent.setSession((SessionImpl) link.getSession().getContext());
                     amqpEvent.setLink(outboundLink);
@@ -275,8 +305,8 @@ class ConnectionImpl implements Connection
                 link = event.getLink();
                 if (link instanceof Receiver)
                 {
-                    InboundLink inboundLink = (InboundLink) link.getContext();
-                    amqpEvent = new AmqpEventImpl(EventType.INBOUND_LINK_FINAL);
+                    IncomingLink inboundLink = (IncomingLink) link.getContext();
+                    amqpEvent = new AmqpEventImpl(EventType.INCOMING_LINK_FINAL);
                     amqpEvent.setConnection(this);
                     amqpEvent.setSession((SessionImpl) link.getSession().getContext());
                     amqpEvent.setLink(inboundLink);
@@ -284,8 +314,8 @@ class ConnectionImpl implements Connection
                 }
                 else
                 {
-                    OutboundLinkImpl outboundLink = (OutboundLinkImpl) link.getContext();
-                    amqpEvent = new AmqpEventImpl(EventType.OUTBOUND_LINK_FINAL);
+                    OutgoingLinkImpl outboundLink = (OutgoingLinkImpl) link.getContext();
+                    amqpEvent = new AmqpEventImpl(EventType.OUTGOING_LINK_FINAL);
                     amqpEvent.setConnection(this);
                     amqpEvent.setSession((SessionImpl) link.getSession().getContext());
                     amqpEvent.setLink(outboundLink);
@@ -323,7 +353,7 @@ class ConnectionImpl implements Connection
             pMsg.decode(bytes, 0, read);
             receiver.advance();
 
-            InboundLinkImpl inLink = (InboundLinkImpl) link.getContext();
+            IncomingLinkImpl inLink = (IncomingLinkImpl) link.getContext();
             SessionImpl ssn = inLink.getSession();
             AmqpMessageImpl msg = new InboundMessage(ssn.getID(), d.getTag(), ssn.getNextIncommingSequence(),
                     d.isSettled(), pMsg);
@@ -366,7 +396,7 @@ class ConnectionImpl implements Connection
             {
                 if (_logger.isDebugEnabled())
                 {
-                    _logger.debug(String.format("Connection s%:s%, state = %s. Returning without writing",
+                    _logger.debug(String.format("Connection {%s:%s}, state = %s. Returning without writing",
                             _settings.getHost(), _settings.getPort(), _state));
                 }
                 return;
@@ -388,45 +418,6 @@ class ConnectionImpl implements Connection
                 _socket.write(Buffer.buffer(data));
                 _transport.outputConsumed();
                 b = _transport.getOutputBuffer();
-            }
-        }
-    }
-
-    private class DataHandler implements Handler<Buffer>
-    {
-        public void handle(Buffer data)
-        {
-            byte[] bytes = data.getBytes();
-            int start = 0;
-            while (start < bytes.length)
-            {
-                int count = Math.min(_transport.getInputBuffer().remaining(), bytes.length - start);
-                _transport.getInputBuffer().put(bytes, start, count);
-                start += count;
-                _transport.processInput();
-                processEvents();
-            }
-            write();
-        }
-    }
-
-    private class DrainHandler implements Handler<Void>
-    {
-        public void handle(Void v)
-        {
-            write();
-        }
-    }
-
-    private class EosHandler implements Handler<Void>
-    {
-        public void handle(Void v)
-        {
-            setState(State.FAILED);
-            //_logger.info("Received EOF. Setting state to FAILED");
-            for (Handler<Void> h : disconnectHandlers)
-            {
-                h.handle(v);
             }
         }
     }

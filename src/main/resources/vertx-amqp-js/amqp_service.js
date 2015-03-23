@@ -22,6 +22,7 @@ var JsonObject = io.vertx.core.json.JsonObject;
 var JAmqpService = io.vertx.ext.amqp.AmqpService;
 var IncomingLinkOptions = io.vertx.ext.amqp.IncomingLinkOptions;
 var OutgoingLinkOptions = io.vertx.ext.amqp.OutgoingLinkOptions;
+var ServiceOptions = io.vertx.ext.amqp.ServiceOptions;
 
 /**
  AMQP service allows a Vert.x application to,
@@ -238,7 +239,50 @@ var AmqpService = function(j_val) {
   };
 
   /**
-   Start the service
+
+   @public
+   @param eventbusAddress {string} 
+   @param options {Object} 
+   @param result {function} 
+   @return {AmqpService}
+   */
+  this.registerService = function(eventbusAddress, options, result) {
+    var __args = arguments;
+    if (__args.length === 3 && typeof __args[0] === 'string' && typeof __args[1] === 'object' && typeof __args[2] === 'function') {
+      j_amqpService.registerService(eventbusAddress, options != null ? new ServiceOptions(new JsonObject(JSON.stringify(options))) : null, function(ar) {
+      if (ar.succeeded()) {
+        result(null, null);
+      } else {
+        result(null, ar.cause());
+      }
+    });
+      return that;
+    } else utils.invalidArgs();
+  };
+
+  /**
+
+   @public
+   @param eventbusAddress {string} 
+   @param result {function} 
+   @return {AmqpService}
+   */
+  this.unregisterService = function(eventbusAddress, result) {
+    var __args = arguments;
+    if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'function') {
+      j_amqpService.unregisterService(eventbusAddress, function(ar) {
+      if (ar.succeeded()) {
+        result(null, null);
+      } else {
+        result(null, ar.cause());
+      }
+    });
+      return that;
+    } else utils.invalidArgs();
+  };
+
+  /**
+   Start the AMQP Service
 
    @public
 
@@ -251,7 +295,7 @@ var AmqpService = function(j_val) {
   };
 
   /**
-   Stop the service
+   Stop the AMQP Service
 
    @public
 

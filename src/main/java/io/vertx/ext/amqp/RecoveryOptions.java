@@ -46,7 +46,7 @@ public class RecoveryOptions
 
     private List<String> alternativeAddressList = Collections.emptyList();
 
-    private RetryPolicy retryPolicy = RetryPolicy.RETRY_UNTIL_SUCCESS;
+    private RetryPolicy retryPolicy = RetryPolicy.NO_RETRY;
 
     public RecoveryOptions()
     {

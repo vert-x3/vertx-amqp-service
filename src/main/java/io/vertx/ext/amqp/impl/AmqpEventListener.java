@@ -28,21 +28,21 @@ public interface AmqpEventListener
 
     void onSessionClosed(SessionImpl ssn);
 
-    void onOutboundLinkOpen(OutboundLinkImpl link);
+    void onOutgoingLinkOpen(OutgoingLinkImpl link);
 
-    void onOutboundLinkClosed(OutboundLinkImpl link);
+    void onOutgoingLinkClosed(OutgoingLinkImpl link);
 
-    void onOutboundLinkCredit(OutboundLinkImpl link, int credits);
+    void onOutgoingLinkCredit(OutgoingLinkImpl link, int credits);
 
-    void onClearToSend(OutboundLinkImpl link);
+    void onClearToSend(OutgoingLinkImpl link);
 
     void onSettled(TrackerImpl tracker);
 
-    void onInboundLinkOpen(InboundLinkImpl link);
+    void onIncomingLinkOpen(IncomingLinkImpl link);
 
-    void onInboundLinkClosed(InboundLinkImpl link);
+    void onIncomingLinkClosed(IncomingLinkImpl link);
 
-    void onCreditOffered(InboundLinkImpl link, int offered);
+    void onCreditOffered(IncomingLinkImpl link, int offered);
 
-    void onMessage(InboundLinkImpl link, InboundMessage msg);
+    void onMessage(IncomingLinkImpl link, InboundMessage msg);
 }

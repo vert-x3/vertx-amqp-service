@@ -94,55 +94,55 @@ class ManagedConnection extends ConnectionImpl
                 Link link = event.getLink();
                 if (link instanceof Receiver)
                 {
-                    InboundLinkImpl inboundLink;
+                    IncomingLinkImpl inboundLink;
                     if (link.getContext() != null)
                     {
-                        inboundLink = (InboundLinkImpl) link.getContext();
+                        inboundLink = (IncomingLinkImpl) link.getContext();
                     }
                     else
                     {
-                        inboundLink = new InboundLinkImpl(_session, link.getRemoteTarget().getAddress(), link,
+                        inboundLink = new IncomingLinkImpl(_session, link.getRemoteTarget().getAddress(), link,
                                 ReliabilityMode.AT_LEAST_ONCE, CreditMode.AUTO);
                         link.setContext(inboundLink);
                         inboundLink.init();
                     }
-                    eventListener.onInboundLinkOpen(inboundLink);
+                    eventListener.onIncomingLinkOpen(inboundLink);
                 }
                 else
                 {
-                    OutboundLinkImpl outboundLink;
+                    OutgoingLinkImpl outboundLink;
                     if (link.getContext() != null)
                     {
-                        outboundLink = (OutboundLinkImpl) link.getContext();
+                        outboundLink = (OutgoingLinkImpl) link.getContext();
                     }
                     else
                     {
-                        outboundLink = new OutboundLinkImpl(_session, link.getRemoteSource().getAddress(), link);
+                        outboundLink = new OutgoingLinkImpl(_session, link.getRemoteSource().getAddress(), link);
                         link.setContext(outboundLink);
                         outboundLink.init();
                     }
-                    eventListener.onOutboundLinkOpen(outboundLink);
+                    eventListener.onOutgoingLinkOpen(outboundLink);
                 }
                 break;
             case LINK_FLOW:
                 link = event.getLink();
                 if (link instanceof Sender)
                 {
-                    OutboundLinkImpl outboundLink = (OutboundLinkImpl) link.getContext();
-                    eventListener.onOutboundLinkCredit(outboundLink, link.getCredit());
+                    OutgoingLinkImpl outboundLink = (OutgoingLinkImpl) link.getContext();
+                    eventListener.onOutgoingLinkCredit(outboundLink, link.getCredit());
                 }
                 break;
             case LINK_FINAL:
                 link = event.getLink();
                 if (link instanceof Receiver)
                 {
-                    InboundLinkImpl inboundLink = (InboundLinkImpl) link.getContext();
-                    eventListener.onInboundLinkClosed(inboundLink);
+                    IncomingLinkImpl inboundLink = (IncomingLinkImpl) link.getContext();
+                    eventListener.onIncomingLinkClosed(inboundLink);
                 }
                 else
                 {
-                    OutboundLinkImpl outboundLink = (OutboundLinkImpl) link.getContext();
-                    eventListener.onOutboundLinkClosed(outboundLink);
+                    OutgoingLinkImpl outboundLink = (OutgoingLinkImpl) link.getContext();
+                    eventListener.onOutgoingLinkClosed(outboundLink);
                 }
                 break;
             case TRANSPORT:
@@ -177,7 +177,7 @@ class ManagedConnection extends ConnectionImpl
             pMsg.decode(bytes, 0, read);
             receiver.advance();
 
-            InboundLinkImpl inLink = (InboundLinkImpl) link.getContext();
+            IncomingLinkImpl inLink = (IncomingLinkImpl) link.getContext();
             SessionImpl ssn = inLink.getSession();
             InboundMessage msg = new InboundMessage(ssn.getID(), d.getTag(), ssn.getNextIncommingSequence(),
                     d.isSettled(), pMsg);
@@ -195,18 +195,18 @@ class ManagedConnection extends ConnectionImpl
         }
     }
 
-    public OutboundLinkImpl createOutboundLink(String address, ReliabilityMode mode) throws MessagingException
+    public OutgoingLinkImpl createOutboundLink(String address, ReliabilityMode mode) throws MessagingException
     {
-        OutboundLinkImpl link = (OutboundLinkImpl) _session.createOutboundLink(address, mode);
+        OutgoingLinkImpl link = (OutgoingLinkImpl) _session.createOutboundLink(address, mode);
         link.init();
         write();
         return link;
     }
 
-    public InboundLinkImpl createInboundLink(String address, ReliabilityMode receiverMode, CreditMode creditMode)
+    public IncomingLinkImpl createInboundLink(String address, ReliabilityMode receiverMode, CreditMode creditMode)
             throws MessagingException
     {
-        InboundLinkImpl link = (InboundLinkImpl) _session.createInboundLink(address, receiverMode, creditMode);
+        IncomingLinkImpl link = (IncomingLinkImpl) _session.createInboundLink(address, receiverMode, creditMode);
         link.init();
         write();
         return link;

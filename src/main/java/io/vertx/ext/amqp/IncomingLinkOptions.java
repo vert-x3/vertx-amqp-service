@@ -105,4 +105,10 @@ public class IncomingLinkOptions
     {
         this.recoveryOptions = recoveryOptions;
     }
+
+    @Override
+    public String toString()
+    {
+        return toJson().encode();
+    }
 }

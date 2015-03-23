@@ -47,10 +47,10 @@ public class Router
         {
             StringBuilder b = new StringBuilder();
             b.append("Router Config \n[\n");
+            b.append("Default outbound-AMQP-address : ").append(config.getDefaultOutboundAddress()).append("\n");
+            b.append("Default inbound-vertx-address : ").append(config.getDefaultInboundAddress()).append("\n");
             b.append("Default vertx handler address : ").append(config.getDefaultHandlerAddress()).append("\n");
-            b.append("Default vertx address : ").append(config.getDefaultInboundAddress()).append("\n");
-            b.append("Default outbound address : ").append(config.getDefaultOutboundAddress()).append("\n");
-            b.append("Handler address list : ").append(config.getHandlerAddressList()).append("\n");
+            b.append("Additional handler address list : ").append(config.getHandlerAddressList()).append("\n");
             b.append("]\n");
             _logger.info(b.toString());
         }
@@ -111,12 +111,12 @@ public class Router
                         .getString(_config.getOutboundRoutingPropertyName());
             }
 
-            if (_logger.isInfoEnabled())
+            if (_logger.isDebugEnabled())
             {
-                _logger.info("\n============= Custom Routing Property ============");
-                _logger.info("Custom routing property name : " + _config.getOutboundRoutingPropertyName());
-                _logger.info("Routing property value : " + routingKey);
-                _logger.info("============= /Custom Routing Property ============/n");
+                _logger.debug("\n============= Custom Routing Property ============");
+                _logger.debug("Custom routing property name : " + _config.getOutboundRoutingPropertyName());
+                _logger.debug("Routing property value : " + routingKey);
+                _logger.debug("============= /Custom Routing Property ============/n");
             }
         }
         else if (m.body().containsKey("vertx.routing-key"))
@@ -166,7 +166,7 @@ public class Router
         if (_logger.isInfoEnabled())
         {
             _logger.info("\n============= Outbound Route ============");
-            _logger.info(String.format("Adding a mapping for {%s : %s}", eventbusAddress, amqpAddress));
+            _logger.info(String.format("Adding the route entry : {%s : %s}", eventbusAddress, amqpAddress));
             _logger.info("============= /Outbound Route) ============\n");
         }
     }
@@ -180,6 +180,12 @@ public class Router
             if (entry.getAddressList().size() == 0)
             {
                 _config.getOutboundRoutes().remove(eventbusAddress);
+            }
+            if (_logger.isInfoEnabled())
+            {
+                _logger.info("\n============= Outbound Route ============");
+                _logger.info(String.format("Removing the route entry : {%s : %s}", eventbusAddress, amqpAddress));
+                _logger.info("============= /Outbound Route) ============\n");
             }
         }
     }
@@ -198,7 +204,7 @@ public class Router
         if (_logger.isInfoEnabled())
         {
             _logger.info("\n============= Inbound Route ============");
-            _logger.info(String.format("Adding a mapping for {%s : %s}", amqpAddress, eventbusAddress));
+            _logger.info(String.format("Adding the route entry : {%s : %s}", amqpAddress, eventbusAddress));
             _logger.info("============= /Inbound Route) ============\n");
         }
     }
@@ -212,6 +218,12 @@ public class Router
             if (entry.getAddressList().size() == 0)
             {
                 _config.getOutboundRoutes().remove(amqpAddress);
+            }
+            if (_logger.isInfoEnabled())
+            {
+                _logger.info("\n============= Inbound Route ============");
+                _logger.info(String.format("Removing the route entry : {%s : %s}", amqpAddress, eventbusAddress));
+                _logger.info("============= /Inbound Route) ============\n");
             }
         }
     }

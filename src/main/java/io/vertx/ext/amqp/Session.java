@@ -18,9 +18,9 @@ package io.vertx.ext.amqp;
 
 public interface Session
 {
-    public OutboundLink createOutboundLink(String address, ReliabilityMode mode) throws MessagingException;
+    public OutgoingLink createOutboundLink(String address, ReliabilityMode mode) throws MessagingException;
 
-    public InboundLink createInboundLink(String address, ReliabilityMode mode, CreditMode creditMode)
+    public IncomingLink createInboundLink(String address, ReliabilityMode mode, CreditMode creditMode)
             throws MessagingException;
 
     public void disposition(AmqpMessage msg, MessageDisposition disposition, int... flags)

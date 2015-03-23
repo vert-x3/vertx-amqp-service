@@ -17,6 +17,7 @@
 package io.vertx.groovy.ext.amqp;
 import groovy.transform.CompileStatic
 import io.vertx.lang.groovy.InternalHelper
+import io.vertx.ext.amqp.ServiceOptions
 import io.vertx.ext.amqp.OutgoingLinkOptions
 import io.vertx.groovy.core.Vertx
 import io.vertx.core.AsyncResult
@@ -146,14 +147,22 @@ public class AmqpService {
     this.delegate.release(msgRef, result);
     return this;
   }
+  public AmqpService registerService(String eventbusAddress, Map<String, Object> options, Handler<AsyncResult<Void>> result) {
+    this.delegate.registerService(eventbusAddress, options != null ? new io.vertx.ext.amqp.ServiceOptions(new io.vertx.core.json.JsonObject(options)) : null, result);
+    return this;
+  }
+  public AmqpService unregisterService(String eventbusAddress, Handler<AsyncResult<Void>> result) {
+    this.delegate.unregisterService(eventbusAddress, result);
+    return this;
+  }
   /**
-   * Start the service
+   * Start the AMQP Service
    */
   public void start() {
     this.delegate.start();
   }
   /**
-   * Stop the service
+   * Stop the AMQP Service
    */
   public void stop() {
     this.delegate.stop();

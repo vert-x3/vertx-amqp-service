@@ -19,28 +19,40 @@ import io.vertx.codegen.annotations.DataObject;
 import io.vertx.core.json.JsonObject;
 
 @DataObject
-public class OutgoingLinkOptions
+public class ServiceOptions
 {
+    public final static String PREFETCH = "prefetch";
+
+    public final static String EXCLUSIVE = "exclusive";
+
     public final static String RELIABILITY = "reliability";
 
     public final static String RECOVERY_OPTIONS = "recovery-options";
+
+    private int prefetch = 1;
+
+    private boolean exclusive = false;
 
     private ReliabilityMode reliability = ReliabilityMode.UNRELIABLE;
 
     private RecoveryOptions recoveryOptions = new RecoveryOptions();
 
-    public OutgoingLinkOptions()
+    public ServiceOptions()
     {
     }
 
-    public OutgoingLinkOptions(OutgoingLinkOptions options)
+    public ServiceOptions(ServiceOptions options)
     {
+        this.prefetch = options.prefetch;
+        this.exclusive = options.exclusive;
         this.reliability = options.reliability;
         this.recoveryOptions = options.recoveryOptions;
     }
 
-    public OutgoingLinkOptions(JsonObject options)
+    public ServiceOptions(JsonObject options)
     {
+        this.prefetch = options.getInteger(PREFETCH, 1);
+        this.exclusive = options.getBoolean(EXCLUSIVE, false);
         this.reliability = ReliabilityMode.valueOf(options.getString(RELIABILITY, ReliabilityMode.UNRELIABLE.name()));
         this.recoveryOptions = new RecoveryOptions(options.getJsonObject(RECOVERY_OPTIONS));
     }
@@ -48,9 +60,30 @@ public class OutgoingLinkOptions
     public JsonObject toJson()
     {
         JsonObject json = new JsonObject();
+        json.put(PREFETCH, prefetch);
+        json.put(EXCLUSIVE, exclusive);
         json.put(RELIABILITY, reliability.name());
-        json.put(RECOVERY_OPTIONS, recoveryOptions.toJson());
         return json;
+    }
+
+    public int getPrefetch()
+    {
+        return prefetch;
+    }
+
+    public void setPrefetch(int prefetch)
+    {
+        this.prefetch = prefetch;
+    }
+
+    public boolean isExclusive()
+    {
+        return exclusive;
+    }
+
+    public void setExclusive(boolean exclusive)
+    {
+        this.exclusive = exclusive;
     }
 
     public ReliabilityMode getReliability()
@@ -60,11 +93,6 @@ public class OutgoingLinkOptions
 
     public void setReliability(ReliabilityMode reliability)
     {
-        if (reliability == ReliabilityMode.EXACTLY_ONCE)
-        {
-            throw new IllegalArgumentException(
-                    "EXACTLY_ONCE is not an allowed option. Choose one of {UNRELIABLE|AT_LEAST_ONCE}");
-        }
         this.reliability = reliability;
     }
 

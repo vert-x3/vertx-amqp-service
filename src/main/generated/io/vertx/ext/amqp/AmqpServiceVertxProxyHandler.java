@@ -28,6 +28,7 @@ import io.vertx.core.json.JsonArray;
 import java.util.ArrayList;import java.util.HashSet;import java.util.List;import java.util.Map;import java.util.Set;import java.util.UUID;
 import io.vertx.serviceproxy.ProxyHelper;
 import io.vertx.serviceproxy.ProxyHandler;
+import io.vertx.ext.amqp.ServiceOptions;
 import io.vertx.ext.amqp.AmqpService;
 import io.vertx.ext.amqp.OutgoingLinkOptions;
 import io.vertx.core.Vertx;
@@ -89,6 +90,14 @@ public class AmqpServiceVertxProxyHandler extends ProxyHandler {
       }
       case "release": {
         service.release((java.lang.String)json.getValue("msgRef"), createHandler(msg));
+        break;
+      }
+      case "registerService": {
+        service.registerService((java.lang.String)json.getValue("eventbusAddress"), new io.vertx.ext.amqp.ServiceOptions(json.getJsonObject("options")), createHandler(msg));
+        break;
+      }
+      case "unregisterService": {
+        service.unregisterService((java.lang.String)json.getValue("eventbusAddress"), createHandler(msg));
         break;
       }
       case "start": {

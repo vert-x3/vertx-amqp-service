@@ -17,7 +17,7 @@ package io.vertx.ext.amqp.impl;
 
 import io.vertx.ext.amqp.CreditMode;
 import io.vertx.ext.amqp.ErrorCode;
-import io.vertx.ext.amqp.InboundLink;
+import io.vertx.ext.amqp.IncomingLink;
 import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.ReliabilityMode;
 
@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Receiver;
 
-class InboundLinkImpl extends BaseLink implements InboundLink
+class IncomingLinkImpl extends BaseLink implements IncomingLink
 {
     private static int DEFAULT_CREDITS = 1;
 
@@ -38,7 +38,7 @@ class InboundLinkImpl extends BaseLink implements InboundLink
 
     private AtomicInteger _unsettled = new AtomicInteger(0);
 
-    InboundLinkImpl(SessionImpl ssn, String address, Link link, ReliabilityMode receiverMode, CreditMode creditMode)
+    IncomingLinkImpl(SessionImpl ssn, String address, Link link, ReliabilityMode receiverMode, CreditMode creditMode)
     {
         super(ssn, address, link);
         _creditMode = creditMode;
