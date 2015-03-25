@@ -16,12 +16,14 @@
 package io.vertx.ext.amqp.impl;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.impl.LoggerFactory;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
+import io.vertx.ext.amqp.AmqpService;
 import io.vertx.ext.amqp.ConnectionSettings;
 import io.vertx.ext.amqp.CreditMode;
 import io.vertx.ext.amqp.ErrorCode;
@@ -29,6 +31,7 @@ import io.vertx.ext.amqp.IncomingLinkOptions;
 import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.OutgoingLinkOptions;
 import io.vertx.ext.amqp.RecoveryOptions;
+import io.vertx.ext.amqp.ReliabilityMode;
 import io.vertx.ext.amqp.impl.ConnectionImpl.State;
 
 import java.util.Collections;
@@ -38,6 +41,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import org.apache.qpid.proton.message.Message;
 
 public class LinkManager extends AbstractAmqpEventListener
 {
@@ -223,6 +228,11 @@ public class LinkManager extends AbstractAmqpEventListener
         }
     }
 
+    boolean isOutboundLinkExist(String amqpAddress)
+    {
+        return _outboundLinks.containsKey(amqpAddress);
+    }   
+    
     // Lookup method for outbound-link. Create if it doesn't exist.
     OutgoingLinkImpl getOutboundLink(String amqpAddress) throws MessagingException
     {
@@ -307,14 +317,43 @@ public class LinkManager extends AbstractAmqpEventListener
         return link;
     }
 
+    void send(String amqpAddress, Message msg, JsonObject in) throws MessagingException
+    {
+        OutgoingLinkImpl link = getOutboundLink(amqpAddress);
+        OutgoingLinkOptions options = _outboundLinks.get(amqpAddress)._options;
+        System.out.println("Outgoing message send options : " + options);
+        if (options.getReliability() == ReliabilityMode.AT_LEAST_ONCE && in.containsKey(AmqpService.OUTGOING_MSG_REF))
+        {
+            TrackerImpl tracker = link.send(msg);
+            tracker.setContext(in.getString(AmqpService.OUTGOING_MSG_REF));
+            System.out.println("Outgoing message tracker ctx : " + tracker.getContext());
+        }
+        else
+        {
+            link.send(msg);
+        }
+    }
+
+    String getOutboundLinkId(String amqpAddress) throws MessagingException
+    {
+        if (_outboundLinks.containsKey(amqpAddress))
+        {
+            return _outboundLinks.get(amqpAddress)._id;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
     // ------------ Event Handler ------------------------
     @Override
     public void onOutgoingLinkOpen(OutgoingLinkImpl link)
     {
         ConnectionImpl con = link.getConnection();
         String name = link.getAddress();
-        String address = new StringBuilder("amqp://").append(con.getSettings().getHost()).append(":").append(con.getSettings().getPort())
-                .append("/").append(name).toString();
+        String address = new StringBuilder("amqp://").append(con.getSettings().getHost()).append(":")
+                .append(con.getSettings().getPort()).append("/").append(name).toString();
         if (con.isInbound())
         {
             String id = "inbound-connection:" + UUID.randomUUID().toString();
@@ -331,8 +370,8 @@ public class LinkManager extends AbstractAmqpEventListener
     {
         ConnectionImpl con = link.getConnection();
         String name = link.getAddress();
-        String address = new StringBuilder("amqp://").append(con.getSettings().getHost()).append(":").append(con.getSettings().getPort())
-                .append("/").append(name).toString();
+        String address = new StringBuilder("amqp://").append(con.getSettings().getHost()).append(":")
+                .append(con.getSettings().getPort()).append("/").append(name).toString();
         _outboundLinks.remove(address);
         _listener.outgoingLinkFinal(_outboundLinks.get(address)._id, name, address, link.getConnection().isInbound());
     }
@@ -342,8 +381,8 @@ public class LinkManager extends AbstractAmqpEventListener
     {
         ConnectionImpl con = link.getConnection();
         String name = link.getAddress();
-        String address = new StringBuilder("amqp://").append(con.getSettings().getHost()).append(":").append(con.getSettings().getPort())
-                .append("/").append(name).toString();
+        String address = new StringBuilder("amqp://").append(con.getSettings().getHost()).append(":")
+                .append(con.getSettings().getPort()).append("/").append(name).toString();
         // TODO if it's an outbound connection, then we need to notify an error
         if (!link.getConnection().isInbound())
         {
@@ -357,8 +396,8 @@ public class LinkManager extends AbstractAmqpEventListener
     {
         ConnectionImpl con = link.getConnection();
         String name = link.getAddress();
-        String address = new StringBuilder("amqp://").append(con.getSettings().getHost()).append(":").append(con.getSettings().getPort())
-                .append("/").append(name).toString();
+        String address = new StringBuilder("amqp://").append(con.getSettings().getHost()).append(":")
+                .append(con.getSettings().getPort()).append("/").append(name).toString();
         try
         {
             if (link.getConnection().isInbound())
@@ -384,7 +423,20 @@ public class LinkManager extends AbstractAmqpEventListener
         ConnectionImpl con = link.getConnection();
         String peerAddress = new StringBuilder(con.getSettings().getHost()).append(":")
                 .append(con.getSettings().getPort()).toString();
-        _listener.message((String)link.getContext(), link.getAddress(), peerAddress, msg);
+        _listener.message((String) link.getContext(), link.getAddress(), peerAddress, link.getReceiverMode(), msg);
+    }
+
+    @Override
+    public void onOutgoingLinkCredit(OutgoingLinkImpl link, int credits)
+    {
+        _listener.outgoingLinkCreditGiven((String) link.getContext(), credits);
+    }
+
+    @Override
+    public void onSettled(OutgoingLinkImpl link, TrackerImpl tracker)
+    {
+        _listener.deliveryUpdate((String) link.getContext(), (String) tracker.getContext(), tracker.getState(),
+                tracker.getDisposition());
     }
 
     // ---------- / Event Handler -----------------------

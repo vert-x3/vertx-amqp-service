@@ -21,6 +21,7 @@ import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.ReliabilityMode;
 
 import org.apache.qpid.proton.Proton;
+import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Event;
 import org.apache.qpid.proton.engine.Link;
@@ -181,6 +182,10 @@ class ManagedConnection extends ConnectionImpl
             SessionImpl ssn = inLink.getSession();
             InboundMessage msg = new InboundMessage(ssn.getID(), d.getTag(), ssn.getNextIncommingSequence(),
                     d.isSettled(), pMsg);
+            if (link.getSenderSettleMode() != SenderSettleMode.SETTLED)
+            {
+                ssn.addUnsettled(msg.getSequence(), d);
+            }
             eventListener.onMessage(inLink, msg);
         }
         else
@@ -190,7 +195,7 @@ class ManagedConnection extends ConnectionImpl
                 TrackerImpl tracker = (TrackerImpl) d.getContext();
                 tracker.setDisposition(d.getRemoteState());
                 tracker.markSettled();
-                eventListener.onSettled(tracker);
+                eventListener.onSettled((OutgoingLinkImpl) link.getContext(), tracker);
             }
         }
     }

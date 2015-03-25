@@ -58,7 +58,7 @@ public abstract class AbstractAmqpEventListener implements AmqpEventListener
     }
 
     @Override
-    public void onSettled(TrackerImpl tracker)
+    public void onSettled(OutgoingLinkImpl link, TrackerImpl tracker)
     {
     }
 

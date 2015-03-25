@@ -45,6 +45,10 @@ import io.vertx.serviceproxy.ProxyHelper;
 @ProxyGen
 public interface AmqpService
 {
+    public static final String INCOMING_MSG_REF = "vertx.amqp.incoming-msg-ref";
+
+    public static final String OUTGOING_MSG_REF = "vertx.amqp.outgoing-msg-ref";
+
     static AmqpService createEventBusProxy(Vertx vertx, String address)
     {
         return ProxyHelper.createProxy(AmqpService.class, vertx, address);

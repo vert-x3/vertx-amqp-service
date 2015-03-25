@@ -59,7 +59,7 @@ class OutgoingLinkImpl extends BaseLink implements OutgoingLink
     }
 
     @Override
-    public Tracker send(AmqpMessage msg) throws MessageFormatException, MessagingException
+    public TrackerImpl send(AmqpMessage msg) throws MessageFormatException, MessagingException
     {
         checkClosed();
         if (msg instanceof AmqpMessageImpl)
@@ -72,7 +72,7 @@ class OutgoingLinkImpl extends BaseLink implements OutgoingLink
         }
     }
 
-    Tracker send(org.apache.qpid.proton.message.Message m) throws MessageFormatException, MessagingException
+    TrackerImpl send(org.apache.qpid.proton.message.Message m) throws MessageFormatException, MessagingException
     {
         checkClosed();
         Sender sender = (Sender) _link;

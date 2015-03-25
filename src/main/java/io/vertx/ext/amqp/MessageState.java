@@ -13,15 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.vertx.ext.amqp.impl;
+package io.vertx.ext.amqp;
 
-import io.vertx.ext.amqp.DeliveryState;
-
-public interface Tracker
+/**
+ * Outgoing message disposition
+ */
+public enum MessageState
 {
-    public DeliveryState getState();
+    /**
+     * Message has been accepted by the remote peer.
+     */
+    ACCEPTED,
 
-    public MessageDisposition getDisposition();
+    /**
+     * Message has been rejected by the remote peer.
+     */
+    REJECTED,
 
-    public boolean isSettled();
+    /**
+     * Message has been released by the remote peer.
+     */
+    RELEASED,
+
+    /**
+     * Disposition is not known.
+     */
+    UNKNOWN;
 }

@@ -17,7 +17,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.amqp.AmqpService;
 import io.vertx.ext.amqp.IncomingLinkOptions;
-import io.vertx.ext.amqp.OutgoingLinkOptions;
+import io.vertx.ext.amqp.ReliabilityMode;
 
 /**
  * Demonstrates how to use the AmqpService interface for consuming from a queue
@@ -55,16 +55,15 @@ public class ConsumeFromQueueVerticle extends AbstractVerticle
             System.out.println("Received a message: " + msg);
 
             // 5. Accept the message.
-            service.accept(msg.getString("vertx.msg-ref"), result -> {
-                System.out.println("Handler accepting the message : " + result.failed());
-                System.out.println("Handler (cause) accepting the message : " + result.cause());
+            System.out.println("Accepting message: " + msg.getString(AmqpService.INCOMING_MSG_REF));
+            service.accept(msg.getString(AmqpService.INCOMING_MSG_REF), result -> {
                 if (result.failed())
                 {
                     System.out.println("Error accepting the message : " + result.cause());
                     result.cause().printStackTrace();
                 }
                 // 6. Cancel the incoming and outgoing link mappings.
-                service.cancelIncommingLink(incomingLinkRef, r -> {
+                    service.cancelIncommingLink(incomingLinkRef, r -> {
                 });
                 // Note we are not waiting for the results of step #6.
             });
@@ -72,10 +71,12 @@ public class ConsumeFromQueueVerticle extends AbstractVerticle
 
         // 2. Setup an incoming-link to 'amqp://localhost:6672/my-queue' and map
         // it to 'my-sub-queue' using the Service API.
+        IncomingLinkOptions options = new IncomingLinkOptions();
+        options.setReliability(ReliabilityMode.AT_LEAST_ONCE);
         System.out
         .println("Attempting to establish an incoming link from 'amqp://localhost:6672/my-queue' to the bridge");
         service.establishIncommingLink("amqp://localhost:6672/my-queue", "my-sub-queue", "my-sub-notifications",
-                new IncomingLinkOptions(), result -> {
+                options, result -> {
                     if (result.succeeded())
                     {
                         incomingLinkRef = result.result();

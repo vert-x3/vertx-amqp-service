@@ -62,7 +62,7 @@ var AmqpService = function(j_val) {
   this.establishIncommingLink = function(amqpAddress, eventbusAddress, notificationAddress, options, result) {
     var __args = arguments;
     if (__args.length === 5 && typeof __args[0] === 'string' && typeof __args[1] === 'string' && typeof __args[2] === 'string' && typeof __args[3] === 'object' && typeof __args[4] === 'function') {
-      j_amqpService.establishIncommingLink(amqpAddress, eventbusAddress, notificationAddress, options != null ? new IncomingLinkOptions(new JsonObject(JSON.stringify(options))) : null, function(ar) {
+      j_amqpService["establishIncommingLink(java.lang.String,java.lang.String,java.lang.String,io.vertx.ext.amqp.IncomingLinkOptions,io.vertx.core.Handler)"](amqpAddress, eventbusAddress, notificationAddress, options != null ? new IncomingLinkOptions(new JsonObject(JSON.stringify(options))) : null, function(ar) {
       if (ar.succeeded()) {
         result(ar.result(), null);
       } else {
@@ -87,7 +87,7 @@ var AmqpService = function(j_val) {
   this.fetch = function(incomingLinkRef, messages, result) {
     var __args = arguments;
     if (__args.length === 3 && typeof __args[0] === 'string' && typeof __args[1] ==='number' && typeof __args[2] === 'function') {
-      j_amqpService.fetch(incomingLinkRef, messages, function(ar) {
+      j_amqpService["fetch(java.lang.String,int,io.vertx.core.Handler)"](incomingLinkRef, messages, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -110,7 +110,7 @@ var AmqpService = function(j_val) {
   this.cancelIncommingLink = function(incomingLinkRef, result) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'function') {
-      j_amqpService.cancelIncommingLink(incomingLinkRef, function(ar) {
+      j_amqpService["cancelIncommingLink(java.lang.String,io.vertx.core.Handler)"](incomingLinkRef, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -138,7 +138,7 @@ var AmqpService = function(j_val) {
   this.establishOutgoingLink = function(amqpAddress, eventbusAddress, notificationAddress, options, result) {
     var __args = arguments;
     if (__args.length === 5 && typeof __args[0] === 'string' && typeof __args[1] === 'string' && typeof __args[2] === 'string' && typeof __args[3] === 'object' && typeof __args[4] === 'function') {
-      j_amqpService.establishOutgoingLink(amqpAddress, eventbusAddress, notificationAddress, options != null ? new OutgoingLinkOptions(new JsonObject(JSON.stringify(options))) : null, function(ar) {
+      j_amqpService["establishOutgoingLink(java.lang.String,java.lang.String,java.lang.String,io.vertx.ext.amqp.OutgoingLinkOptions,io.vertx.core.Handler)"](amqpAddress, eventbusAddress, notificationAddress, options != null ? new OutgoingLinkOptions(new JsonObject(JSON.stringify(options))) : null, function(ar) {
       if (ar.succeeded()) {
         result(ar.result(), null);
       } else {
@@ -161,7 +161,7 @@ var AmqpService = function(j_val) {
   this.cancelOutgoingLink = function(outgoingLinkRef, result) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'function') {
-      j_amqpService.cancelOutgoingLink(outgoingLinkRef, function(ar) {
+      j_amqpService["cancelOutgoingLink(java.lang.String,io.vertx.core.Handler)"](outgoingLinkRef, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -183,7 +183,7 @@ var AmqpService = function(j_val) {
   this.accept = function(msgRef, result) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'function') {
-      j_amqpService.accept(msgRef, function(ar) {
+      j_amqpService["accept(java.lang.String,io.vertx.core.Handler)"](msgRef, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -205,7 +205,7 @@ var AmqpService = function(j_val) {
   this.reject = function(msgRef, result) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'function') {
-      j_amqpService.reject(msgRef, function(ar) {
+      j_amqpService["reject(java.lang.String,io.vertx.core.Handler)"](msgRef, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -227,7 +227,7 @@ var AmqpService = function(j_val) {
   this.release = function(msgRef, result) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'function') {
-      j_amqpService.release(msgRef, function(ar) {
+      j_amqpService["release(java.lang.String,io.vertx.core.Handler)"](msgRef, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -249,7 +249,7 @@ var AmqpService = function(j_val) {
   this.registerService = function(eventbusAddress, options, result) {
     var __args = arguments;
     if (__args.length === 3 && typeof __args[0] === 'string' && typeof __args[1] === 'object' && typeof __args[2] === 'function') {
-      j_amqpService.registerService(eventbusAddress, options != null ? new ServiceOptions(new JsonObject(JSON.stringify(options))) : null, function(ar) {
+      j_amqpService["registerService(java.lang.String,io.vertx.ext.amqp.ServiceOptions,io.vertx.core.Handler)"](eventbusAddress, options != null ? new ServiceOptions(new JsonObject(JSON.stringify(options))) : null, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -270,7 +270,7 @@ var AmqpService = function(j_val) {
   this.unregisterService = function(eventbusAddress, result) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'function') {
-      j_amqpService.unregisterService(eventbusAddress, function(ar) {
+      j_amqpService["unregisterService(java.lang.String,io.vertx.core.Handler)"](eventbusAddress, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -290,7 +290,7 @@ var AmqpService = function(j_val) {
   this.start = function() {
     var __args = arguments;
     if (__args.length === 0) {
-      j_amqpService.start();
+      j_amqpService["start()"]();
     } else utils.invalidArgs();
   };
 
@@ -303,7 +303,7 @@ var AmqpService = function(j_val) {
   this.stop = function() {
     var __args = arguments;
     if (__args.length === 0) {
-      j_amqpService.stop();
+      j_amqpService["stop()"]();
     } else utils.invalidArgs();
   };
 
@@ -323,7 +323,7 @@ var AmqpService = function(j_val) {
 AmqpService.createEventBusProxy = function(vertx, address) {
   var __args = arguments;
   if (__args.length === 2 && typeof __args[0] === 'object' && __args[0]._jdel && typeof __args[1] === 'string') {
-    return new AmqpService(JAmqpService.createEventBusProxy(vertx._jdel, address));
+    return new AmqpService(JAmqpService["createEventBusProxy(io.vertx.core.Vertx,java.lang.String)"](vertx._jdel, address));
   } else utils.invalidArgs();
 };
 

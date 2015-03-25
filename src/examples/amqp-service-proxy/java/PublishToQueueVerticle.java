@@ -16,8 +16,12 @@
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.amqp.AmqpService;
+import io.vertx.ext.amqp.DeliveryTracker;
 import io.vertx.ext.amqp.IncomingLinkOptions;
+import io.vertx.ext.amqp.NotificationHelper;
+import io.vertx.ext.amqp.NotificationHelper.NotificationType;
 import io.vertx.ext.amqp.OutgoingLinkOptions;
+import io.vertx.ext.amqp.ReliabilityMode;
 
 /**
  * Demonstrates how to use the AmqpService interface for publishing to a queue
@@ -31,31 +35,39 @@ import io.vertx.ext.amqp.OutgoingLinkOptions;
  * vert.x address 'my-pub-queue'.<br>
  * 3. Send a message to vert.x address 'my-pub-queue'. <br>
  * 4. The message should be received by the consumer created for 'my-sub-queue'.<br>
+ * 5. When the message is accepted by the broker, we cancel the outgoing link.
  * 
  * @author <a href="mailto:rajith77@gmail.com">Rajith Attapattu</a>
  *
  */
 public class PublishToQueueVerticle extends AbstractVerticle
 {
+    private String outgoingLinkRef = null;
+
     @Override
     public void start() throws Exception
     {
         final AmqpService service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+        registerForNotifications(service);
 
         // 1. Setup an outgoing-link to 'amqp://localhost:6672/my-queue' and map
         // it to vert.x address 'my-pub-queue'
+        OutgoingLinkOptions options = new OutgoingLinkOptions();
+        options.setReliability(ReliabilityMode.AT_LEAST_ONCE);
         System.out
         .println("Attempting to establish an outgoing link from the bridge to 'amqp://localhost:5672/my-queue'");
         service.establishOutgoingLink("amqp://localhost:6672/my-queue", "my-pub-queue", "my-pub-notifications",
-                new OutgoingLinkOptions(), result -> {
+                options, result -> {
                     if (result.succeeded())
                     {
-                        String outgoingLinkRef = result.result();
+                        outgoingLinkRef = result.result();
                         System.out.println("Outgoing link ref : " + outgoingLinkRef);
-
                         // 2. Send a message to vert.x address 'my-pub-queue'
+                        // Use a unique id for outgoing msg ref. When a delivery
+                        // notification is set, you could use this ref to
+                        // correlate the tracker to the original message.
                         System.out.println("Sending a message to vertx address my-pub-queue");
-                        vertx.eventBus().publish("my-pub-queue", new JsonObject().put("body", "rajith"));
+                        vertx.eventBus().publish("my-pub-queue", new JsonObject().put("body", "rajith").put(AmqpService.OUTGOING_MSG_REF, "my-msg-ref"));
                     }
                     else
                     {
@@ -64,5 +76,25 @@ public class PublishToQueueVerticle extends AbstractVerticle
                         result.cause().printStackTrace();
                     }
                 });
+    }
+
+    private void registerForNotifications(final AmqpService service)
+    {
+        vertx.eventBus().consumer("my-pub-notifications", msg -> {
+            JsonObject json = (JsonObject)msg.body();
+            NotificationType type = NotificationHelper.getType(json);
+            if (type == NotificationType.DELIVERY_STATE)
+            {
+                DeliveryTracker tracker = NotificationHelper.getDeliveryTracker(json);
+                System.out.println("Delivery State : " + tracker.getDeliveryState());
+                System.out.println("Message State : " + tracker.getMessageState());
+                // 5. When the message is accepted by the broker, we cancel the outgoing link.
+                service.cancelOutgoingLink(outgoingLinkRef, result->{});
+            }
+            else if (type == NotificationType.LINK_CREDIT)
+            {
+                System.out.println("Received " + NotificationHelper.getCredits(json) + " message credits from broker");                
+            }
+        });
     }
 }

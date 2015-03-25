@@ -36,7 +36,7 @@ public interface AmqpEventListener
 
     void onClearToSend(OutgoingLinkImpl link);
 
-    void onSettled(TrackerImpl tracker);
+    void onSettled(OutgoingLinkImpl link, TrackerImpl tracker);
 
     void onIncomingLinkOpen(IncomingLinkImpl link);
 

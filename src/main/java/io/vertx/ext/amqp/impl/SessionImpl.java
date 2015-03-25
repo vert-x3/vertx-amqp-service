@@ -147,10 +147,10 @@ class SessionImpl implements Session
             receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
             receiver.setSenderSettleMode(SenderSettleMode.UNSETTLED);
             break;
-        //case EXACTLY_ONCE:
-        //    receiver.setReceiverSettleMode(ReceiverSettleMode.SECOND);
-        //    receiver.setSenderSettleMode(SenderSettleMode.UNSETTLED);
-        //    break;
+        // case EXACTLY_ONCE:
+        // receiver.setReceiverSettleMode(ReceiverSettleMode.SECOND);
+        // receiver.setSenderSettleMode(SenderSettleMode.UNSETTLED);
+        // break;
         }
         receiver.open();
 
@@ -250,6 +250,11 @@ class SessionImpl implements Session
         }
     }
 
+    void addUnsettled(long id, Delivery d)
+    {
+        _unsettled.put(id, d);
+    }
+
     void disposition(long sequence, DeliveryState state, int... flags)
     {
         int flag = flags.length == 1 ? flags[0] : 0;
@@ -281,11 +286,15 @@ class SessionImpl implements Session
         long count = cumilative ? _lastSettled.get() : sequence;
         long end = sequence;
 
+        System.out.println("settle : count " + count);
+        System.out.println("settle : end " + end);
+        System.out.println("settle : _unsettled " + _unsettled);
         while (count <= end)
         {
             Delivery d = _unsettled.get(count);
             if (d != null)
             {
+                System.out.println("Delivery " + d);
                 if (!d.isSettled() && d.getLink().getReceiverSettleMode() == ReceiverSettleMode.FIRST)
                 {
                     d.settle();

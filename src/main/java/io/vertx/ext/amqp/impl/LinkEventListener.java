@@ -15,6 +15,9 @@
  */
 package io.vertx.ext.amqp.impl;
 
+import io.vertx.ext.amqp.DeliveryState;
+import io.vertx.ext.amqp.ReliabilityMode;
+
 /* 
  * Internal interface to help delegate events to Service while
  * hiding link management in LinkManager 
@@ -29,7 +32,9 @@ public interface LinkEventListener
 
     void outgoingLinkFinal(String id, String linkName, String address, boolean isFromInboundConnection);
 
-    void message(String id, String linkName, String peerAddress, InboundMessage msg);
+    void message(String id, String linkName, String peerAddress, ReliabilityMode reliability, InboundMessage msg);
 
-    void outgoingLinkCreditGiven(String id, String linkName, String address, int credits);
+    void deliveryUpdate(String linkRef, String msgRef, DeliveryState state, MessageDisposition disp);
+
+    void outgoingLinkCreditGiven(String id, int credits);
 }
