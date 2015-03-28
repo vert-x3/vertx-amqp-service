@@ -46,6 +46,11 @@ abstract class BaseLink
         _toString = ssn.getConnection().toString() + "/" + address;
     }
 
+    public String getName()
+    {
+        return _link.getName();
+    }
+
     public String getAddress()
     {
         return _address;

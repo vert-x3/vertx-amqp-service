@@ -18,7 +18,7 @@ package io.vertx.ext.amqp.impl;
 public enum InboundRoutingPropertyType
 {
 
-    LINK_NAME, SUBJECT, MESSAGE_ID, CORRELATION_ID, ADDRESS, REPLY_TO, CUSTOM;
+    LINK_TARGET, SUBJECT, MESSAGE_ID, CORRELATION_ID, ADDRESS, REPLY_TO, CUSTOM;
 
     public static InboundRoutingPropertyType get(String key)
     {

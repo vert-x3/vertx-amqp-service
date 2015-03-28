@@ -73,6 +73,7 @@ public class ConsumeFromQueueVerticle extends AbstractVerticle
         // it to 'my-sub-queue' using the Service API.
         IncomingLinkOptions options = new IncomingLinkOptions();
         options.setReliability(ReliabilityMode.AT_LEAST_ONCE);
+        options.setPrefetch(0);
         System.out
         .println("Attempting to establish an incoming link from 'amqp://localhost:6672/my-queue' to the bridge");
         service.establishIncommingLink("amqp://localhost:6672/my-queue", "my-sub-queue", "my-sub-notifications",

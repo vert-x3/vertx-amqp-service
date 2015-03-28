@@ -21,6 +21,7 @@ import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.ReliabilityMode;
 
 import org.apache.qpid.proton.Proton;
+import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Event;
@@ -37,7 +38,7 @@ class ManagedConnection extends ConnectionImpl
 {
     private final org.apache.qpid.proton.engine.Session _protonSession;
 
-    private SessionImpl _session;
+    private ManagedSession _session;
 
     private AmqpEventListener eventListener;
 
@@ -46,15 +47,8 @@ class ManagedConnection extends ConnectionImpl
         super(settings, null, inbound);
         eventListener = handler;
         _protonSession = protonConnection.session();
-        _session = new SessionImpl(this, _protonSession);
-    }
-
-    @Override
-    public void open()
-    {
-        protonConnection.open();
+        _session = new ManagedSession(this, _protonSession);
         _protonSession.open();
-        write();
     }
 
     @Override
@@ -166,27 +160,32 @@ class ManagedConnection extends ConnectionImpl
         Link link = d.getLink();
         if (link instanceof Receiver)
         {
-            if (d.isPartial())
+            if (d.isReadable() && !d.isPartial())
             {
-                return;
+                Receiver receiver = (Receiver) link;
+                byte[] bytes = new byte[d.pending()];
+                int read = receiver.recv(bytes, 0, bytes.length);
+                Message pMsg = Proton.message();
+                pMsg.decode(bytes, 0, read);
+                receiver.advance();
+    
+                IncomingLinkImpl inLink = (IncomingLinkImpl) link.getContext();
+                SessionImpl ssn = inLink.getSession();
+                InboundMessage msg = new InboundMessage(ssn.getID(), d.getTag(), ssn.getNextIncommingSequence(),
+                        d.isSettled(), pMsg);
+                if (link.getSenderSettleMode() != SenderSettleMode.SETTLED)
+                {
+                    ssn.addUnsettled(msg.getSequence(), d);
+                }
+                eventListener.onMessage(inLink, msg);
             }
-
-            Receiver receiver = (Receiver) link;
-            byte[] bytes = new byte[d.pending()];
-            int read = receiver.recv(bytes, 0, bytes.length);
-            Message pMsg = Proton.message();
-            pMsg.decode(bytes, 0, read);
-            receiver.advance();
-
-            IncomingLinkImpl inLink = (IncomingLinkImpl) link.getContext();
-            SessionImpl ssn = inLink.getSession();
-            InboundMessage msg = new InboundMessage(ssn.getID(), d.getTag(), ssn.getNextIncommingSequence(),
-                    d.isSettled(), pMsg);
-            if (link.getSenderSettleMode() != SenderSettleMode.SETTLED)
+            else if (d.isUpdated() && d.isSettled())
             {
-                ssn.addUnsettled(msg.getSequence(), d);
+                if (link.getReceiverSettleMode() == ReceiverSettleMode.SECOND)
+                {
+                    d.settle();
+                }
             }
-            eventListener.onMessage(inLink, msg);
         }
         else
         {

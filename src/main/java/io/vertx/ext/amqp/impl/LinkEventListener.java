@@ -32,7 +32,7 @@ public interface LinkEventListener
 
     void outgoingLinkFinal(String id, String linkName, String address, boolean isFromInboundConnection);
 
-    void message(String id, String linkName, String peerAddress, ReliabilityMode reliability, InboundMessage msg);
+    void message(String id, String linkTarget, String peerAddress, ReliabilityMode reliability, InboundMessage msg);
 
     void deliveryUpdate(String linkRef, String msgRef, DeliveryState state, MessageDisposition disp);
 

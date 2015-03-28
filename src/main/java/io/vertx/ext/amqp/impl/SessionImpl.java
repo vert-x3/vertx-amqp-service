@@ -90,22 +90,20 @@ class SessionImpl implements Session
     public OutgoingLink createOutboundLink(String address, ReliabilityMode mode) throws MessagingException
     {
         checkClosed();
-        Sender sender;
-        Source source = new Source();
+        String name = UUID.randomUUID().toString();
+        Sender sender = _ssn.sender(name);
+        // Source source = new Source();
         Target target = new Target();
         if (address == null || address.isEmpty() || address.equals("#"))
         {
-            String temp = UUID.randomUUID().toString();
-            sender = _ssn.sender(temp);
             target.setDynamic(true);
         }
         else
         {
-            sender = _ssn.sender(address);
             target.setAddress(address);
         }
         sender.setTarget(target);
-        sender.setSource(source);
+        // sender.setSource(source);
         sender.setSenderSettleMode(mode == ReliabilityMode.UNRELIABLE ? SenderSettleMode.SETTLED
                 : SenderSettleMode.UNSETTLED);
         sender.open();
@@ -121,22 +119,21 @@ class SessionImpl implements Session
     public IncomingLink createInboundLink(String address, ReliabilityMode mode, CreditMode creditMode)
             throws MessagingException
     {
-        Receiver receiver;
+        checkClosed();
+        String name = UUID.randomUUID().toString();
+        Receiver receiver = _ssn.receiver(name);
         Source source = new Source();
-        Target target = new Target();
+        // Target target = new Target();
         if (address == null || address.isEmpty() || address.equals("#"))
         {
-            String temp = UUID.randomUUID().toString();
-            receiver = _ssn.receiver(temp);
             source.setDynamic(true);
         }
         else
         {
-            receiver = _ssn.receiver(address);
             source.setAddress(address);
         }
         receiver.setSource(source);
-        receiver.setTarget(target);
+        // receiver.setTarget(target);
         switch (mode)
         {
         case UNRELIABLE:
@@ -286,15 +283,11 @@ class SessionImpl implements Session
         long count = cumilative ? _lastSettled.get() : sequence;
         long end = sequence;
 
-        System.out.println("settle : count " + count);
-        System.out.println("settle : end " + end);
-        System.out.println("settle : _unsettled " + _unsettled);
         while (count <= end)
         {
             Delivery d = _unsettled.get(count);
             if (d != null)
             {
-                System.out.println("Delivery " + d);
                 if (!d.isSettled() && d.getLink().getReceiverSettleMode() == ReceiverSettleMode.FIRST)
                 {
                     d.settle();

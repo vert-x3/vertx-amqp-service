@@ -134,7 +134,7 @@ class MessageTranslator
     }
 
     @SuppressWarnings("rawtypes")
-    private static Object toJsonable(Object in)
+    private static Object toJsonable(Object in) throws MessageFormatException
     {
         if (in instanceof Number || in instanceof String)
         {
@@ -159,15 +159,20 @@ class MessageTranslator
             }
             return out;
         }
+        else if (in instanceof Binary)
+        {
+            Thread.dumpStack();
+            return ((Binary) in).getArray();
+        }
         else
         {
-            System.out.println("Warning: can't convert object of type " + in.getClass() + " to JSON");
-            return in.toString();
+            throw new MessageFormatException("Warning: can't convert object of type " + in.getClass() + " to JSON",
+                    ErrorCode.INVALID_MSG_FORMAT);
         }
     }
 
     @SuppressWarnings("unchecked")
-    JsonObject convert(Message in)
+    JsonObject convert(Message in) throws MessageFormatException
     {
         JsonObject out = new JsonObject();
         Properties p = in.getProperties();

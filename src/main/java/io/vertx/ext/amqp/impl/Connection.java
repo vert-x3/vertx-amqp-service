@@ -17,8 +17,6 @@ package io.vertx.ext.amqp.impl;
 
 public interface Connection
 {
-    public void open();
-
     public boolean isOpen();
 
     public boolean isInbound();

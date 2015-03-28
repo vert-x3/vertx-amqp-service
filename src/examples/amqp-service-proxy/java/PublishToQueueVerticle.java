@@ -54,6 +54,7 @@ public class PublishToQueueVerticle extends AbstractVerticle
         // it to vert.x address 'my-pub-queue'
         OutgoingLinkOptions options = new OutgoingLinkOptions();
         options.setReliability(ReliabilityMode.AT_LEAST_ONCE);
+        
         System.out
         .println("Attempting to establish an outgoing link from the bridge to 'amqp://localhost:5672/my-queue'");
         service.establishOutgoingLink("amqp://localhost:6672/my-queue", "my-pub-queue", "my-pub-notifications",

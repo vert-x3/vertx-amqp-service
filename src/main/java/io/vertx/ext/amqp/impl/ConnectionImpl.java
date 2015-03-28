@@ -28,7 +28,6 @@ import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.qpid.proton.Proton;
@@ -38,7 +37,6 @@ import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Event;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Receiver;
-import org.apache.qpid.proton.engine.Sasl;
 import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.engine.Transport;
 import org.apache.qpid.proton.message.Message;
@@ -93,19 +91,14 @@ class ConnectionImpl implements Connection
                 CONN_NUMBER_GENERATOR.incrementAndGet(), DATE_FORMAT.format(new Date(System.currentTimeMillis()))));
         protonConnection.setContext(this);
         protonConnection.collect(_collector);
-        Sasl sasl = _transport.sasl();
-        if (inbound)
-        {
-            sasl.server();
-            sasl.setMechanisms(new String[] { "ANONYMOUS" });
-            sasl.done(Sasl.SaslOutcome.PN_SASL_OK);
-        }
-        else
-        {
-            sasl.client();
-            sasl.setMechanisms(new String[] { "ANONYMOUS" });
-        }
+        /*
+         * Sasl sasl = _transport.sasl(); if (inbound) { sasl.server();
+         * sasl.setMechanisms(new String[] { "ANONYMOUS" });
+         * sasl.done(Sasl.SaslOutcome.PN_SASL_OK); } else { sasl.client();
+         * sasl.setMechanisms(new String[] { "ANONYMOUS" }); }
+         */
         _transport.bind(protonConnection);
+        protonConnection.open();
     }
 
     ConnectionSettings getSettings()
@@ -166,13 +159,6 @@ class ConnectionImpl implements Connection
         {
             _state = state;
         }
-    }
-
-    @Override
-    public void open()
-    {
-        protonConnection.open();
-        write();
     }
 
     @Override
