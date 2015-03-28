@@ -668,7 +668,10 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
     {
         if (_outgoingLinkRefs.containsKey(id))
         {
-            sendNotificatonMessage(id, NotificationMessageFactory.credit(id, credits));
+            for (int i=0; i < credits; i++)
+            {
+                _eb.publish(_outgoingLinkRefs.get(id).nextCreditRecipeintAddr(), NotificationMessageFactory.credit(id, 1));
+            }
         }
         else
         {
@@ -784,6 +787,8 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
 
         final Handler<AsyncResult<String>> _resultHandler;
 
+        int _nextCreditRecipient = 0;
+ 
         OutgoingLinkRef(String id, String amqpAddr, String ebAddr, String notificationAddr,
                 Handler<AsyncResult<String>> resultHandler)
         {
@@ -812,6 +817,19 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
         void removeNotificationAddress(String addr)
         {
             _notificationAddrList.remove(addr);
+        }
+        
+        String nextCreditRecipeintAddr()
+        {
+            if (_nextCreditRecipient + 1 == _notificationAddrList.size())
+            {
+                _nextCreditRecipient = 0;
+            }
+            else
+            {
+                _nextCreditRecipient++;
+            }
+            return _notificationAddrList.get(_nextCreditRecipient);    
         }
     }
 }

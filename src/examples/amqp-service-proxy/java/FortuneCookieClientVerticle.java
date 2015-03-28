@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import java.util.UUID;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.amqp.AmqpService;
@@ -31,21 +33,30 @@ import io.vertx.ext.amqp.ReliabilityMode;
  */
 public class FortuneCookieClientVerticle extends AbstractVerticle
 {
-    String serviceAddr = "amqp://localhost:7777/fortune-cookie-service";
+    String serviceAddr = null;
+
+    String noticeAddr = null;
+
+    String publishAddr = null;
 
     AmqpService service;
 
     @Override
     public void start() throws Exception
     {
+        serviceAddr = config().getString("service-addr", "amqp://localhost:7777/fortune-cookie-service");
+        String id = UUID.randomUUID().toString();
+        noticeAddr = "notice".concat("-").concat(id);
+        publishAddr = "publish".concat("-").concat(id);
+
         service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
 
         OutgoingLinkOptions outOps = new OutgoingLinkOptions();
         outOps.setReliability(ReliabilityMode.AT_LEAST_ONCE);
         service.establishOutgoingLink(
                 serviceAddr,
-                "my-fortune-req",
-                "notifications",
+                publishAddr,
+                noticeAddr,
                 outOps,
                 result -> {
                     if (result.succeeded())
@@ -60,7 +71,7 @@ public class FortuneCookieClientVerticle extends AbstractVerticle
                 });
 
         vertx.eventBus().<JsonObject> consumer(
-                "notifications",
+                noticeAddr,
                 msg -> {
                     // print("Notifiation msg %s", msg.body());
                     NotificationType type = NotificationHelper.getType(msg.body());
@@ -81,7 +92,7 @@ public class FortuneCookieClientVerticle extends AbstractVerticle
     private void sendRequest()
     {
         print("Sent a request for a fortune cookie");
-        vertx.eventBus().<JsonObject> send("my-fortune-req", new JsonObject(), resp -> {
+        vertx.eventBus().<JsonObject> send(publishAddr, new JsonObject(), resp -> {
             JsonObject msg = resp.result().body();
             print("Received my fortune cookie : '%s'", msg.getString("body"));
             service.accept(msg.getString(AmqpService.INCOMING_MSG_REF), result -> {
