@@ -19,7 +19,7 @@ package io.vertx.ext.amqp;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.amqp.impl.AmqpServiceConfig;
 import io.vertx.ext.amqp.impl.AmqpServiceConfigImpl;
-import io.vertx.ext.amqp.impl.InboundRoutingPropertyType;
+import io.vertx.ext.amqp.impl.routing.InboundRoutingPropertyType;
 
 import java.io.File;
 import java.io.FileNotFoundException;

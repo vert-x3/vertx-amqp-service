@@ -21,6 +21,7 @@ import io.vertx.ext.amqp.DeliveryState;
 import io.vertx.ext.amqp.ErrorCode;
 import io.vertx.ext.amqp.NotificationHelper;
 import io.vertx.ext.amqp.NotificationHelper.NotificationType;
+import io.vertx.ext.amqp.impl.protocol.MessageDisposition;
 
 public class NotificationMessageFactory
 {

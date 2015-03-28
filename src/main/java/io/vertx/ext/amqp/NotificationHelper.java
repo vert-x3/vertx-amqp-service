@@ -16,7 +16,7 @@
 package io.vertx.ext.amqp;
 
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.amqp.impl.DeliveryTrackerImpl;
+import io.vertx.ext.amqp.impl.protocol.DeliveryTrackerImpl;
 
 /**
  * A helper class for parsing notification messages. This allows applications to

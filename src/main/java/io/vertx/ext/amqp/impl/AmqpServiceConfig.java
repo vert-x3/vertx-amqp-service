@@ -15,6 +15,9 @@
  */
 package io.vertx.ext.amqp.impl;
 
+import io.vertx.ext.amqp.impl.routing.InboundRoutingPropertyType;
+import io.vertx.ext.amqp.impl.routing.RouteEntry;
+
 import java.util.List;
 import java.util.Map;
 

@@ -16,7 +16,6 @@
 package io.vertx.ext.amqp.impl;
 
 import static io.vertx.ext.amqp.impl.util.Functions.format;
-
 import io.vertx.codegen.annotations.Fluent;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -38,6 +37,13 @@ import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.OutgoingLinkOptions;
 import io.vertx.ext.amqp.ReliabilityMode;
 import io.vertx.ext.amqp.ServiceOptions;
+import io.vertx.ext.amqp.impl.protocol.InboundMessage;
+import io.vertx.ext.amqp.impl.protocol.LinkEventListener;
+import io.vertx.ext.amqp.impl.protocol.LinkManager;
+import io.vertx.ext.amqp.impl.protocol.MessageDisposition;
+import io.vertx.ext.amqp.impl.routing.InboundRoutingPropertyType;
+import io.vertx.ext.amqp.impl.routing.Router;
+import io.vertx.ext.amqp.impl.translators.MessageTranslator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -108,7 +114,7 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
         }
     }
 
-    void stopInternal()
+    public void stopInternal()
     {
         try
         {

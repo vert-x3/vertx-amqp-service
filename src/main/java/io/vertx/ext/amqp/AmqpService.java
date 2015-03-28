@@ -22,7 +22,7 @@ import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.ext.amqp.impl.AmqpMessage;
+import io.vertx.ext.amqp.impl.protocol.AmqpMessage;
 import io.vertx.serviceproxy.ProxyHelper;
 
 /**

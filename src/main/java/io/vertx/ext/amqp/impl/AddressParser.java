@@ -18,6 +18,7 @@ package io.vertx.ext.amqp.impl;
 import io.vertx.ext.amqp.ConnectionSettings;
 import io.vertx.ext.amqp.ErrorCode;
 import io.vertx.ext.amqp.MessagingException;
+import io.vertx.ext.amqp.impl.protocol.DefaultConnectionSettings;
 
 import java.util.ArrayList;
 import java.util.List;
