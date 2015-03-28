@@ -116,7 +116,7 @@ public class LinkManager extends AbstractAmqpEventListener
         _server.listen(result -> {
             if (result.failed())
             {
-                String error = String.format("Error {%s} Server was unable to bind to %s:%s", result.cause(),
+                String error = format("Error {%s} Server was unable to bind to %s:%s", result.cause(),
                         _config.getInboundHost(), _config.getInboundPort());
                 _logger.warn(error, result.cause());
                 // We need to stop the verticle
@@ -170,7 +170,7 @@ public class LinkManager extends AbstractAmqpEventListener
                 }
                 else
                 {
-                    _logger.info(String.format("Attempting re-connection to AMQP peer at %s:%s", settings.getHost(),
+                    _logger.info(format("Attempting re-connection to AMQP peer at %s:%s", settings.getHost(),
                             settings.getPort()));
                     break;
                 }
@@ -186,20 +186,19 @@ public class LinkManager extends AbstractAmqpEventListener
                 connection.addDisconnectHandler(c -> {
                     _outboundConnections.remove(c);
                 });
-                _logger.info(String.format("Connected to AMQP peer at %s:%s", connection.getSettings().getHost(),
-                        connection.getSettings().getPort()));
+                _logger.info(format("Connected to AMQP peer at %s:%s", connection.getSettings().getHost(), connection
+                        .getSettings().getPort()));
             }
             else
             {
-                _logger.warn(String.format("Error {%s}, when connecting to AMQP peer at %s:%s", result.cause(),
-                        connection.getSettings().getHost(), connection.getSettings().getPort()));
+                _logger.warn(format("Error {%s}, when connecting to AMQP peer at %s:%s", result.cause(), connection
+                        .getSettings().getHost(), connection.getSettings().getPort()));
                 connection.setState(State.FAILED);
                 _outboundConnections.remove(connection);
             }
         });
 
-        _logger.info(String.format("Attempting connection to AMQP peer at %s:%s", settings.getHost(),
-                settings.getPort()));
+        _logger.info(format("Attempting connection to AMQP peer at %s:%s", settings.getHost(), settings.getPort()));
         _outboundConnections.add(connection);
         return connection;
     }
@@ -306,8 +305,8 @@ public class LinkManager extends AbstractAmqpEventListener
         final ConnectionSettings settings = getConnectionSettings(amqpAddress);
         ManagedConnection con = getConnection(settings);
         OutgoingLinkImpl link = con.createOutboundLink(settings.getNode(), options.getReliability());
-        _logger.info(String.format("Created outgoing link to AMQP peer [address=%s @ %s:%s, options=%s] ",
-                settings.getNode(), settings.getHost(), settings.getPort(), options));
+        _logger.info(format("Created outgoing link to AMQP peer [address=%s @ %s:%s, options=%s] ", settings.getNode(),
+                settings.getHost(), settings.getPort(), options));
         _outgoingLinks.put(amqpAddress, new Outgoing(link.getName(), link, options));
         return link;
     }
@@ -418,8 +417,8 @@ public class LinkManager extends AbstractAmqpEventListener
             link.setCredits(options.getPrefetch());
         }
         _incomingLinks.put(amqpAddress, new Incoming(link.getName(), link, options));
-        _logger.info(String.format("Created incoming link to AMQP peer [address=%s @ %s:%s, options=%s] ",
-                settings.getNode(), settings.getHost(), settings.getPort(), options));
+        _logger.info(format("Created incoming link to AMQP peer [address=%s @ %s:%s, options=%s] ", settings.getNode(),
+                settings.getHost(), settings.getPort(), options));
         return link.getName();
     }
 
@@ -443,7 +442,7 @@ public class LinkManager extends AbstractAmqpEventListener
         if (con.isInbound())
         {
             _outgoingLinks.put(address, new Outgoing(link.getName(), link, DEFAULT_OUTGOING_LINK_OPTIONS));
-            _logger.info(String.format("Accepted an outgoing link (subscription) from AMQP peer %s", address));
+            _logger.info(format("Accepted an outgoing link (subscription) from AMQP peer %s", address));
 
         }
         _listener.outgoingLinkReady(_outgoingLinks.get(address)._id, name, address, link.getConnection().isInbound());
@@ -540,7 +539,7 @@ public class LinkManager extends AbstractAmqpEventListener
             _id = id;
             _link = link;
             _options = options;
-            _toStr = String.format("[id=%s, link=%s, options=%s]", _id, _link.getAddress(), _options);
+            _toStr = format("[id=%s, link=%s, options=%s]", _id, _link.getAddress(), _options);
         }
 
         @Override
@@ -565,7 +564,7 @@ public class LinkManager extends AbstractAmqpEventListener
             _id = id;
             _link = link;
             _options = options;
-            _toStr = String.format("[id=%s, link=%s, options=%s]", _id, _link.getAddress(), _options);
+            _toStr = format("[id=%s, link=%s, options=%s]", _id, _link.getAddress(), _options);
         }
 
         @Override
