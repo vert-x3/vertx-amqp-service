@@ -66,6 +66,10 @@ public class LinkManager extends AbstractAmqpEventListener
 
     protected final Map<String, Outgoing> _outgoingLinks = new ConcurrentHashMap<String, Outgoing>();
 
+    protected final Map<String, String> _addressToIncomingLinkMap = new ConcurrentHashMap<String, String>();
+
+    protected final Map<String, String> _addressToOutgoingLinkMap = new ConcurrentHashMap<String, String>();
+
     protected final Map<String, ManagedSession> _msgRefToSsnMap = new ConcurrentHashMap<String, ManagedSession>();
 
     protected final NetClient _client;

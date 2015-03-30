@@ -719,19 +719,6 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
         }
     }
 
-    class IncomingMsgRef
-    {
-        long _sequence;
-
-        String _linkRef;
-
-        IncomingMsgRef(long seq, String ref)
-        {
-            _sequence = seq;
-            _linkRef = ref;
-        }
-    }
-
     class IncomingLinkRef
     {
         final String _id;
