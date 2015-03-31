@@ -202,10 +202,14 @@ public interface AmqpService
     public AmqpService release(String msgRef, Handler<AsyncResult<Void>> result);
 
     @Fluent
-    public AmqpService registerService(String eventbusAddress, ServiceOptions options, Handler<AsyncResult<Void>> result);
+    public AmqpService registerService(String eventbusAddress, String notificationAddres, ServiceOptions options,
+            Handler<AsyncResult<Void>> result);
 
     @Fluent
     public AmqpService unregisterService(String eventbusAddress, Handler<AsyncResult<Void>> result);
+
+    @Fluent
+    public AmqpService issueCredits(String eventbusAddress, int credits, Handler<AsyncResult<Void>> result);
 
     /**
      * Start the AMQP Service

@@ -271,14 +271,14 @@ public class AmqpService {
     return result;
   }
 
-  public AmqpService registerService(String eventbusAddress, ServiceOptions options, Handler<AsyncResult<Void>> result) { 
-    this.delegate.registerService(eventbusAddress, options, result);
+  public AmqpService registerService(String eventbusAddress, String notificationAddres, ServiceOptions options, Handler<AsyncResult<Void>> result) { 
+    this.delegate.registerService(eventbusAddress, notificationAddres, options, result);
     return this;
   }
 
-  public Observable<Void> registerServiceObservable(String eventbusAddress, ServiceOptions options) { 
+  public Observable<Void> registerServiceObservable(String eventbusAddress, String notificationAddres, ServiceOptions options) { 
     io.vertx.rx.java.ObservableFuture<Void> result = io.vertx.rx.java.RxHelper.observableFuture();
-    registerService(eventbusAddress, options, result.toHandler());
+    registerService(eventbusAddress, notificationAddres, options, result.toHandler());
     return result;
   }
 
@@ -290,6 +290,17 @@ public class AmqpService {
   public Observable<Void> unregisterServiceObservable(String eventbusAddress) { 
     io.vertx.rx.java.ObservableFuture<Void> result = io.vertx.rx.java.RxHelper.observableFuture();
     unregisterService(eventbusAddress, result.toHandler());
+    return result;
+  }
+
+  public AmqpService issueCredits(String eventbusAddress, int credits, Handler<AsyncResult<Void>> result) { 
+    this.delegate.issueCredits(eventbusAddress, credits, result);
+    return this;
+  }
+
+  public Observable<Void> issueCreditsObservable(String eventbusAddress, int credits) { 
+    io.vertx.rx.java.ObservableFuture<Void> result = io.vertx.rx.java.RxHelper.observableFuture();
+    issueCredits(eventbusAddress, credits, result.toHandler());
     return result;
   }
 
