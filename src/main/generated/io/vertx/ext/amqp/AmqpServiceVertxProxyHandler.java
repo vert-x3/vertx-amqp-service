@@ -93,11 +93,15 @@ public class AmqpServiceVertxProxyHandler extends ProxyHandler {
         break;
       }
       case "registerService": {
-        service.registerService((java.lang.String)json.getValue("eventbusAddress"), new io.vertx.ext.amqp.ServiceOptions(json.getJsonObject("options")), createHandler(msg));
+        service.registerService((java.lang.String)json.getValue("eventbusAddress"), (java.lang.String)json.getValue("notificationAddres"), new io.vertx.ext.amqp.ServiceOptions(json.getJsonObject("options")), createHandler(msg));
         break;
       }
       case "unregisterService": {
         service.unregisterService((java.lang.String)json.getValue("eventbusAddress"), createHandler(msg));
+        break;
+      }
+      case "issueCredits": {
+        service.issueCredits((java.lang.String)json.getValue("eventbusAddress"), (int)json.getValue("credits"), createHandler(msg));
         break;
       }
       case "start": {

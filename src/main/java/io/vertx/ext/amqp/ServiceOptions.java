@@ -21,21 +21,9 @@ import io.vertx.core.json.JsonObject;
 @DataObject
 public class ServiceOptions
 {
-    public final static String PREFETCH = "prefetch";
+    public final static String INITIAL_CAPACITY = "initial-capacity";
 
-    public final static String EXCLUSIVE = "exclusive";
-
-    public final static String RELIABILITY = "reliability";
-
-    public final static String RECOVERY_OPTIONS = "recovery-options";
-
-    private int prefetch = 1;
-
-    private boolean exclusive = false;
-
-    private ReliabilityMode reliability = ReliabilityMode.UNRELIABLE;
-
-    private RecoveryOptions recoveryOptions = new RecoveryOptions();
+    private int initialCapacity = 0;
 
     public ServiceOptions()
     {
@@ -43,67 +31,29 @@ public class ServiceOptions
 
     public ServiceOptions(ServiceOptions options)
     {
-        this.prefetch = options.prefetch;
-        this.exclusive = options.exclusive;
-        this.reliability = options.reliability;
-        this.recoveryOptions = options.recoveryOptions;
+        this.initialCapacity = options.initialCapacity;
     }
 
     public ServiceOptions(JsonObject options)
     {
-        this.prefetch = options.getInteger(PREFETCH, 1);
-        this.exclusive = options.getBoolean(EXCLUSIVE, false);
-        this.reliability = ReliabilityMode.valueOf(options.getString(RELIABILITY, ReliabilityMode.UNRELIABLE.name()));
-        this.recoveryOptions = new RecoveryOptions(options.getJsonObject(RECOVERY_OPTIONS));
+        this.initialCapacity = options.getInteger(INITIAL_CAPACITY, 1);
     }
 
     public JsonObject toJson()
     {
         JsonObject json = new JsonObject();
-        json.put(PREFETCH, prefetch);
-        json.put(EXCLUSIVE, exclusive);
-        json.put(RELIABILITY, reliability.name());
+        json.put(INITIAL_CAPACITY, initialCapacity);
         return json;
     }
 
-    public int getPrefetch()
+    public int getInitialCapacity()
     {
-        return prefetch;
+        return initialCapacity;
     }
 
-    public void setPrefetch(int prefetch)
+    public void setInitialCapacity(int capacity)
     {
-        this.prefetch = prefetch;
-    }
-
-    public boolean isExclusive()
-    {
-        return exclusive;
-    }
-
-    public void setExclusive(boolean exclusive)
-    {
-        this.exclusive = exclusive;
-    }
-
-    public ReliabilityMode getReliability()
-    {
-        return reliability;
-    }
-
-    public void setReliability(ReliabilityMode reliability)
-    {
-        this.reliability = reliability;
-    }
-
-    public RecoveryOptions getRecoveryOptions()
-    {
-        return recoveryOptions;
-    }
-
-    public void setRecoveryOptions(RecoveryOptions recoveryOptions)
-    {
-        this.recoveryOptions = recoveryOptions;
+        this.initialCapacity = capacity;
     }
 
     @Override

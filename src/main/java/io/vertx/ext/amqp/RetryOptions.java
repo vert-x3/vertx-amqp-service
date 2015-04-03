@@ -22,7 +22,7 @@ import io.vertx.codegen.annotations.DataObject;
 import io.vertx.core.json.JsonObject;
 
 @DataObject
-public class RecoveryOptions
+public class RetryOptions
 {
     public final static String MIN_RETRY_INTERVAL = "min-retry-interval";
 
@@ -48,11 +48,11 @@ public class RecoveryOptions
 
     private RetryPolicy retryPolicy = RetryPolicy.NO_RETRY;
 
-    public RecoveryOptions()
+    public RetryOptions()
     {
     }
 
-    public RecoveryOptions(RecoveryOptions options)
+    public RetryOptions(RetryOptions options)
     {
         this.minRetryInterval = options.minRetryInterval;
         this.maxRetryInterval = options.maxRetryInterval;
@@ -60,7 +60,7 @@ public class RecoveryOptions
     }
 
     @SuppressWarnings("unchecked")
-    public RecoveryOptions(JsonObject options)
+    public RetryOptions(JsonObject options)
     {
         if (options != null)
         {

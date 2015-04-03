@@ -24,15 +24,15 @@ import io.vertx.ext.amqp.ReliabilityMode;
  */
 public interface LinkEventListener
 {
-    void incomingLinkReady(String id, String linkName, String address, boolean isFromInboundConnection);
+    void incomingLinkReady(String id, String address, boolean isFromInboundConnection);
 
-    void incomingLinkFinal(String id, String linkName, String address, boolean isFromInboundConnection);
+    void incomingLinkFinal(String id, String address, boolean isFromInboundConnection);
 
-    void outgoingLinkReady(String id, String linkName, String address, boolean isFromInboundConnection);
+    void outgoingLinkReady(String id, String address, boolean isFromInboundConnection);
 
-    void outgoingLinkFinal(String id, String linkName, String address, boolean isFromInboundConnection);
+    void outgoingLinkFinal(String id, String address, boolean isFromInboundConnection);
 
-    void message(String id, String linkTarget, String peerAddress, ReliabilityMode reliability, InboundMessage msg);
+    void message(String id, String linkAddress, ReliabilityMode reliability, InboundMessage msg);
 
     void deliveryUpdate(String linkRef, String msgRef, DeliveryState state, MessageDisposition disp);
 

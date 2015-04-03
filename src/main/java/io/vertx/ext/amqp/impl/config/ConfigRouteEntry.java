@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.vertx.ext.amqp.impl.routing;
+package io.vertx.ext.amqp.impl.config;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class RouteEntry
+public class ConfigRouteEntry
 {
     Pattern _pattern;
 
     List<String> _addressList = new ArrayList<String>();
 
-    public RouteEntry(Pattern p, String addr)
+    public ConfigRouteEntry(Pattern p, String addr)
     {
         _pattern = p;
         _addressList.add(addr);

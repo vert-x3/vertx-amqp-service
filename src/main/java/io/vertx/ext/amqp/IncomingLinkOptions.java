@@ -23,19 +23,15 @@ public class IncomingLinkOptions
 {
     public final static String PREFETCH = "prefetch";
 
-    public final static String EXCLUSIVE = "exclusive";
-
     public final static String RELIABILITY = "reliability";
 
     public final static String RECOVERY_OPTIONS = "recovery-options";
 
     private int prefetch = 1;
 
-    private boolean exclusive = false;
-
     private ReliabilityMode reliability = ReliabilityMode.UNRELIABLE;
 
-    private RecoveryOptions recoveryOptions = new RecoveryOptions();
+    private RetryOptions recoveryOptions = new RetryOptions();
 
     public IncomingLinkOptions()
     {
@@ -44,7 +40,6 @@ public class IncomingLinkOptions
     public IncomingLinkOptions(IncomingLinkOptions options)
     {
         this.prefetch = options.prefetch;
-        this.exclusive = options.exclusive;
         this.reliability = options.reliability;
         this.recoveryOptions = options.recoveryOptions;
     }
@@ -52,16 +47,14 @@ public class IncomingLinkOptions
     public IncomingLinkOptions(JsonObject options)
     {
         this.prefetch = options.getInteger(PREFETCH, 1);
-        this.exclusive = options.getBoolean(EXCLUSIVE, false);
         this.reliability = ReliabilityMode.valueOf(options.getString(RELIABILITY, ReliabilityMode.UNRELIABLE.name()));
-        this.recoveryOptions = new RecoveryOptions(options.getJsonObject(RECOVERY_OPTIONS));
+        this.recoveryOptions = new RetryOptions(options.getJsonObject(RECOVERY_OPTIONS));
     }
 
     public JsonObject toJson()
     {
         JsonObject json = new JsonObject();
         json.put(PREFETCH, prefetch);
-        json.put(EXCLUSIVE, exclusive);
         json.put(RELIABILITY, reliability.name());
         return json;
     }
@@ -76,16 +69,6 @@ public class IncomingLinkOptions
         this.prefetch = prefetch;
     }
 
-    public boolean isExclusive()
-    {
-        return exclusive;
-    }
-
-    public void setExclusive(boolean exclusive)
-    {
-        this.exclusive = exclusive;
-    }
-
     public ReliabilityMode getReliability()
     {
         return reliability;
@@ -96,12 +79,12 @@ public class IncomingLinkOptions
         this.reliability = reliability;
     }
 
-    public RecoveryOptions getRecoveryOptions()
+    public RetryOptions getRecoveryOptions()
     {
         return recoveryOptions;
     }
 
-    public void setRecoveryOptions(RecoveryOptions recoveryOptions)
+    public void setRecoveryOptions(RetryOptions recoveryOptions)
     {
         this.recoveryOptions = recoveryOptions;
     }

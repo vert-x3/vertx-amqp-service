@@ -25,9 +25,11 @@ public class OutgoingLinkOptions
 
     public final static String RECOVERY_OPTIONS = "recovery-options";
 
+    public final static String CREATE_OPTION = "create-option";
+
     private ReliabilityMode reliability = ReliabilityMode.UNRELIABLE;
 
-    private RecoveryOptions recoveryOptions = new RecoveryOptions();
+    private RetryOptions recoveryOptions = new RetryOptions();
 
     public OutgoingLinkOptions()
     {
@@ -42,7 +44,7 @@ public class OutgoingLinkOptions
     public OutgoingLinkOptions(JsonObject options)
     {
         this.reliability = ReliabilityMode.valueOf(options.getString(RELIABILITY, ReliabilityMode.UNRELIABLE.name()));
-        this.recoveryOptions = new RecoveryOptions(options.getJsonObject(RECOVERY_OPTIONS));
+        this.recoveryOptions = new RetryOptions(options.getJsonObject(RECOVERY_OPTIONS));
     }
 
     public JsonObject toJson()
@@ -63,12 +65,12 @@ public class OutgoingLinkOptions
         this.reliability = reliability;
     }
 
-    public RecoveryOptions getRecoveryOptions()
+    public RetryOptions getRecoveryOptions()
     {
         return recoveryOptions;
     }
 
-    public void setRecoveryOptions(RecoveryOptions recoveryOptions)
+    public void setRecoveryOptions(RetryOptions recoveryOptions)
     {
         this.recoveryOptions = recoveryOptions;
     }

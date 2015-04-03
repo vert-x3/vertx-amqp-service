@@ -242,14 +242,15 @@ var AmqpService = function(j_val) {
 
    @public
    @param eventbusAddress {string} 
+   @param notificationAddres {string} 
    @param options {Object} 
    @param result {function} 
    @return {AmqpService}
    */
-  this.registerService = function(eventbusAddress, options, result) {
+  this.registerService = function(eventbusAddress, notificationAddres, options, result) {
     var __args = arguments;
-    if (__args.length === 3 && typeof __args[0] === 'string' && typeof __args[1] === 'object' && typeof __args[2] === 'function') {
-      j_amqpService["registerService(java.lang.String,io.vertx.ext.amqp.ServiceOptions,io.vertx.core.Handler)"](eventbusAddress, options != null ? new ServiceOptions(new JsonObject(JSON.stringify(options))) : null, function(ar) {
+    if (__args.length === 4 && typeof __args[0] === 'string' && typeof __args[1] === 'string' && typeof __args[2] === 'object' && typeof __args[3] === 'function') {
+      j_amqpService["registerService(java.lang.String,java.lang.String,io.vertx.ext.amqp.ServiceOptions,io.vertx.core.Handler)"](eventbusAddress, notificationAddres, options != null ? new ServiceOptions(new JsonObject(JSON.stringify(options))) : null, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -271,6 +272,28 @@ var AmqpService = function(j_val) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'function') {
       j_amqpService["unregisterService(java.lang.String,io.vertx.core.Handler)"](eventbusAddress, function(ar) {
+      if (ar.succeeded()) {
+        result(null, null);
+      } else {
+        result(null, ar.cause());
+      }
+    });
+      return that;
+    } else utils.invalidArgs();
+  };
+
+  /**
+
+   @public
+   @param eventbusAddress {string} 
+   @param credits {number} 
+   @param result {function} 
+   @return {AmqpService}
+   */
+  this.issueCredits = function(eventbusAddress, credits, result) {
+    var __args = arguments;
+    if (__args.length === 3 && typeof __args[0] === 'string' && typeof __args[1] ==='number' && typeof __args[2] === 'function') {
+      j_amqpService["issueCredits(java.lang.String,int,io.vertx.core.Handler)"](eventbusAddress, credits, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {

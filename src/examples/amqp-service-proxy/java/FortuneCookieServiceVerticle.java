@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.amqp.AmqpService;
+import io.vertx.ext.amqp.NotificationHelper;
+import io.vertx.ext.amqp.ServiceOptions;
+import io.vertx.ext.amqp.NotificationHelper.NotificationType;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * Demonstrates how to use the AmqpService interface to send/receive from a
@@ -48,6 +54,14 @@ public class FortuneCookieServiceVerticle extends AbstractVerticle
 
     int bound = 0;
 
+    AmqpService service;
+
+    String serviceAddress = "fortune-cookie-service";
+
+    String noticeAddress = UUID.randomUUID().toString();
+
+    int count = 0;
+    
     @Override
     public void start() throws Exception
     {
@@ -64,9 +78,63 @@ public class FortuneCookieServiceVerticle extends AbstractVerticle
             throw new RuntimeException("Error setting up FortuneCookieServiceVerticle");
         }
 
-        vertx.eventBus().consumer("fortune-cookie-service", msg->
-        {
+        service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+
+        ServiceOptions options = new ServiceOptions();
+        options.setInitialCapacity(1);
+        service.registerService(
+                serviceAddress,
+                noticeAddress,
+                options,
+                result -> {
+                    if (result.succeeded())
+                    {
+                        print("Service registered succesfully with the vertx-amqp-bridge using address : '%s'",
+                                serviceAddress);
+                    }
+                    else
+                    {
+                        print("Unable to register service");
+                    }
+                });
+
+        vertx.eventBus().<JsonObject> consumer(serviceAddress, msg -> {
+            print("Received a request for a fortune-cookie from client");
+            service.accept(msg.body().getString(AmqpService.INCOMING_MSG_REF), result -> {
+            });
             
+            JsonObject out = new JsonObject();
+            out.put(AmqpService.OUTGOING_MSG_REF, "msg-ref".concat(String.valueOf(count++)));
+            out.put("body", fortuneCookies.get(random.nextInt(bound)));
+            msg.reply(out);
+            vertx.setTimer(30 * 1000, timer -> {
+                print("Issueing 1 request-credit");
+                service.issueCredits(serviceAddress, 1, result -> {
+                });
+            });
         });
+
+        vertx.eventBus()
+                .<JsonObject> consumer(
+                        noticeAddress,
+                        msg -> {
+                            // print("Notification msg %s", msg.body());
+                            NotificationType type = NotificationHelper.getType(msg.body());
+                            if (type == NotificationType.DELIVERY_STATE)
+                            {
+                                print("The the fortune-cookie is acknowledged by the client. Issuing another request credit after a 30s delay",
+                                        NotificationHelper.getDeliveryTracker(msg.body()).getMessageState());
+                                vertx.setTimer(30 * 1000, timer -> {
+                                    print("Issueing 1 request-credit");
+                                    service.issueCredits(serviceAddress, 1, result -> {
+                                    });
+                                });
+                            }
+                        });
+    }
+
+    private void print(String format, Object... args)
+    {
+        System.out.println(String.format(format, args));
     }
 }

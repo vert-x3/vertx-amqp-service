@@ -18,7 +18,7 @@ package io.vertx.ext.amqp;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.amqp.impl.AmqpServiceConfig;
-import io.vertx.ext.amqp.impl.AmqpServiceConfigImpl;
+import io.vertx.ext.amqp.impl.config.AmqpServiceConfigImpl;
 import io.vertx.ext.amqp.impl.routing.InboundRoutingPropertyType;
 
 import java.io.File;
@@ -37,9 +37,6 @@ public class TestRouterConfig extends TestCase
     public void testInboundRoutingKeyValues()
     {
         assertEquals(InboundRoutingPropertyType.SUBJECT, InboundRoutingPropertyType.get("SUBJECT"));
-        assertEquals(InboundRoutingPropertyType.CORRELATION_ID, InboundRoutingPropertyType.get("CORRELATION_ID"));
-        assertEquals(InboundRoutingPropertyType.MESSAGE_ID, InboundRoutingPropertyType.get("MESSAGE_ID"));
-        assertEquals(InboundRoutingPropertyType.REPLY_TO, InboundRoutingPropertyType.get("REPLY_TO"));
         assertEquals(InboundRoutingPropertyType.ADDRESS, InboundRoutingPropertyType.get(""));
         assertEquals(InboundRoutingPropertyType.ADDRESS, InboundRoutingPropertyType.get(null));
         assertEquals(InboundRoutingPropertyType.CUSTOM, InboundRoutingPropertyType.get("xxxxxxx"));

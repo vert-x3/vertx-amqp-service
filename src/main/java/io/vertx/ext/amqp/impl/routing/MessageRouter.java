@@ -15,6 +15,8 @@
  */
 package io.vertx.ext.amqp.impl.routing;
 
+import static io.vertx.ext.amqp.impl.util.Functions.format;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +27,9 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.impl.LoggerFactory;
 import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.impl.AmqpServiceConfig;
-import io.vertx.ext.amqp.impl.AmqpServiceConfigImpl;
+import io.vertx.ext.amqp.impl.config.AmqpServiceConfigImpl;
+import io.vertx.ext.amqp.impl.config.ConfigRouteEntry;
+import io.vertx.ext.amqp.impl.protocol.InboundMessage;
 
 /**
  * Contains the routing logic used by the AMQP Service
@@ -33,13 +37,13 @@ import io.vertx.ext.amqp.impl.AmqpServiceConfigImpl;
  * @author <a href="mailto:rajith@redhat.com">Rajith Attapattu</a>
  *
  */
-public class Router
+public class MessageRouter
 {
-    private static final Logger _logger = LoggerFactory.getLogger(Router.class);
+    private static final Logger _logger = LoggerFactory.getLogger(MessageRouter.class);
 
     private final AmqpServiceConfig _config;
 
-    public Router(AmqpServiceConfig config)
+    public MessageRouter(AmqpServiceConfig config)
     {
         _config = config;
 
@@ -56,17 +60,14 @@ public class Router
         }
     }
 
-    /*
-     * Looks at the Vertx address and provides the list of matching AMQP
-     * addresses.
-     */
-    public List<String> routeOutbound(String routingkey) throws MessagingException
+    public List<String> routeOutgoing(Message<JsonObject> vertxMsg) throws MessagingException
     {
+        String routingKey = extractOutgoingRoutingKey(vertxMsg);
         List<String> addrList = new ArrayList<String>();
         for (String key : _config.getOutboundRoutes().keySet())
         {
-            RouteEntry route = _config.getOutboundRoutes().get(key);
-            if (route.getPattern().matcher(routingkey).matches())
+            ConfigRouteEntry route = _config.getOutboundRoutes().get(key);
+            if (route.getPattern().matcher(routingKey).matches())
             {
                 addrList.addAll(route.getAddressList());
             }
@@ -88,26 +89,29 @@ public class Router
      * If no custome property is specified, then it looks if "vertx.routing-key"
      * is specified as a field within the Json message.
      */
-    public String extractOutboundRoutingKey(Message<JsonObject> m)
+    private String extractOutgoingRoutingKey(Message<JsonObject> vertxMsg)
     {
-        String routingKey = m.address(); // default
+        String routingKey = vertxMsg.address(); // default
         if (_config.isUseCustomPropertyForOutbound() && _config.getOutboundRoutingPropertyName() != null)
         {
-            if (m.body().containsKey(_config.getOutboundRoutingPropertyName()))
+            if (vertxMsg.body().containsKey(_config.getOutboundRoutingPropertyName()))
             {
-                routingKey = m.body().getString(_config.getOutboundRoutingPropertyName());
+                routingKey = vertxMsg.body().getString(_config.getOutboundRoutingPropertyName());
             }
-            else if (m.body().containsKey("properties") && m.body().getJsonObject("properties") instanceof Map
-                    && m.body().getJsonObject("properties").containsKey(_config.getOutboundRoutingPropertyName()))
-            {
-                routingKey = m.body().getJsonObject("properties").getString(_config.getOutboundRoutingPropertyName());
-            }
-            else if (m.body().containsKey("application-properties")
-                    && m.body().getJsonObject("application-properties") instanceof Map
-                    && m.body().getJsonObject("application-properties")
+            else if (vertxMsg.body().containsKey("properties")
+                    && vertxMsg.body().getJsonObject("properties") instanceof Map
+                    && vertxMsg.body().getJsonObject("properties")
                             .containsKey(_config.getOutboundRoutingPropertyName()))
             {
-                routingKey = m.body().getJsonObject("application-properties")
+                routingKey = vertxMsg.body().getJsonObject("properties")
+                        .getString(_config.getOutboundRoutingPropertyName());
+            }
+            else if (vertxMsg.body().containsKey("application-properties")
+                    && vertxMsg.body().getJsonObject("application-properties") instanceof Map
+                    && vertxMsg.body().getJsonObject("application-properties")
+                            .containsKey(_config.getOutboundRoutingPropertyName()))
+            {
+                routingKey = vertxMsg.body().getJsonObject("application-properties")
                         .getString(_config.getOutboundRoutingPropertyName());
             }
 
@@ -119,37 +123,63 @@ public class Router
                 _logger.debug("============= /Custom Routing Property ============/n");
             }
         }
-        else if (m.body().containsKey("vertx.routing-key"))
+        else if (vertxMsg.body().containsKey("vertx.routing-key"))
         {
-            routingKey = m.body().getString("vertx.routing-key");
+            routingKey = vertxMsg.body().getString("vertx.routing-key");
         }
         return routingKey;
     }
 
-    public List<String> routeInbound(String routingKey)
+    public List<String> routeIncoming(InboundMessage amqpMsg, String alternateKey)
     {
-        List<String> addressList = new ArrayList<String>();
-        if (_config.getInboundRoutes().size() == 0)
+        String routingKey = extractIncomingRoutingKey(amqpMsg);
+        _logger.info(format("Inbound routing info [key=%s, value=%s]", _config.getInboundRoutingPropertyType(),
+                routingKey));
+        if (routingKey == null || routingKey.trim().isEmpty())
         {
-            addressList.add(routingKey);
+            routingKey = alternateKey;
         }
-        else
+
+        List<String> addressList = new ArrayList<String>();
+        for (String k : _config.getInboundRoutes().keySet())
         {
-            for (String k : _config.getInboundRoutes().keySet())
+            ConfigRouteEntry route = _config.getInboundRoutes().get(k);
+            if (route.getPattern().matcher(routingKey).matches())
             {
-                RouteEntry route = _config.getInboundRoutes().get(k);
-                if (route.getPattern().matcher(routingKey).matches())
-                {
-                    addressList.addAll(route.getAddressList());
-                }
+                addressList.addAll(route.getAddressList());
             }
         }
 
-        if (addressList.size() == 0 && _config.getDefaultInboundAddress() != null)
+        // no matches
+        if (addressList.size() == 0)
         {
-            addressList.add(_config.getDefaultInboundAddress());
+            // use default if specified.
+            if (_config.getDefaultInboundAddress() != null)
+            {
+                addressList.add(_config.getDefaultInboundAddress());
+            }
+            else
+            {
+                // else use the routing key as the vertx address
+                addressList.add(routingKey);
+            }
         }
         return addressList;
+    }
+
+    private String extractIncomingRoutingKey(InboundMessage amqpMsg)
+    {
+        switch (_config.getInboundRoutingPropertyType())
+        {
+        case ADDRESS:
+            return amqpMsg.getAddress();
+        case SUBJECT:
+            return amqpMsg.getSubject();
+        case CUSTOM:
+            return (String) amqpMsg.getApplicationProperties().get(_config.getInboundRoutingPropertyName());
+        default:
+            return null;
+        }
     }
 
     public void addOutboundRoute(String eventbusAddress, String amqpAddress)
@@ -175,7 +205,7 @@ public class Router
     {
         if (_config.getOutboundRoutes().containsKey(eventbusAddress))
         {
-            RouteEntry entry = _config.getOutboundRoutes().get(eventbusAddress);
+            ConfigRouteEntry entry = _config.getOutboundRoutes().get(eventbusAddress);
             entry.remove(amqpAddress);
             if (entry.getAddressList().size() == 0)
             {
@@ -213,7 +243,7 @@ public class Router
     {
         if (_config.getOutboundRoutes().containsKey(amqpAddress))
         {
-            RouteEntry entry = _config.getOutboundRoutes().get(amqpAddress);
+            ConfigRouteEntry entry = _config.getOutboundRoutes().get(amqpAddress);
             entry.remove(eventbusAddress);
             if (entry.getAddressList().size() == 0)
             {

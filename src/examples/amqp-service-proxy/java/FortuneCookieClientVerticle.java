@@ -73,7 +73,7 @@ public class FortuneCookieClientVerticle extends AbstractVerticle
         vertx.eventBus().<JsonObject> consumer(
                 noticeAddr,
                 msg -> {
-                    // print("Notifiation msg %s", msg.body());
+                    // print("Notification msg %s", msg.body());
                     NotificationType type = NotificationHelper.getType(msg.body());
                     if (type == NotificationType.DELIVERY_STATE)
                     {

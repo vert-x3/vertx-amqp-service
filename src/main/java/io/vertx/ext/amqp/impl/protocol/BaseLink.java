@@ -56,6 +56,16 @@ abstract class BaseLink
         return _address;
     }
 
+    String getTarget()
+    {
+        return _ssn.getConnection().isInbound() ? _link.getRemoteTarget().getAddress() : _link.getTarget().getAddress();
+    }
+
+    String getSource()
+    {
+        return _ssn.getConnection().isInbound() ? _link.getRemoteSource().getAddress() : _link.getSource().getAddress();
+    }
+    
     void checkClosed() throws MessagingException
     {
         if (_closed.get())
@@ -106,5 +116,10 @@ abstract class BaseLink
     void setContext(Object ctx)
     {
         _ctx = ctx;
+    }
+
+    Link getProtocolLink()
+    {
+        return _link;
     }
 }

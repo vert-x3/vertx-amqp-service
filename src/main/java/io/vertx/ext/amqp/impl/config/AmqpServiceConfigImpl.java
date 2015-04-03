@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.vertx.ext.amqp.impl;
+package io.vertx.ext.amqp.impl.config;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.amqp.impl.AmqpServiceConfig;
 import io.vertx.ext.amqp.impl.routing.InboundRoutingPropertyType;
-import io.vertx.ext.amqp.impl.routing.RouteEntry;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -49,13 +49,13 @@ public class AmqpServiceConfigImpl implements AmqpServiceConfig
 
     int _defaultLinkCredit = 1;
 
-    Map<String, RouteEntry> _outboundRoutes = new ConcurrentHashMap<String, RouteEntry>();
+    Map<String, ConfigRouteEntry> _outboundRoutes = new ConcurrentHashMap<String, ConfigRouteEntry>();
 
     String _inboundRoutingPropertyName = null;
 
     InboundRoutingPropertyType _inboundRoutingPropertyType = InboundRoutingPropertyType.ADDRESS;
 
-    Map<String, RouteEntry> _inboundRoutes = new ConcurrentHashMap<String, RouteEntry>();
+    Map<String, ConfigRouteEntry> _inboundRoutes = new ConcurrentHashMap<String, ConfigRouteEntry>();
 
     public AmqpServiceConfigImpl(JsonObject config)
     {
@@ -114,11 +114,11 @@ public class AmqpServiceConfigImpl implements AmqpServiceConfig
         // TODO implement other config options
     }
 
-    private void pouplateRouteMap(Map<String, RouteEntry> map, JsonObject routes)
+    private void pouplateRouteMap(Map<String, ConfigRouteEntry> map, JsonObject routes)
     {
         for (String key : routes.fieldNames())
         {
-            RouteEntry entry = new RouteEntry(Pattern.compile(key), routes.getString(key));
+            ConfigRouteEntry entry = new ConfigRouteEntry(Pattern.compile(key), routes.getString(key));
             map.put(key, entry);
         }
     }
@@ -166,7 +166,7 @@ public class AmqpServiceConfigImpl implements AmqpServiceConfig
     }
 
     @Override
-    public Map<String, RouteEntry> getOutboundRoutes()
+    public Map<String, ConfigRouteEntry> getOutboundRoutes()
     {
         return _outboundRoutes;
     }
@@ -190,14 +190,14 @@ public class AmqpServiceConfigImpl implements AmqpServiceConfig
     }
 
     @Override
-    public Map<String, RouteEntry> getInboundRoutes()
+    public Map<String, ConfigRouteEntry> getInboundRoutes()
     {
         return _inboundRoutes;
     }
 
-    public static RouteEntry createRouteEntry(String pattern, String address)
+    public static ConfigRouteEntry createRouteEntry(String pattern, String address)
     {
-        return new RouteEntry(Pattern.compile(pattern), address);
+        return new ConfigRouteEntry(Pattern.compile(pattern), address);
     }
 
     @Override

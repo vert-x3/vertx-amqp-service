@@ -147,12 +147,16 @@ public class AmqpService {
     this.delegate.release(msgRef, result);
     return this;
   }
-  public AmqpService registerService(String eventbusAddress, Map<String, Object> options, Handler<AsyncResult<Void>> result) {
-    this.delegate.registerService(eventbusAddress, options != null ? new io.vertx.ext.amqp.ServiceOptions(new io.vertx.core.json.JsonObject(options)) : null, result);
+  public AmqpService registerService(String eventbusAddress, String notificationAddres, Map<String, Object> options, Handler<AsyncResult<Void>> result) {
+    this.delegate.registerService(eventbusAddress, notificationAddres, options != null ? new io.vertx.ext.amqp.ServiceOptions(new io.vertx.core.json.JsonObject(options)) : null, result);
     return this;
   }
   public AmqpService unregisterService(String eventbusAddress, Handler<AsyncResult<Void>> result) {
     this.delegate.unregisterService(eventbusAddress, result);
+    return this;
+  }
+  public AmqpService issueCredits(String eventbusAddress, int credits, Handler<AsyncResult<Void>> result) {
+    this.delegate.issueCredits(eventbusAddress, credits, result);
     return this;
   }
   /**

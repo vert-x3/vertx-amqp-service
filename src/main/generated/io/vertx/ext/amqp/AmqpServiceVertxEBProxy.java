@@ -205,13 +205,14 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService registerService(String eventbusAddress, ServiceOptions options, Handler<AsyncResult<Void>> result) {
+  public AmqpService registerService(String eventbusAddress, String notificationAddres, ServiceOptions options, Handler<AsyncResult<Void>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
     }
     JsonObject _json = new JsonObject();
     _json.put("eventbusAddress", eventbusAddress);
+    _json.put("notificationAddres", notificationAddres);
     _json.put("options", options.toJson());
     DeliveryOptions _deliveryOptions = new DeliveryOptions();
     _deliveryOptions.addHeader("action", "registerService");
@@ -234,6 +235,26 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     _json.put("eventbusAddress", eventbusAddress);
     DeliveryOptions _deliveryOptions = new DeliveryOptions();
     _deliveryOptions.addHeader("action", "unregisterService");
+    _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
+      if (res.failed()) {
+        result.handle(Future.failedFuture(res.cause()));
+      } else {
+        result.handle(Future.succeededFuture(res.result().body()));
+      }
+    });
+    return this;
+  }
+
+  public AmqpService issueCredits(String eventbusAddress, int credits, Handler<AsyncResult<Void>> result) {
+    if (closed) {
+      result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
+      return this;
+    }
+    JsonObject _json = new JsonObject();
+    _json.put("eventbusAddress", eventbusAddress);
+    _json.put("credits", credits);
+    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    _deliveryOptions.addHeader("action", "issueCredits");
     _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
         result.handle(Future.failedFuture(res.cause()));

@@ -44,6 +44,8 @@ public class PublishToQueueVerticle extends AbstractVerticle
 {
     private String outgoingLinkRef = null;
 
+    private int i=0;
+    
     @Override
     public void start() throws Exception
     {
@@ -68,7 +70,7 @@ public class PublishToQueueVerticle extends AbstractVerticle
                         // notification is set, you could use this ref to
                         // correlate the tracker to the original message.
                         System.out.println("Sending a message to vertx address my-pub-queue");
-                        vertx.eventBus().publish("my-pub-queue", new JsonObject().put("body", "rajith").put(AmqpService.OUTGOING_MSG_REF, "my-msg-ref"));
+                        vertx.eventBus().publish("my-pub-queue", new JsonObject().put("body", "rajith").put(AmqpService.OUTGOING_MSG_REF, "msg-ref".concat(String.valueOf(i++))));
                     }
                     else
                     {
