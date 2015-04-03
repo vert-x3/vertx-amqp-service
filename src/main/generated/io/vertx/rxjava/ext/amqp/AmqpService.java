@@ -19,6 +19,7 @@ package io.vertx.rxjava.ext.amqp;
 import java.util.Map;
 import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
+import io.vertx.ext.amqp.ServiceOptions;
 import io.vertx.ext.amqp.OutgoingLinkOptions;
 import io.vertx.rxjava.core.Vertx;
 import io.vertx.core.AsyncResult;
@@ -270,15 +271,48 @@ public class AmqpService {
     return result;
   }
 
+  public AmqpService registerService(String eventbusAddress, String notificationAddres, ServiceOptions options, Handler<AsyncResult<Void>> result) { 
+    this.delegate.registerService(eventbusAddress, notificationAddres, options, result);
+    return this;
+  }
+
+  public Observable<Void> registerServiceObservable(String eventbusAddress, String notificationAddres, ServiceOptions options) { 
+    io.vertx.rx.java.ObservableFuture<Void> result = io.vertx.rx.java.RxHelper.observableFuture();
+    registerService(eventbusAddress, notificationAddres, options, result.toHandler());
+    return result;
+  }
+
+  public AmqpService unregisterService(String eventbusAddress, Handler<AsyncResult<Void>> result) { 
+    this.delegate.unregisterService(eventbusAddress, result);
+    return this;
+  }
+
+  public Observable<Void> unregisterServiceObservable(String eventbusAddress) { 
+    io.vertx.rx.java.ObservableFuture<Void> result = io.vertx.rx.java.RxHelper.observableFuture();
+    unregisterService(eventbusAddress, result.toHandler());
+    return result;
+  }
+
+  public AmqpService issueCredits(String eventbusAddress, int credits, Handler<AsyncResult<Void>> result) { 
+    this.delegate.issueCredits(eventbusAddress, credits, result);
+    return this;
+  }
+
+  public Observable<Void> issueCreditsObservable(String eventbusAddress, int credits) { 
+    io.vertx.rx.java.ObservableFuture<Void> result = io.vertx.rx.java.RxHelper.observableFuture();
+    issueCredits(eventbusAddress, credits, result.toHandler());
+    return result;
+  }
+
   /**
-   * Start the service
+   * Start the AMQP Service
    */
   public void start() { 
     this.delegate.start();
   }
 
   /**
-   * Stop the service
+   * Stop the AMQP Service
    */
   public void stop() { 
     this.delegate.stop();

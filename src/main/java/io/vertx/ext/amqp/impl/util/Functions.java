@@ -24,6 +24,6 @@ public class Functions
 
     public static void print(String format, Object... args)
     {
-        System.out.println(format(format, args));
+        System.out.println("TEMP-SYSTEM.OUT :".concat(format(format, args)));
     }
 }
