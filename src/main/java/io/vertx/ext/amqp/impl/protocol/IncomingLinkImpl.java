@@ -15,6 +15,8 @@
  */
 package io.vertx.ext.amqp.impl.protocol;
 
+import static io.vertx.ext.amqp.impl.util.Functions.print;
+
 import io.vertx.ext.amqp.CreditMode;
 import io.vertx.ext.amqp.ErrorCode;
 import io.vertx.ext.amqp.MessagingException;
@@ -32,7 +34,7 @@ class IncomingLinkImpl extends BaseLink implements IncomingLink
     private final CreditMode _creditMode;
 
     private final ReliabilityMode _receiverMode;
-    
+
     private int _credits = 0;
 
     private AtomicInteger _unsettled = new AtomicInteger(0);
@@ -47,11 +49,11 @@ class IncomingLinkImpl extends BaseLink implements IncomingLink
     void init()
     {
         _link.open();
-        if (_creditMode == CreditMode.AUTO && DEFAULT_CREDITS > 0)
+        /*if (_creditMode == CreditMode.AUTO && DEFAULT_CREDITS > 0)
         {
             _credits = DEFAULT_CREDITS;
             ((Receiver) _link).flow(_credits);
-        }
+        }*/
         _ssn.getConnection().write();
     }
 
@@ -63,6 +65,9 @@ class IncomingLinkImpl extends BaseLink implements IncomingLink
             // receiver.setDrain(true);
         }
         receiver.flow(credits);
+        print("\n==============================");
+        print("\nSetting credits=%s, for link '%s'", credits, this.getName());
+        print("\n==============================");
         _ssn.getConnection().write();
     }
 

@@ -135,7 +135,7 @@ public class AmqpServiceVertxProxyHandler extends ProxyHandler {
         break;
       }
       case "issueCredits": {
-        service.issueCredits((java.lang.String)json.getValue("eventbusAddress"), (int)json.getValue("credits"), createHandler(msg));
+        service.issueCredits((java.lang.String)json.getValue("linkId"), (int)json.getValue("credits"), createHandler(msg));
         break;
       }
       case "start": {

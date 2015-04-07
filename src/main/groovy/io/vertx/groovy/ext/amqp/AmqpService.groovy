@@ -155,8 +155,8 @@ public class AmqpService {
     this.delegate.unregisterService(eventbusAddress, result);
     return this;
   }
-  public AmqpService issueCredits(String eventbusAddress, int credits, Handler<AsyncResult<Void>> result) {
-    this.delegate.issueCredits(eventbusAddress, credits, result);
+  public AmqpService issueCredits(String linkId, int credits, Handler<AsyncResult<Void>> result) {
+    this.delegate.issueCredits(linkId, credits, result);
     return this;
   }
   /**

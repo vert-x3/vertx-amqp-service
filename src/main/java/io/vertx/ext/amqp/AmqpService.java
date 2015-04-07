@@ -49,6 +49,8 @@ public interface AmqpService
 
     public static final String OUTGOING_MSG_REF = "vertx.amqp.outgoing-msg-ref";
 
+    public static final String INCOMING_MSG_LINK_REF = "vertx.amqp.incoming-msg-link-ref";
+
     static AmqpService createEventBusProxy(Vertx vertx, String address)
     {
         return ProxyHelper.createProxy(AmqpService.class, vertx, address);
@@ -209,7 +211,7 @@ public interface AmqpService
     public AmqpService unregisterService(String eventbusAddress, Handler<AsyncResult<Void>> result);
 
     @Fluent
-    public AmqpService issueCredits(String eventbusAddress, int credits, Handler<AsyncResult<Void>> result);
+    public AmqpService issueCredits(String linkId, int credits, Handler<AsyncResult<Void>> result);
 
     /**
      * Start the AMQP Service

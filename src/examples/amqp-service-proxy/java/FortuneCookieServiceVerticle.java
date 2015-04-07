@@ -16,6 +16,7 @@
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.amqp.AmqpService;
+import io.vertx.ext.amqp.DeliveryTracker;
 import io.vertx.ext.amqp.NotificationHelper;
 import io.vertx.ext.amqp.ServiceOptions;
 import io.vertx.ext.amqp.NotificationHelper.NotificationType;
@@ -28,20 +29,6 @@ import java.util.Random;
 import java.util.UUID;
 
 /**
- * Demonstrates how to use the AmqpService interface to send/receive from a
- * traditional message broker.
- * 
- * This example assumes an ActiveMQ broker (or another AMQP 1.0 broker) is
- * running at localhost:5672
- * 
- * 1. First create a Vertx consumer. <br>
- * 2. Then you create an AMQP subscription via the Service interface and tie it
- * to the Vertx consumer.<br>
- * 3. Set message credits for AMQP consumer.<br>
- * 4. Send a message to the AMQP peer which forwards the message the AMQP
- * subscription, which in turn forwards it to the vertx consumer via the event
- * bus. <br>
- * 5. Acknowledge the message.
  * 
  * @author <a href="mailto:rajith77@gmail.com">Rajith Attapattu</a>
  *
@@ -61,7 +48,7 @@ public class FortuneCookieServiceVerticle extends AbstractVerticle
     String noticeAddress = UUID.randomUUID().toString();
 
     int count = 0;
-    
+
     @Override
     public void start() throws Exception
     {
@@ -81,7 +68,6 @@ public class FortuneCookieServiceVerticle extends AbstractVerticle
         service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
 
         ServiceOptions options = new ServiceOptions();
-        options.setInitialCapacity(1);
         service.registerService(
                 serviceAddress,
                 noticeAddress,
@@ -99,41 +85,49 @@ public class FortuneCookieServiceVerticle extends AbstractVerticle
                 });
 
         vertx.eventBus().<JsonObject> consumer(serviceAddress, msg -> {
-            print("Received a request for a fortune-cookie from client");
-            service.accept(msg.body().getString(AmqpService.INCOMING_MSG_REF), result -> {
-            });
-            
-            JsonObject out = new JsonObject();
-            out.put(AmqpService.OUTGOING_MSG_REF, "msg-ref".concat(String.valueOf(count++)));
-            out.put("body", fortuneCookies.get(random.nextInt(bound)));
-            msg.reply(out);
-            vertx.setTimer(30 * 1000, timer -> {
-                print("Issueing 1 request-credit");
-                service.issueCredits(serviceAddress, 1, result -> {
+            JsonObject request = msg.body();
+            // print(request.encodePrettily());
+                String linkId = request.getString(AmqpService.INCOMING_MSG_LINK_REF);
+                print("Received a request for a fortune-cookie from client [%s]", linkId);
+                print("reply-to %s", msg.replyAddress());
+                service.accept(request.getString(AmqpService.INCOMING_MSG_REF), result -> {
                 });
+
+                JsonObject response = new JsonObject();
+                response.put(AmqpService.OUTGOING_MSG_REF, linkId);
+                response.put("body", fortuneCookies.get(random.nextInt(bound)));
+                msg.reply(response);
             });
-        });
 
         vertx.eventBus()
                 .<JsonObject> consumer(
                         noticeAddress,
                         msg -> {
-                            // print("Notification msg %s", msg.body());
+                            //print("Notification msg %s", msg.body());
                             NotificationType type = NotificationHelper.getType(msg.body());
                             if (type == NotificationType.DELIVERY_STATE)
                             {
-                                print("The the fortune-cookie is acknowledged by the client. Issuing another request credit after a 30s delay",
-                                        NotificationHelper.getDeliveryTracker(msg.body()).getMessageState());
+                                DeliveryTracker tracker = NotificationHelper.getDeliveryTracker(msg.body());
+                                print("The the fortune-cookie is acknowledged by the client. Issuing another request credit after a 30s delay");
+                                print("=============================================================\n");
                                 vertx.setTimer(30 * 1000, timer -> {
-                                    print("Issueing 1 request-credit");
-                                    service.issueCredits(serviceAddress, 1, result -> {
+                                    service.issueCredits(tracker.getMessageRef(), 1, result -> {
                                     });
+                                });
+                            }
+                            else if (type == NotificationType.INCOMING_LINK_OPENED)
+                            {
+                                String linkRef = NotificationHelper.getLinkRef(msg.body());
+                                print("A client [%s] contacted the fortune-cookie service, issueing a single request-credit to start with",
+                                        linkRef);
+                                print("=============================================================");
+                                service.issueCredits(linkRef, 1, result -> {
                                 });
                             }
                         });
     }
 
-    private void print(String format, Object... args)
+    public static void print(String format, Object... args)
     {
         System.out.println(String.format(format, args));
     }

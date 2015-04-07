@@ -32,7 +32,7 @@ public class NotificationHelper
 {
     public enum NotificationType
     {
-        DELIVERY_STATE, LINK_CREDIT, LINK_ERROR;
+        DELIVERY_STATE, OUTGOING_LINK_OPENED, OUTGOING_LINK_CLOSED, INCOMING_LINK_OPENED, INCOMING_LINK_CLOSED, LINK_CREDIT, LINK_ERROR;
     };
 
     public final static String TYPE = "vertx.amqp.notification-type";

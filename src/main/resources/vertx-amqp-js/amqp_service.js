@@ -285,15 +285,15 @@ var AmqpService = function(j_val) {
   /**
 
    @public
-   @param eventbusAddress {string} 
+   @param linkId {string} 
    @param credits {number} 
    @param result {function} 
    @return {AmqpService}
    */
-  this.issueCredits = function(eventbusAddress, credits, result) {
+  this.issueCredits = function(linkId, credits, result) {
     var __args = arguments;
     if (__args.length === 3 && typeof __args[0] === 'string' && typeof __args[1] ==='number' && typeof __args[2] === 'function') {
-      j_amqpService["issueCredits(java.lang.String,int,io.vertx.core.Handler)"](eventbusAddress, credits, function(ar) {
+      j_amqpService["issueCredits(java.lang.String,int,io.vertx.core.Handler)"](linkId, credits, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {

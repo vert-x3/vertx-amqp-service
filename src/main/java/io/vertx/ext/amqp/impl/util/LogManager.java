@@ -33,7 +33,7 @@ public class LogManager
 
     public boolean isDebugEnabled()
     {
-        return _logger.isDebugEnabled();
+        return _logger.isInfoEnabled(); //_logger.isDebugEnabled();
     }
 
     public boolean isInfoEnabled()
@@ -48,17 +48,17 @@ public class LogManager
 
     public void debug(String format, Object... args)
     {
-        if (_logger.isDebugEnabled())
+        if (_logger.isInfoEnabled())
         {
-            _logger.debug(_prefix.concat(String.format(format, args)));
+            _logger.info(_prefix.concat(String.format(format, args)));
         }
     }
 
     public void debug(Throwable e, String format, Object... args)
     {
-        if (_logger.isDebugEnabled())
+        if (_logger.isInfoEnabled())
         {
-            _logger.debug(_prefix.concat(String.format(format, args)), e);
+            _logger.info(_prefix.concat(String.format(format, args)), e);
         }
     }
 

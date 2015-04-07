@@ -16,20 +16,19 @@
 package io.vertx.ext.amqp.impl.routing;
 
 import static io.vertx.ext.amqp.impl.util.Functions.format;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.impl.LoggerFactory;
 import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.impl.AmqpServiceConfig;
 import io.vertx.ext.amqp.impl.config.AmqpServiceConfigImpl;
 import io.vertx.ext.amqp.impl.config.ConfigRouteEntry;
 import io.vertx.ext.amqp.impl.protocol.InboundMessage;
+import io.vertx.ext.amqp.impl.protocol.LinkManager;
+import io.vertx.ext.amqp.impl.util.LogManager;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Contains the routing logic used by the AMQP Service
@@ -39,25 +38,21 @@ import io.vertx.ext.amqp.impl.protocol.InboundMessage;
  */
 public class MessageRouter
 {
-    private static final Logger _logger = LoggerFactory.getLogger(MessageRouter.class);
+    private static final LogManager LOG = LogManager.get("MessageRouter:", LinkManager.class);
 
     private final AmqpServiceConfig _config;
 
     public MessageRouter(AmqpServiceConfig config)
     {
         _config = config;
-
-        if (_logger.isInfoEnabled())
-        {
-            StringBuilder b = new StringBuilder();
-            b.append("Router Config \n[\n");
-            b.append("Default outbound-AMQP-address : ").append(config.getDefaultOutboundAddress()).append("\n");
-            b.append("Default inbound-vertx-address : ").append(config.getDefaultInboundAddress()).append("\n");
-            b.append("Default vertx handler address : ").append(config.getDefaultHandlerAddress()).append("\n");
-            b.append("Additional handler address list : ").append(config.getHandlerAddressList()).append("\n");
-            b.append("]\n");
-            _logger.info(b.toString());
-        }
+        StringBuilder b = new StringBuilder();
+        b.append("Router Config \n[\n");
+        b.append("Default outbound-AMQP-address : ").append(config.getDefaultOutboundAddress()).append("\n");
+        b.append("Default inbound-vertx-address : ").append(config.getDefaultInboundAddress()).append("\n");
+        b.append("Default vertx handler address : ").append(config.getDefaultHandlerAddress()).append("\n");
+        b.append("Additional handler address list : ").append(config.getHandlerAddressList()).append("\n");
+        b.append("]\n");
+        LOG.info(b.toString());
     }
 
     public List<String> routeOutgoing(Message<JsonObject> vertxMsg) throws MessagingException
@@ -115,12 +110,12 @@ public class MessageRouter
                         .getString(_config.getOutboundRoutingPropertyName());
             }
 
-            if (_logger.isDebugEnabled())
+            if (LOG.isDebugEnabled())
             {
-                _logger.debug("\n============= Custom Routing Property ============");
-                _logger.debug("Custom routing property name : " + _config.getOutboundRoutingPropertyName());
-                _logger.debug("Routing property value : " + routingKey);
-                _logger.debug("============= /Custom Routing Property ============/n");
+                LOG.debug("\n============= Custom Routing Property ============");
+                LOG.debug("Custom routing property name : %s",_config.getOutboundRoutingPropertyName());
+                LOG.debug("Routing property value : %s",routingKey);
+                LOG.debug("============= /Custom Routing Property ============/n");
             }
         }
         else if (vertxMsg.body().containsKey("vertx.routing-key"))
@@ -133,7 +128,7 @@ public class MessageRouter
     public List<String> routeIncoming(InboundMessage amqpMsg, String alternateKey)
     {
         String routingKey = extractIncomingRoutingKey(amqpMsg);
-        _logger.info(format("Inbound routing info [key=%s, value=%s]", _config.getInboundRoutingPropertyType(),
+        LOG.info(format("Inbound routing info [key=%s, value=%s]", _config.getInboundRoutingPropertyType(),
                 routingKey));
         if (routingKey == null || routingKey.trim().isEmpty())
         {
@@ -193,11 +188,11 @@ public class MessageRouter
             _config.getOutboundRoutes().put(eventbusAddress,
                     AmqpServiceConfigImpl.createRouteEntry(eventbusAddress, amqpAddress));
         }
-        if (_logger.isInfoEnabled())
+        if (LOG.isInfoEnabled())
         {
-            _logger.info("\n============= Outbound Route ============");
-            _logger.info(String.format("Adding the route entry : {%s : %s}", eventbusAddress, amqpAddress));
-            _logger.info("============= /Outbound Route) ============\n");
+            LOG.info("\n============= Outbound Route ============");
+            LOG.info("Adding the route entry : {%s : %s}", eventbusAddress, amqpAddress);
+            LOG.info("============= /Outbound Route) ============\n");
         }
     }
 
@@ -211,11 +206,11 @@ public class MessageRouter
             {
                 _config.getOutboundRoutes().remove(eventbusAddress);
             }
-            if (_logger.isInfoEnabled())
+            if (LOG.isInfoEnabled())
             {
-                _logger.info("\n============= Outbound Route ============");
-                _logger.info(String.format("Removing the route entry : {%s : %s}", eventbusAddress, amqpAddress));
-                _logger.info("============= /Outbound Route) ============\n");
+                LOG.info("\n============= Outbound Route ============");
+                LOG.info("Removing the route entry : {%s : %s}", eventbusAddress, amqpAddress);
+                LOG.info("============= /Outbound Route) ============\n");
             }
         }
     }
@@ -231,11 +226,11 @@ public class MessageRouter
             _config.getInboundRoutes().put(amqpAddress,
                     AmqpServiceConfigImpl.createRouteEntry(amqpAddress, eventbusAddress));
         }
-        if (_logger.isInfoEnabled())
+        if (LOG.isInfoEnabled())
         {
-            _logger.info("\n============= Inbound Route ============");
-            _logger.info(String.format("Adding the route entry : {%s : %s}", amqpAddress, eventbusAddress));
-            _logger.info("============= /Inbound Route) ============\n");
+            LOG.info("\n============= Inbound Route ============");
+            LOG.info("Adding the route entry : {%s : %s}", amqpAddress, eventbusAddress);
+            LOG.info("============= /Inbound Route) ============\n");
         }
     }
 
@@ -249,11 +244,11 @@ public class MessageRouter
             {
                 _config.getOutboundRoutes().remove(amqpAddress);
             }
-            if (_logger.isInfoEnabled())
+            if (LOG.isInfoEnabled())
             {
-                _logger.info("\n============= Inbound Route ============");
-                _logger.info(String.format("Removing the route entry : {%s : %s}", amqpAddress, eventbusAddress));
-                _logger.info("============= /Inbound Route) ============\n");
+                LOG.info("\n============= Inbound Route ============");
+                LOG.info(String.format("Removing the route entry : {%s : %s}", amqpAddress, eventbusAddress));
+                LOG.info("============= /Inbound Route) ============\n");
             }
         }
     }

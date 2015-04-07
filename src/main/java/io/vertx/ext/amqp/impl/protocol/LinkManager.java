@@ -17,6 +17,7 @@ package io.vertx.ext.amqp.impl.protocol;
 
 import static io.vertx.ext.amqp.impl.protocol.SessionImpl.SETTLE;
 import static io.vertx.ext.amqp.impl.util.Functions.format;
+import static io.vertx.ext.amqp.impl.util.Functions.print;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.NetClient;
@@ -397,7 +398,7 @@ public class LinkManager extends AbstractAmqpEventListener
     {
         boolean inbound = link.getConnection().isInbound();
         String id = link.getName();
-        String address = link.getTarget();
+        String address = link.getSource();
         if (id == null || id.trim().isEmpty())
         {
             id = address;
@@ -406,7 +407,6 @@ public class LinkManager extends AbstractAmqpEventListener
         {
             _outgoingLinks.put(id, new Outgoing(link, DEFAULT_OUTGOING_LINK_OPTIONS));
             LOG.info("Accepted an outgoing link (subscription) from AMQP peer %s", address);
-
         }
         _listener.outgoingLinkReady(id, address, inbound);
     }
@@ -416,7 +416,7 @@ public class LinkManager extends AbstractAmqpEventListener
     {
         boolean inbound = link.getConnection().isInbound();
         String id = link.getName();
-        String address = link.getTarget();
+        String address = link.getSource();
         if (id == null || id.trim().isEmpty())
         {
             id = address;
@@ -430,7 +430,7 @@ public class LinkManager extends AbstractAmqpEventListener
     {
         boolean inbound = link.getConnection().isInbound();
         String id = link.getName();
-        String address = link.getSource();
+        String address = link.getTarget();
         if (id == null || id.trim().isEmpty())
         {
             id = address;
@@ -448,7 +448,11 @@ public class LinkManager extends AbstractAmqpEventListener
     {
         boolean inbound = link.getConnection().isInbound();
         String id = link.getName();
-        String address = link.getSource();
+        String address = link.getTarget();
+        print("Local Source %s ", link.getProtocolLink().getSource() == null ? "null" : link.getProtocolLink().getSource().getAddress());
+        print("Remote Source %s ", link.getProtocolLink().getRemoteSource() == null ? "null" : link.getProtocolLink().getRemoteSource().getAddress());
+        print("Local Target %s ", link.getProtocolLink().getTarget() == null ? "null" : link.getProtocolLink().getTarget().getAddress());
+        print("Remote Target %s ", link.getProtocolLink().getRemoteTarget() == null ? "null" : link.getProtocolLink().getRemoteTarget().getAddress());
         if (id == null || id.trim().isEmpty())
         {
             id = address;
@@ -464,13 +468,14 @@ public class LinkManager extends AbstractAmqpEventListener
              */
 
         }
+        LOG.debug("incomingLinkReady inbound=%s, id=%s , address=%s", inbound, id, address);
         _listener.incomingLinkReady(id, address, inbound);
     }
 
     @Override
     public void onMessage(IncomingLinkImpl link, InboundMessage msg)
     {
-        ManagedSession ssn = (ManagedSession) link.getSession();
+        ManagedSession ssn = (ManagedSession) link.getSession();    
         ssn.addMsgRef(msg.getMsgRef(), msg.getSequence());
         _msgRefToSsnMap.put(msg.getMsgRef(), ssn);
         _listener.message(link.getName(), link.getAddress(), link.getReceiverMode(), msg);

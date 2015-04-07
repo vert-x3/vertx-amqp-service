@@ -26,8 +26,6 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.impl.LoggerFactory;
 import io.vertx.ext.amqp.AmqpService;
 import io.vertx.ext.amqp.ConnectionSettings;
 import io.vertx.ext.amqp.DeliveryState;
@@ -82,6 +80,8 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
     private Map<String, OutgoingLinkRef> _outgoingLinkRefs = new HashMap<String, OutgoingLinkRef>();
 
     private Map<String, ServiceRef> _serviceRefs = new HashMap<String, ServiceRef>();
+
+    private Map<String, String> _replyToNotices = new HashMap<String, String>();
 
     private final LinkRouter _linkBasedRouter;
 
@@ -301,33 +301,19 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
         return this;
     }
 
-    public AmqpService issueCredits(String eventbusAddress, int credits, Handler<AsyncResult<Void>> result)
+    public AmqpService issueCredits(String linkId, int credits, Handler<AsyncResult<Void>> result)
     {
-        LOG.info("Service method issueCredits called with eventbusAddress=%s, credits=%s", eventbusAddress, credits);
-        if (_serviceRefs.containsKey(eventbusAddress))
+        LOG.info("Service method issueCredits called with linkId=%s, credits=%s", linkId, credits);
+        try
         {
-            ServiceRef service = _serviceRefs.remove(eventbusAddress);
-            service.addCredits(credits);
-            int c = service._credits;
-            for (int i = 0; i < credits; i++)
-            {
-                String linkId = service.nextCreditRecipeint();
-                try
-                {
-                    _linkManager.setCredits(linkId, 1);
-                    service._credits--;
-                }
-                catch (MessagingException e)
-                {
-                    LOG.warn(format("Service : '%s',  Error issueing credits for link %s", eventbusAddress, linkId), e);
-                }
-            }
+            _linkManager.setCredits(linkId, credits);
             result.handle(DefaultAsyncResult.VOID_SUCCESS);
         }
-        else
+        catch (MessagingException e)
         {
+            LOG.warn(e, "Error issueing credits for link %s", linkId);
             result.handle(new DefaultAsyncResult<Void>(new MessagingException(format(
-                    "Address '%s' doesn't match any registered service", eventbusAddress), ErrorCode.ADDRESS_NOT_FOUND)));
+                    "Service : '%s',  Error issueing credits for link %s", linkId), ErrorCode.INVALID_LINK_REF)));
         }
         return this;
     }
@@ -433,28 +419,17 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
     @Override
     public void incomingLinkReady(String id, String address, boolean isFromInboundConnection)
     {
-        print("outgoingLinkReady inbound=%s, id=%s , address=%s", isFromInboundConnection, address, id);
+        print("incomingLinkReady inbound=%s, id=%s , address=%s", isFromInboundConnection, id, address);
         if (isFromInboundConnection)
         {
             if (_serviceRefs.containsKey(address))
             {
-                print("Issueing service credits from service %s to incoming-link %s", address, id);
+                LOG.info("Mapping service address %s to incoming-link %s", address, id);
                 ServiceRef service = _serviceRefs.get(address);
-                String notificationAddress = service._notificationAddress;
+                String notificationAddress = service._notificationAddr;
                 _incomingLinkRefs.put(id, new IncomingLinkRef(id, null, null, notificationAddress, null));
-                if (service._credits > 0)
-                {
-                    try
-                    {
-                        _linkManager.setCredits(id, 1);
-                        service._credits--;
-                    }
-                    catch (MessagingException e)
-                    {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
+                _linkBasedRouter.addIncomingRoute(id, address);
+                sendNotificatonMessage(notificationAddress, NotificationMessageFactory.incomingLinkOpened(id));
             }
             else
             {
@@ -464,11 +439,9 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
                 }
                 catch (MessagingException e)
                 {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    LOG.warn(e, "Error setting credits for link %s", id);
                 }
             }
-
         }
         else
         {
@@ -483,7 +456,29 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
     @Override
     public void incomingLinkFinal(String id, String address, boolean isFromInboundConnection)
     {
-        // TODO cleanup
+        if (isFromInboundConnection)
+        {
+            if (_serviceRefs.containsKey(address))
+            {
+                LOG.info("Notifying service %s incoming-link %s is closed", address, id);
+                ServiceRef service = _serviceRefs.get(address);
+                String notificationAddress = service._notificationAddr;
+                _incomingLinkRefs.remove(id);
+                sendNotificatonMessage(notificationAddress, NotificationMessageFactory.incomingLinkClosed(id));
+            }
+        }
+        else
+        {
+            if (_incomingLinkRefs.containsKey(id))
+            {
+                IncomingLinkRef linkRef = _incomingLinkRefs.get(id);
+                String notificationAddress = linkRef._notificationAddr;
+                _incomingLinkRefs.remove(id);
+                LOG.info("Sending notification msg to '%s' : incoming-link %s closed", notificationAddress, id);
+                sendNotificatonMessage(notificationAddress, NotificationMessageFactory.incomingLinkClosed(id));
+            }
+        }
+
     }
 
     @Override
@@ -494,15 +489,17 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
         {
             if (_serviceRefs.containsKey(address))
             {
-                print("Mapping service notification-address %s to outgoing link %s", address, id);
+                LOG.info("Mapping service address %s to outgoing-link %s", address, id);
                 ServiceRef service = _serviceRefs.get(address);
-                String notificationAddress = service._notificationAddress;
+                String notificationAddress = service._notificationAddr;
                 _outgoingLinkRefs.put(id, new OutgoingLinkRef(id, null, null, notificationAddress, null));
+                sendNotificatonMessage(notificationAddress, NotificationMessageFactory.outgoingLinkOpened(id));
             }
             else
             {
                 _linkBasedRouter.addOutgoingRoute(address, id);
                 _eb.consumer(address, this);
+                _outgoingLinkRefs.put(id, new OutgoingLinkRef(id, null, null, null, null));
             }
         }
         else
@@ -520,8 +517,30 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
     {
         if (isFromInboundConnection)
         {
-            _linkBasedRouter.removeOutgoingRoute(id);
-            // TODO cancel event-bus consume.
+            if (_serviceRefs.containsKey(address))
+            {
+                LOG.info("Notifying service %s outgoing-link %s closed", address, id);
+                ServiceRef service = _serviceRefs.get(address);
+                String notificationAddress = service._notificationAddr;
+                _outgoingLinkRefs.remove(id);
+                sendNotificatonMessage(notificationAddress, NotificationMessageFactory.outgoingLinkClosed(id));
+            }
+            else
+            {
+                _linkBasedRouter.removeOutgoingRoute(id);
+                // TODO cancel event-bus consume.
+            }
+        }
+        else
+        {
+            if (_outgoingLinkRefs.containsKey(id))
+            {
+                OutgoingLinkRef linkRef = _outgoingLinkRefs.get(id);
+                String notificationAddress = linkRef._notificationAddr;
+                _outgoingLinkRefs.remove(id);
+                LOG.info("Sending notification msg to '%s' : outgoing-link %s closed", notificationAddress, id);
+                sendNotificatonMessage(notificationAddress, NotificationMessageFactory.outgoingLinkClosed(id));
+            }
         }
     }
 
@@ -529,15 +548,22 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
     public void deliveryUpdate(String id, String msgRef, DeliveryState state, MessageDisposition disp)
     {
         print("Delivery update received for link=%s and msg-ref=%s", id, msgRef);
-        if (_outgoingLinkRefs.containsKey(id))
+        //print("_replyToNotices : %s", _replyToNotices);
+        if (_replyToNotices.containsKey(msgRef))
         {
-            sendNotificatonMessage(id, NotificationMessageFactory.deliveryState(msgRef, state, disp));
+            sendNotificatonMessage(_replyToNotices.remove(msgRef),
+                    NotificationMessageFactory.deliveryState(msgRef, state, disp));
+        }
+        else if (_outgoingLinkRefs.containsKey(id))
+        {
+            sendNotificatonMessage(_outgoingLinkRefs.get(id)._notificationAddr,
+                    NotificationMessageFactory.deliveryState(msgRef, state, disp));
         }
         else
         {
-            LOG.warn(String
-                    .format("Error : Delivery update received for link not in map. Details [msg-ref : '%s' tied to link-ref : '%s']",
-                            msgRef, id));
+            LOG.warn(
+                    "Error : Delivery update received for link not in map. Details [msg-ref : '%s' tied to link-ref : '%s']",
+                    msgRef, id);
         }
     }
 
@@ -555,6 +581,7 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
             return;
         }
         outMsg.put(INCOMING_MSG_REF, inMsg.getMsgRef());
+        outMsg.put(INCOMING_MSG_LINK_REF, linkId);
 
         // Handle replyTo
         if (handleReplyTo(linkAddress, inMsg, outMsg))
@@ -564,12 +591,24 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
             return;
         }
 
+        print("Received AMQP msg with reply-to : %s", inMsg.getReplyTo());
         String vertxAddress = _linkBasedRouter.routeIncoming(linkId);
         if (vertxAddress != null)
         {
+            print("xxxxxxxxxxx doing link based routing %s", _serviceRefs);
             if (inMsg.getReplyTo() != null)
             {
-                _eb.send(vertxAddress, outMsg, new ReplyHandler(inMsg.getReplyTo()));
+                String notificaitonAddress = null;
+                print("zzzzzzzzzzzzzzzzzzzzzzzzz service-refs %s", _serviceRefs);
+                if (_serviceRefs.containsKey(vertxAddress))
+                {
+                    notificaitonAddress = _serviceRefs.get(vertxAddress)._notificationAddr;
+                }
+                else if (_incomingLinkRefs.containsKey(linkId))
+                {
+                    notificaitonAddress = _incomingLinkRefs.get(linkId)._notificationAddr;
+                }
+                _eb.send(vertxAddress, outMsg, new ReplyHandler(inMsg.getReplyTo(), notificaitonAddress));
             }
             else
             {
@@ -584,7 +623,7 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
             {
                 if (inMsg.getReplyTo() != null)
                 {
-                    _eb.send(address, outMsg, new ReplyHandler(inMsg.getReplyTo()));
+                    _eb.send(address, outMsg, new ReplyHandler(inMsg.getReplyTo(), null));
                 }
                 else
                 {
@@ -640,20 +679,18 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
     {
         if (_outgoingLinkRefs.containsKey(id))
         {
-            sendNotificatonMessage(id, NotificationMessageFactory.credit(id, credits));
+            sendNotificatonMessage(_outgoingLinkRefs.get(id)._notificationAddr,
+                    NotificationMessageFactory.credit(id, credits));
         }
         else
         {
-            LOG.warn(format("Error : Credit received for link not in map. Details [link-ref : '%s']", id));
+            LOG.warn("Error : Credit received for link not in map. Details [link-ref : '%s']", id);
         }
     }// ----------- \ LinkEventListener ------------
 
-    private void sendNotificatonMessage(String id, JsonObject msg)
+    private void sendNotificatonMessage(String address, JsonObject msg)
     {
-        if (_outgoingLinkRefs.containsKey(id))
-        {
-            _eb.send(_outgoingLinkRefs.get(id)._notificationAddr, msg);
-        }
+        _eb.send(address, msg);
     }
 
     // ---------- Helper classes
@@ -662,9 +699,12 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
     {
         String _replyTo;
 
-        ReplyHandler(String replyTo)
+        String _notificationAddr;
+
+        ReplyHandler(String replyTo, String notificationAddr)
         {
             _replyTo = replyTo;
+            _notificationAddr = notificationAddr;
         }
 
         @Override
@@ -673,8 +713,15 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
             Message<JsonObject> msg = result.result();
             try
             {
+                print("Reply received %s ", msg.body().encodePrettily());
                 LogMsgHelper.logOutboundReplyTo(LOG, msg, _replyTo);
-                _linkManager.sendViaAddress(_replyTo, _msgTranslator.convert(msg.body()), msg.body());
+                org.apache.qpid.proton.message.Message out = _msgTranslator.convert(msg.body());
+                _linkManager.sendViaAddress(_replyTo, out, msg.body());
+                if (_notificationAddr != null && msg.body().containsKey(AmqpService.OUTGOING_MSG_REF))
+                {
+                    print("Adding the reply-to:notification pair {%s : %s}", msg.body().getString(AmqpService.OUTGOING_MSG_REF), _notificationAddr);
+                    _replyToNotices.put(msg.body().getString(AmqpService.OUTGOING_MSG_REF), _notificationAddr);
+                }
             }
             catch (MessagingException e)
             {
@@ -733,21 +780,16 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
     {
         final String _serviceAddr;
 
-        final String _notificationAddress;
+        final String _notificationAddr;
 
         final List<String> _inLinks = new ArrayList<String>();
 
         final List<String> _outLinks = new ArrayList<String>();
 
-        int _credits = 0;
-
-        int _nextCreditRecipient = 0;
-
         ServiceRef(String serviceAddr, String notificationAddress, int initialCapacity)
         {
             _serviceAddr = serviceAddr;
-            _notificationAddress = notificationAddress;
-            _credits = initialCapacity;
+            _notificationAddr = notificationAddress;
         }
 
         void addIncomingLink(String linkId)
@@ -768,24 +810,6 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
         void removeOutgoingLink(String linkId)
         {
             _outLinks.remove(linkId);
-        }
-
-        void addCredits(int credits)
-        {
-            _credits = _credits + credits;
-        }
-
-        String nextCreditRecipeint()
-        {
-            if (_nextCreditRecipient + 1 == _inLinks.size())
-            {
-                _nextCreditRecipient = 0;
-            }
-            else
-            {
-                _nextCreditRecipient++;
-            }
-            return _inLinks.get(_nextCreditRecipient);
         }
     }
 }

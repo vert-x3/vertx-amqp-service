@@ -46,7 +46,7 @@ public class DeliveryTrackerImpl implements DeliveryTracker
             if (!json.containsKey(key))
             {
                 throw new IllegalArgumentException(
-                        String.format("Malfored delivery-tracker message, '%s' missing", key));
+                        String.format("Malformed delivery-tracker message, '%s' missing", key));
             }
         }
         return new DeliveryTrackerImpl(json.getString(AmqpService.OUTGOING_MSG_REF), DeliveryState.valueOf(json

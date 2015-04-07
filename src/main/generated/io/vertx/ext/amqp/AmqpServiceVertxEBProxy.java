@@ -245,13 +245,13 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService issueCredits(String eventbusAddress, int credits, Handler<AsyncResult<Void>> result) {
+  public AmqpService issueCredits(String linkId, int credits, Handler<AsyncResult<Void>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
     }
     JsonObject _json = new JsonObject();
-    _json.put("eventbusAddress", eventbusAddress);
+    _json.put("linkId", linkId);
     _json.put("credits", credits);
     DeliveryOptions _deliveryOptions = new DeliveryOptions();
     _deliveryOptions.addHeader("action", "issueCredits");

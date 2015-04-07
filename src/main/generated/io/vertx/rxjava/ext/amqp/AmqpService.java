@@ -293,14 +293,14 @@ public class AmqpService {
     return result;
   }
 
-  public AmqpService issueCredits(String eventbusAddress, int credits, Handler<AsyncResult<Void>> result) { 
-    this.delegate.issueCredits(eventbusAddress, credits, result);
+  public AmqpService issueCredits(String linkId, int credits, Handler<AsyncResult<Void>> result) { 
+    this.delegate.issueCredits(linkId, credits, result);
     return this;
   }
 
-  public Observable<Void> issueCreditsObservable(String eventbusAddress, int credits) { 
+  public Observable<Void> issueCreditsObservable(String linkId, int credits) { 
     io.vertx.rx.java.ObservableFuture<Void> result = io.vertx.rx.java.RxHelper.observableFuture();
-    issueCredits(eventbusAddress, credits, result.toHandler());
+    issueCredits(linkId, credits, result.toHandler());
     return result;
   }
 

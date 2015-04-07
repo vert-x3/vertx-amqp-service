@@ -15,13 +15,11 @@
  */
 package io.vertx.ext.amqp.impl.util;
 
-import static io.vertx.ext.amqp.impl.util.Functions.format;
-
-import java.util.List;
-
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.amqp.impl.protocol.InboundMessage;
+
+import java.util.List;
 
 public class LogMsgHelper
 {
@@ -40,11 +38,11 @@ public class LogMsgHelper
     public static String outboundLinkBasedRoutingLogFormat()
     {
         StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("\n============= Outbound Routing ============");
-        strBuilder.append("Received msg from vertx [to=%s, reply-to=%s, body=%s] ");
-        strBuilder.append("Using link based routing");
-        strBuilder.append("Matched the following AMQP address : %s");
-        strBuilder.append("============= /Outbound Routing ============\n");
+        strBuilder.append("{\n============= Outbound Routing ============");
+        strBuilder.append("\nReceived msg from vertx [to=%s, reply-to=%s, body=%s] ");
+        strBuilder.append("\nUsing link based routing");
+        strBuilder.append("\nMatched the following AMQP address : %s");
+        strBuilder.append("\n============= /Outbound Routing ============\n}");
 
         return strBuilder.toString();
     }
@@ -52,11 +50,11 @@ public class LogMsgHelper
     public static String outboundMsgBasedRoutingLogFormat()
     {
         StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("\n============= Outbound Routing ============");
-        strBuilder.append("Received msg from vertx [to=%s, reply-to=%s, body=%s] ");
-        strBuilder.append("Using message based routing");
-        strBuilder.append("Matched the following AMQP address list : %s");
-        strBuilder.append("============= /Outbound Routing ============\n");
+        strBuilder.append("{\n============= Outbound Routing ============");
+        strBuilder.append("\nReceived msg from vertx [to=%s, reply-to=%s, body=%s] ");
+        strBuilder.append("\nUsing message based routing");
+        strBuilder.append("\nMatched the following AMQP address list : %s");
+        strBuilder.append("\n============= /Outbound Routing ============\n}");
 
         return strBuilder.toString();
     }
@@ -64,11 +62,11 @@ public class LogMsgHelper
     public static String inboundLinkBasedRoutingLogFormat()
     {
         StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("\n============= Inbound Routing ============");
-        strBuilder.append("Received message [to=%s, reply-to=%s, body=%s] from AMQP link '%s'");
-        strBuilder.append("Using link based routing");
-        strBuilder.append("Matched the following vertx address : %s");
-        strBuilder.append("============= /Inbound Routing ============\n");
+        strBuilder.append("{\n============= Inbound Routing ============");
+        strBuilder.append("\nReceived message [to=%s, reply-to=%s, body=%s] from AMQP link '%s'");
+        strBuilder.append("\nUsing link based routing");
+        strBuilder.append("\nMatched the following vertx address : %s");
+        strBuilder.append("\n============= /Inbound Routing ============\n}");
 
         return strBuilder.toString();
     }
@@ -76,11 +74,11 @@ public class LogMsgHelper
     public static String inboundMsgBasedRoutingLogFormat()
     {
         StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("\n============= Inbound Routing ============");
-        strBuilder.append("Received message [to=%s, reply-to=%s, body=%s] from AMQP link '%s'");
-        strBuilder.append("Using link based routing");
-        strBuilder.append("Matched the following vertx address list : %s");
-        strBuilder.append("============= /Inbound Routing ============\n");
+        strBuilder.append("{\n============= Inbound Routing ============");
+        strBuilder.append("\nReceived message [to=%s, reply-to=%s, body=%s] from AMQP link '%s'");
+        strBuilder.append("\nUsing message based routing");
+        strBuilder.append("\nMatched the following vertx address list : %s");
+        strBuilder.append("\n============= /Inbound Routing ============\n}");
 
         return strBuilder.toString();
     }
@@ -88,20 +86,20 @@ public class LogMsgHelper
     public static String inboundReplyToLogFormat()
     {
         StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("\n============= Inbound Routing (Reply-to) ============");
-        strBuilder.append("Received reply-message [address=%s, body=%s] from AMQP peer");
-        strBuilder.append("It's a reply to vertx message with reply-to=%s");
-        strBuilder.append("============= /Inbound Routing (Reply-to) ============\n");
+        strBuilder.append("{\n============= Inbound Routing (Reply-to) ============");
+        strBuilder.append("\nReceived reply-message [address=%s, body=%s] from AMQP peer");
+        strBuilder.append("\nIt's a reply to vertx message with reply-to=%s");
+        strBuilder.append("\n============= /Inbound Routing (Reply-to) ============\n}");
         return strBuilder.toString();
     }
 
     public static String outboundReplyToLogFormat()
     {
         StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("\n============= Inbound Routing (Reply-to) ============");
-        strBuilder.append("Received reply-message [address=%s, body=%s] from Vertx event-bus");
-        strBuilder.append("It's a reply to AMQP message with reply-to=%s");
-        strBuilder.append("============= /Inbound Routing (Reply-to) ============\n");
+        strBuilder.append("{\n============= Inbound Routing (Reply-to) ============");
+        strBuilder.append("\nReceived reply-message [address=%s, body=%s] from Vertx event-bus");
+        strBuilder.append("\nIt's a reply to AMQP message with reply-to=%s");
+        strBuilder.append("\n============= /Inbound Routing (Reply-to) ============\n}");
         return strBuilder.toString();
     }
 

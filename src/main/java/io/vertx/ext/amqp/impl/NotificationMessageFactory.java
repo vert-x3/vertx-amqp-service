@@ -25,6 +25,38 @@ import io.vertx.ext.amqp.impl.protocol.MessageDisposition;
 
 public class NotificationMessageFactory
 {
+    static JsonObject outgoingLinkOpened(String linkRef)
+    {
+        JsonObject json = new JsonObject();
+        json.put(NotificationHelper.TYPE, NotificationType.OUTGOING_LINK_OPENED);
+        json.put(NotificationHelper.LINK_REF, linkRef);
+        return json;
+    }
+
+    static JsonObject outgoingLinkClosed(String linkRef)
+    {
+        JsonObject json = new JsonObject();
+        json.put(NotificationHelper.TYPE, NotificationType.OUTGOING_LINK_CLOSED);
+        json.put(NotificationHelper.LINK_REF, linkRef);
+        return json;
+    }
+
+    static JsonObject incomingLinkOpened(String linkRef)
+    {
+        JsonObject json = new JsonObject();
+        json.put(NotificationHelper.TYPE, NotificationType.INCOMING_LINK_OPENED);
+        json.put(NotificationHelper.LINK_REF, linkRef);
+        return json;
+    }
+
+    static JsonObject incomingLinkClosed(String linkRef)
+    {
+        JsonObject json = new JsonObject();
+        json.put(NotificationHelper.TYPE, NotificationType.INCOMING_LINK_OPENED);
+        json.put(NotificationHelper.LINK_REF, linkRef);
+        return json;
+    }
+
     static JsonObject credit(String linkRef, int credits)
     {
         JsonObject json = new JsonObject();
@@ -43,7 +75,7 @@ public class NotificationMessageFactory
         json.put(NotificationHelper.MSG_STATE, disp);
         return json;
     }
-    
+
     static JsonObject error(String linkRef, ErrorCode code, String msg)
     {
         JsonObject json = new JsonObject();

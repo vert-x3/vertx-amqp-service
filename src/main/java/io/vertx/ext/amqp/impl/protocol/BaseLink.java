@@ -58,14 +58,36 @@ abstract class BaseLink
 
     String getTarget()
     {
-        return _ssn.getConnection().isInbound() ? _link.getRemoteTarget().getAddress() : _link.getTarget().getAddress();
+        if (_link.getRemoteTarget() != null)
+        {
+            return _link.getRemoteTarget().getAddress();
+        }
+        else if (_link.getTarget() != null)
+        {
+            return _link.getTarget().getAddress();
+        }
+        else
+        {
+            return null;
+        }
     }
 
     String getSource()
     {
-        return _ssn.getConnection().isInbound() ? _link.getRemoteSource().getAddress() : _link.getSource().getAddress();
+        if (_link.getRemoteSource() != null)
+        {
+            return _link.getRemoteSource().getAddress();
+        }
+        else if (_link.getSource() != null)
+        {
+            return _link.getSource().getAddress();
+        }
+        else
+        {
+            return null;
+        }
     }
-    
+
     void checkClosed() throws MessagingException
     {
         if (_closed.get())
