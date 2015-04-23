@@ -1,0 +1,14 @@
+== IncomingLinkOptions
+
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+
+|[[prefetch]]`prefetch`
+|`Number`
+|-
+|[[recoveryOptions]]`recoveryOptions`
+|`link:RetryOptions.html[RetryOptions]`
+|-|===

@@ -1,0 +1,11 @@
+== OutgoingLinkOptions
+
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+
+|[[recoveryOptions]]`recoveryOptions`
+|`link:RetryOptions.html[RetryOptions]`
+|-|===

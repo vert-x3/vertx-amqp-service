@@ -456,6 +456,7 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
     @Override
     public void incomingLinkFinal(String id, String address, boolean isFromInboundConnection)
     {
+        print("Incoming Link closed inbound=%s", isFromInboundConnection);
         if (isFromInboundConnection)
         {
             if (_serviceRefs.containsKey(address))
@@ -515,6 +516,7 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
     @Override
     public void outgoingLinkFinal(String id, String address, boolean isFromInboundConnection)
     {
+        print("Incoming Link closed outbound=%s", isFromInboundConnection);
         if (isFromInboundConnection)
         {
             if (_serviceRefs.containsKey(address))

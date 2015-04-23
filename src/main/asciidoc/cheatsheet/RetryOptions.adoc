@@ -1,0 +1,20 @@
+== RetryOptions
+
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+
+|[[minRetryInterval]]`minRetryInterval`
+|`Number`
+|-
+|[[maxRetryInterval]]`maxRetryInterval`
+|`Number`
+|-
+|[[maxRetryLimit]]`maxRetryLimit`
+|`Number`
+|-
+|[[alternativeAddressList]]`alternativeAddressList`
+|`Array of String`
+|-|===
