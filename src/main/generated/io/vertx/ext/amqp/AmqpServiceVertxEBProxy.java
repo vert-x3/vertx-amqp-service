@@ -22,7 +22,8 @@ import io.vertx.core.Vertx;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
-import java.util.ArrayList;import java.util.HashSet;import java.util.List;import java.util.Map;import java.util.Set;import io.vertx.serviceproxy.ProxyHelper;
+import java.util.ArrayList;import java.util.HashSet;import java.util.List;import java.util.Map;import java.util.Set;import java.util.stream.Collectors;
+import io.vertx.serviceproxy.ProxyHelper;
 import io.vertx.ext.amqp.ServiceOptions;
 import io.vertx.ext.amqp.AmqpService;
 import io.vertx.ext.amqp.OutgoingLinkOptions;
@@ -55,7 +56,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     _json.put("amqpAddress", amqpAddress);
     _json.put("eventbusAddress", eventbusAddress);
     _json.put("notificationAddress", notificationAddress);
-    _json.put("options", options.toJson());
+    _json.put("options", options == null ? null : options.toJson());
     DeliveryOptions _deliveryOptions = new DeliveryOptions();
     _deliveryOptions.addHeader("action", "establishIncommingLink");
     _vertx.eventBus().<String>send(_address, _json, _deliveryOptions, res -> {
@@ -116,7 +117,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     _json.put("amqpAddress", amqpAddress);
     _json.put("eventbusAddress", eventbusAddress);
     _json.put("notificationAddress", notificationAddress);
-    _json.put("options", options.toJson());
+    _json.put("options", options == null ? null : options.toJson());
     DeliveryOptions _deliveryOptions = new DeliveryOptions();
     _deliveryOptions.addHeader("action", "establishOutgoingLink");
     _vertx.eventBus().<String>send(_address, _json, _deliveryOptions, res -> {
@@ -213,7 +214,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     JsonObject _json = new JsonObject();
     _json.put("eventbusAddress", eventbusAddress);
     _json.put("notificationAddres", notificationAddres);
-    _json.put("options", options.toJson());
+    _json.put("options", options == null ? null : options.toJson());
     DeliveryOptions _deliveryOptions = new DeliveryOptions();
     _deliveryOptions.addHeader("action", "registerService");
     _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {

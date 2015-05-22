@@ -18,9 +18,24 @@ package io.vertx.ext.amqp;
 import io.vertx.codegen.annotations.DataObject;
 import io.vertx.core.json.JsonObject;
 
+/**
+ * Allows a vert.x application to customize the registration of a service.
+ * Future extension point to add more options.
+ * 
+ * @author <a href="mailto:rajith@rajith.lk">Rajith Muditha Attapattu</a>
+ *
+ */
 @DataObject
 public class ServiceOptions
 {
+    /**
+     * Allows a service to request vertx-amqp-service to issue credits
+     * immediately upon the establishment of an incoming link from an AMQP peer
+     * (client). If not set, it defaults to zero. The AMQP peers (clients) will
+     * not be able to send messages (requests) until the "service" explicitly
+     * issues credits using
+     * {@link AmqpService#issueCredits(String, int, io.vertx.core.Handler)}
+     */
     public final static String INITIAL_CAPACITY = "initial-capacity";
 
     private int initialCapacity = 0;

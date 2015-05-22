@@ -47,14 +47,15 @@ var AmqpService = function(j_val) {
 
   /**
    Allows an application to establish a link to an AMQP message-source for
-   receiving messages. The service will receive the messages on behalf of
-   the application and forward it to the event-bus address specified in the
-   consume method. The application will be listening on this address.
+   receiving messages. The vertx-amqp-service will receive the messages on
+   behalf of the application and forward it to the event-bus address
+   specified in the consume method. The application will be listening on
+   this address.
 
    @public
    @param amqpAddress {string} A link will be created to the the AMQP message-source identified by this address. . 
    @param eventbusAddress {string} The event-bus address to be mapped to the above link. The application should register a handler for this address on the event bus to receive the messages. 
-   @param notificationAddress {string} The event-bus address to which notifications about the incoming link is sent. Ex. Errors. The application should register a handler with the event-bus to receive these updates. 
+   @param notificationAddress {string} The event-bus address to which notifications about the incoming link is sent. Ex. Errors. The application should register a handler with the event-bus to receive these updates. Please see {@link NotificationType} and {@link NotificationHelper} for more details. 
    @param options {Object} Options to configure the link behavior (Ex prefetch, reliability). {@link IncommingLinkOptions} 
    @param result {function} The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association. 
    @return {AmqpService} A reference to the service.
@@ -130,7 +131,7 @@ var AmqpService = function(j_val) {
    @public
    @param amqpAddress {string} A link will be created to the the AMQP message-sink identified by this address. 
    @param eventbusAddress {string} The event-bus address to be mapped to the above link. The application should send the messages using this address. 
-   @param notificationAddress {string} The event-bus address to which notifications about the outgoing link is sent. Ex. Errors, Delivery Status, credit availability. The application should register a handler with the event-bus to receive these updates. 
+   @param notificationAddress {string} The event-bus address to which notifications about the outgoing link is sent. Ex. Errors, Delivery Status, credit availability. The application should register a handler with the event-bus to receive these updates. Please see {@link NotificationType} and {@link NotificationHelper} for more details. 
    @param options {Object} Options to configure the link behavior (Ex reliability). {@link IncommingLinkOptions} 
    @param result {function} The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association. 
    @return {AmqpService} A reference to the service.
@@ -176,7 +177,7 @@ var AmqpService = function(j_val) {
    Allows an application to accept a message it has received.
 
    @public
-   @param msgRef {string} - The string ref. Use {@link AmqpMessage#getMsgRef()} 
+   @param msgRef {string} The string ref. Use {@link AmqpMessage#getMsgRef()} 
    @param result {function} Notifies if there is an error. 
    @return {AmqpService} A reference to the service.
    */
@@ -198,7 +199,7 @@ var AmqpService = function(j_val) {
    Allows an application to reject a message it has received.
 
    @public
-   @param msgRef {string} - The string ref. Use {@link AmqpMessage#getMsgRef()} 
+   @param msgRef {string} The string ref. Use {@link AmqpMessage#getMsgRef()} 
    @param result {function} Notifies if there is an error. 
    @return {AmqpService} A reference to the service.
    */
@@ -220,7 +221,7 @@ var AmqpService = function(j_val) {
    Allows an application to release a message it has received.
 
    @public
-   @param msgRef {string} - The string ref. Use {@link AmqpMessage#getMsgRef()} 
+   @param msgRef {string} The string ref. Use {@link AmqpMessage#getMsgRef()} 
    @param result {function} Notifies if there is an error. 
    @return {AmqpService} A reference to the service.
    */
@@ -239,13 +240,16 @@ var AmqpService = function(j_val) {
   };
 
   /**
+   Allows a vertx.application to register a Service it provides with the
+   vertx-amqp-service. This allows any AMQP peer to interact with this
+   service by sending (and receiving) messages with the service.
 
    @public
-   @param eventbusAddress {string} 
-   @param notificationAddres {string} 
-   @param options {Object} 
-   @param result {function} 
-   @return {AmqpService}
+   @param eventbusAddress {string} The event-bus address the service is listening for incoming requests. The application needs to register a handler with the event-bus using this address to receive the above requests. 
+   @param notificationAddres {string} The event-bus address to which notifications about the service is sent. The application should register a handler with the event-bus to receive these updates. Ex notifies the application of an incoming link created by an AMQP peer to send requests. Please see {@link NotificationType} and {@link NotificationHelper} for more details. 
+   @param options {Object} Options to configure the Service behavior (Ex initial capacity). {@link ServiceOptions} 
+   @param result {function} Notifies if there is an error. 
+   @return {AmqpService} A reference to the service.
    */
   this.registerService = function(eventbusAddress, notificationAddres, options, result) {
     var __args = arguments;
@@ -262,11 +266,12 @@ var AmqpService = function(j_val) {
   };
 
   /**
+   Allows an application to unregister a service with vertx-amqp-service.
 
    @public
-   @param eventbusAddress {string} 
-   @param result {function} 
-   @return {AmqpService}
+   @param eventbusAddress {string} The event-bus address used when registering the service 
+   @param result {function} Notifies if there is an error. 
+   @return {AmqpService} A reference to the service.
    */
   this.unregisterService = function(eventbusAddress, result) {
     var __args = arguments;
@@ -283,12 +288,16 @@ var AmqpService = function(j_val) {
   };
 
   /**
+   Allows the service to issue credits to a particular incoming link
+   (created by a remote AMQP peer) for sending more service requests. This
+   allows the Service to always be in control of how many messages it
+   receives so it can maintain the required QoS requirements.
 
    @public
-   @param linkId {string} 
-   @param credits {number} 
-   @param result {function} 
-   @return {AmqpService}
+   @param linkId {string} The ref for the incoming link. The service gets notified of an incoming link by registering for notifications. Please {@link NotificationType#INCOMING_LINK_OPENED} and {@link NotificationHelper#getLinkRef(io.vertx.core.json.JsonObject)} for more details. 
+   @param credits {number} The number of message (requests) the AMQP peer is allowed to send. 
+   @param result {function} Notifies if there is an error. 
+   @return {AmqpService} A reference to the service.
    */
   this.issueCredits = function(linkId, credits, result) {
     var __args = arguments;
@@ -305,7 +314,7 @@ var AmqpService = function(j_val) {
   };
 
   /**
-   Start the AMQP Service
+   Start the vertx-amqp-service
 
    @public
 
@@ -318,7 +327,7 @@ var AmqpService = function(j_val) {
   };
 
   /**
-   Stop the AMQP Service
+   Stop the vertx-amqp-service
 
    @public
 

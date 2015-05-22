@@ -18,14 +18,20 @@ package io.vertx.ext.amqp;
 import io.vertx.codegen.annotations.DataObject;
 import io.vertx.core.json.JsonObject;
 
+/**
+ * Allows a vert.x application to customize the establishing of an outgoing
+ * link. Reliability are supported and recovery options in a future release.
+ * Future extension point to add more options.
+ * 
+ * @author <a href="mailto:rajith@rajith.lk">Rajith Muditha Attapattu</a>
+ *
+ */
 @DataObject
 public class OutgoingLinkOptions
 {
     public final static String RELIABILITY = "reliability";
 
     public final static String RECOVERY_OPTIONS = "recovery-options";
-
-    public final static String CREATE_OPTION = "create-option";
 
     private ReliabilityMode reliability = ReliabilityMode.UNRELIABLE;
 
@@ -60,6 +66,10 @@ public class OutgoingLinkOptions
         return reliability;
     }
 
+    /**
+     * Please see {@link ReliabilityMode} to understand the reliability modes
+     * and it's implications.
+     */
     public void setReliability(ReliabilityMode reliability)
     {
         this.reliability = reliability;

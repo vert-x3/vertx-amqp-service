@@ -25,7 +25,13 @@ import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
-import java.util.ArrayList;import java.util.HashSet;import java.util.List;import java.util.Map;import java.util.Set;import java.util.UUID;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import io.vertx.serviceproxy.ProxyHelper;
 import io.vertx.serviceproxy.ProxyHandler;
 import io.vertx.ext.amqp.ServiceOptions;
@@ -95,7 +101,7 @@ public class AmqpServiceVertxProxyHandler extends ProxyHandler {
     switch (action) {
 
       case "establishIncommingLink": {
-        service.establishIncommingLink((java.lang.String)json.getValue("amqpAddress"), (java.lang.String)json.getValue("eventbusAddress"), (java.lang.String)json.getValue("notificationAddress"), new io.vertx.ext.amqp.IncomingLinkOptions(json.getJsonObject("options")), createHandler(msg));
+        service.establishIncommingLink((java.lang.String)json.getValue("amqpAddress"), (java.lang.String)json.getValue("eventbusAddress"), (java.lang.String)json.getValue("notificationAddress"), json.getJsonObject("options") == null ? null : new io.vertx.ext.amqp.IncomingLinkOptions(json.getJsonObject("options")), createHandler(msg));
         break;
       }
       case "fetch": {
@@ -107,7 +113,7 @@ public class AmqpServiceVertxProxyHandler extends ProxyHandler {
         break;
       }
       case "establishOutgoingLink": {
-        service.establishOutgoingLink((java.lang.String)json.getValue("amqpAddress"), (java.lang.String)json.getValue("eventbusAddress"), (java.lang.String)json.getValue("notificationAddress"), new io.vertx.ext.amqp.OutgoingLinkOptions(json.getJsonObject("options")), createHandler(msg));
+        service.establishOutgoingLink((java.lang.String)json.getValue("amqpAddress"), (java.lang.String)json.getValue("eventbusAddress"), (java.lang.String)json.getValue("notificationAddress"), json.getJsonObject("options") == null ? null : new io.vertx.ext.amqp.OutgoingLinkOptions(json.getJsonObject("options")), createHandler(msg));
         break;
       }
       case "cancelOutgoingLink": {
@@ -127,7 +133,7 @@ public class AmqpServiceVertxProxyHandler extends ProxyHandler {
         break;
       }
       case "registerService": {
-        service.registerService((java.lang.String)json.getValue("eventbusAddress"), (java.lang.String)json.getValue("notificationAddres"), new io.vertx.ext.amqp.ServiceOptions(json.getJsonObject("options")), createHandler(msg));
+        service.registerService((java.lang.String)json.getValue("eventbusAddress"), (java.lang.String)json.getValue("notificationAddres"), json.getJsonObject("options") == null ? null : new io.vertx.ext.amqp.ServiceOptions(json.getJsonObject("options")), createHandler(msg));
         break;
       }
       case "unregisterService": {

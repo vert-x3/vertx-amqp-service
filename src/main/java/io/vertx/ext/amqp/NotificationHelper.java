@@ -26,15 +26,10 @@ import io.vertx.ext.amqp.impl.protocol.DeliveryTrackerImpl;
  * See {@link PublishToQueueVerticle} and {@link FortuneCookieServiceVerticle}
  * in the examples to see how this is used.
  * 
- * @author <a href="mailto:rajith@redhat.com">Rajith Attapattu</a>
+ * @author <a href="mailto:rajith@rajith.lk">Rajith Muditha Attapattu</a>
  */
 public class NotificationHelper
 {
-    public enum NotificationType
-    {
-        DELIVERY_STATE, OUTGOING_LINK_OPENED, OUTGOING_LINK_CLOSED, INCOMING_LINK_OPENED, INCOMING_LINK_CLOSED, LINK_CREDIT, LINK_ERROR;
-    };
-
     public final static String TYPE = "vertx.amqp.notification-type";
 
     public final static String LINK_REF = "vertx.amqp.link-ref";

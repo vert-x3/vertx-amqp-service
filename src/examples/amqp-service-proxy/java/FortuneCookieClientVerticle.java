@@ -19,7 +19,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.amqp.AmqpService;
 import io.vertx.ext.amqp.NotificationHelper;
-import io.vertx.ext.amqp.NotificationHelper.NotificationType;
+import io.vertx.ext.amqp.NotificationType;
 import io.vertx.ext.amqp.OutgoingLinkOptions;
 import io.vertx.ext.amqp.ReliabilityMode;
 
@@ -28,7 +28,7 @@ import io.vertx.ext.amqp.ReliabilityMode;
  * with an AMQP Service in a reliable way while respecting it's QoS requirements
  * (flow control in this case).
  * 
- * @author <a href="mailto:rajith77@gmail.com">Rajith Attapattu</a>
+ * @author <a href="mailto:rajith@rajith.lk">Rajith Muditha Attapattu</a>
  *
  */
 public class FortuneCookieClientVerticle extends AbstractVerticle

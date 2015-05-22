@@ -39,16 +39,36 @@ import io.vertx.serviceproxy.ProxyHelper;
  * For more information on AMQP visit www.amqp.org This service speaks AMQP 1.0
  * and use QPid Proton(http://qpid.apache.org/proton) for protocol support.
  * 
- * @author <a href="mailto:rajith@redhat.com">Rajith Attapattu</a>
+ * @author <a href="mailto:rajith@rajith.lk">Rajith Attapattu</a>
  */
 @VertxGen
 @ProxyGen
 public interface AmqpService
 {
+    /**
+     * Unique identifier given by the vertx-amqp-service to an incoming message.
+     * It can be accessed via msg.getString(AmqpService.INCOMING_MSG_REF), where
+     * msg is the Json message received by the vert.x application.
+     */
     public static final String INCOMING_MSG_REF = "vertx.amqp.incoming-msg-ref";
 
+    /**
+     * Unique identifier given by vert.x application to an outgoing message. It
+     * can be set as msg.put(AmqpService.INCOMING_MSG_REF), where msg is the
+     * outgoing Json message sent by the vert.x application.
+     */
     public static final String OUTGOING_MSG_REF = "vertx.amqp.outgoing-msg-ref";
 
+    /**
+     * Unique identifier given by the vertx-amqp-service to the logical Link
+     * established between an AMQP peer and a vert.x subscription. This allows
+     * an application to identify the source of a message if it is receiving
+     * from multiple sources. If the application established this link
+     * themselves, the identity returned via the AsyncResult via the handler in
+     * {@link AmqpService#establishIncommingLink(String, String, String, IncomingLinkOptions, Handler)}
+     * is the same reference, so you could correlate the message received to the
+     * link created.
+     */
     public static final String INCOMING_MSG_LINK_REF = "vertx.amqp.incoming-msg-link-ref";
 
     static AmqpService createEventBusProxy(Vertx vertx, String address)
@@ -58,9 +78,10 @@ public interface AmqpService
 
     /**
      * Allows an application to establish a link to an AMQP message-source for
-     * receiving messages. The service will receive the messages on behalf of
-     * the application and forward it to the event-bus address specified in the
-     * consume method. The application will be listening on this address.
+     * receiving messages. The vertx-amqp-service will receive the messages on
+     * behalf of the application and forward it to the event-bus address
+     * specified in the consume method. The application will be listening on
+     * this address.
      * 
      * @param amqpAddress
      *            A link will be created to the the AMQP message-source
@@ -73,7 +94,8 @@ public interface AmqpService
      *            The event-bus address to which notifications about the
      *            incoming link is sent. Ex. Errors. The application should
      *            register a handler with the event-bus to receive these
-     *            updates.
+     *            updates. Please see {@link NotificationType} and
+     *            {@link NotificationHelper} for more details.
      * @param options
      *            Options to configure the link behavior (Ex prefetch,
      *            reliability). {@link IncommingLinkOptions}
@@ -138,7 +160,9 @@ public interface AmqpService
      *            The event-bus address to which notifications about the
      *            outgoing link is sent. Ex. Errors, Delivery Status, credit
      *            availability. The application should register a handler with
-     *            the event-bus to receive these updates.
+     *            the event-bus to receive these updates. Please see
+     *            {@link NotificationType} and {@link NotificationHelper} for
+     *            more details.
      * @param options
      *            Options to configure the link behavior (Ex reliability).
      *            {@link IncommingLinkOptions}
@@ -171,7 +195,7 @@ public interface AmqpService
      * Allows an application to accept a message it has received.
      * 
      * @param msgRef
-     *            - The string ref. Use {@link AmqpMessage#getMsgRef()}
+     *            The string ref. Use {@link AmqpMessage#getMsgRef()}
      * @param result
      *            Notifies if there is an error.
      * @return A reference to the service.
@@ -183,7 +207,7 @@ public interface AmqpService
      * Allows an application to reject a message it has received.
      * 
      * @param msgRef
-     *            - The string ref. Use {@link AmqpMessage#getMsgRef()}
+     *            The string ref. Use {@link AmqpMessage#getMsgRef()}
      * @param result
      *            Notifies if there is an error.
      * @return A reference to the service.
@@ -195,7 +219,7 @@ public interface AmqpService
      * Allows an application to release a message it has received.
      * 
      * @param msgRef
-     *            - The string ref. Use {@link AmqpMessage#getMsgRef()}
+     *            The string ref. Use {@link AmqpMessage#getMsgRef()}
      * @param result
      *            Notifies if there is an error.
      * @return A reference to the service.
@@ -203,24 +227,75 @@ public interface AmqpService
     @Fluent
     public AmqpService release(String msgRef, Handler<AsyncResult<Void>> result);
 
+    /**
+     * Allows a vertx.application to register a Service it provides with the
+     * vertx-amqp-service. This allows any AMQP peer to interact with this
+     * service by sending (and receiving) messages with the service.
+     * 
+     * @param eventbusAddress
+     *            The event-bus address the service is listening for incoming
+     *            requests. The application needs to register a handler with the
+     *            event-bus using this address to receive the above requests.
+     * @param notificationAddres
+     *            The event-bus address to which notifications about the service
+     *            is sent. The application should register a handler with the
+     *            event-bus to receive these updates. Ex notifies the
+     *            application of an incoming link created by an AMQP peer to
+     *            send requests. Please see {@link NotificationType} and
+     *            {@link NotificationHelper} for more details.
+     * @param options
+     *            Options to configure the Service behavior (Ex initial
+     *            capacity). {@link ServiceOptions}
+     * @param result
+     *            Notifies if there is an error.
+     * @return A reference to the service.
+     */
     @Fluent
     public AmqpService registerService(String eventbusAddress, String notificationAddres, ServiceOptions options,
             Handler<AsyncResult<Void>> result);
 
+    /**
+     * Allows an application to unregister a service with vertx-amqp-service.
+     * 
+     * @param eventbusAddress
+     *            The event-bus address used when registering the service
+     * @param result
+     *            Notifies if there is an error.
+     * @return A reference to the service.
+     */
     @Fluent
     public AmqpService unregisterService(String eventbusAddress, Handler<AsyncResult<Void>> result);
 
+    /**
+     * Allows the service to issue credits to a particular incoming link
+     * (created by a remote AMQP peer) for sending more service requests. This
+     * allows the Service to always be in control of how many messages it
+     * receives so it can maintain the required QoS requirements.
+     * 
+     * @param linkId
+     *            The ref for the incoming link. The service gets notified of an
+     *            incoming link by registering for notifications. Please
+     *            {@link NotificationType#INCOMING_LINK_OPENED} and
+     *            {@link NotificationHelper#getLinkRef(io.vertx.core.json.JsonObject)}
+     *            for more details.
+     * @param credits
+     *            The number of message (requests) the AMQP peer is allowed to
+     *            send.
+     * @param result
+     *            Notifies if there is an error.
+     * @return A reference to the service.
+     */
     @Fluent
     public AmqpService issueCredits(String linkId, int credits, Handler<AsyncResult<Void>> result);
 
     /**
-     * Start the AMQP Service
+     * Start the vertx-amqp-service
      */
     @ProxyIgnore
     public void start();
 
     /**
-     * Stop the AMQP Service
+     * Stop the vertx-amqp-service
      */
     @ProxyIgnore
     public void stop();

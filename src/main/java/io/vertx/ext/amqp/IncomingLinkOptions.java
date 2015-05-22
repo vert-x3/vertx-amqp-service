@@ -18,6 +18,14 @@ package io.vertx.ext.amqp;
 import io.vertx.codegen.annotations.DataObject;
 import io.vertx.core.json.JsonObject;
 
+/**
+ * Allows a vert.x application to customize the establishing of an incoming link.
+ * Prefetch and reliability are supported and recovery options in a future
+ * release. Future extension point to add more options.
+ * 
+ * @author <a href="mailto:rajith@rajith.lk">Rajith Muditha Attapattu</a>
+ *
+ */
 @DataObject
 public class IncomingLinkOptions
 {
@@ -64,11 +72,26 @@ public class IncomingLinkOptions
         return prefetch;
     }
 
+    /**
+     * <i>Defaults to "1". </i><br>
+     * <i>If set to a value > 0 </i>, the vertx-amqp-service will automatically
+     * fetch more messages when a certain number of messages are marked as
+     * either accepted, rejected or released. The ertx-amqp-service will
+     * determine the optimum threshold for when the fetch happens and how much
+     * to fetch. <br>
+     * <i>If set to "zero"</i>, the vert.x application will need to explicitly
+     * request messages using
+     * {@link AmqpService#fetch(String, int, io.vertx.core.Handler)}
+     */
     public void setPrefetch(int prefetch)
     {
         this.prefetch = prefetch;
     }
 
+    /**
+     * Please see {@link ReliabilityMode} to understand the reliability modes
+     * and it's implications.
+     */
     public ReliabilityMode getReliability()
     {
         return reliability;

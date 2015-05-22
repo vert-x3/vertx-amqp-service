@@ -31,6 +31,11 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
+/**
+ * 
+ * @author <a href="mailto:rajith@rajith.lk">Rajith Muditha Attapattu</a>
+ *
+ */
 public class TestRouterConfig extends TestCase
 {
     @Test

@@ -17,9 +17,8 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.amqp.AmqpService;
 import io.vertx.ext.amqp.DeliveryTracker;
-import io.vertx.ext.amqp.IncomingLinkOptions;
 import io.vertx.ext.amqp.NotificationHelper;
-import io.vertx.ext.amqp.NotificationHelper.NotificationType;
+import io.vertx.ext.amqp.NotificationType;
 import io.vertx.ext.amqp.OutgoingLinkOptions;
 import io.vertx.ext.amqp.ReliabilityMode;
 
@@ -37,7 +36,7 @@ import io.vertx.ext.amqp.ReliabilityMode;
  * 4. The message should be received by the consumer created for 'my-sub-queue'.<br>
  * 5. When the message is accepted by the broker, we cancel the outgoing link.
  * 
- * @author <a href="mailto:rajith77@gmail.com">Rajith Attapattu</a>
+ * @author <a href="mailto:rajith@rajith.lk">Rajith Muditha Attapattu</a>
  *
  */
 public class PublishToQueueVerticle extends AbstractVerticle
@@ -45,7 +44,7 @@ public class PublishToQueueVerticle extends AbstractVerticle
     private String outgoingLinkRef = null;
 
     private int i=0;
-    
+
     @Override
     public void start() throws Exception
     {
@@ -56,7 +55,7 @@ public class PublishToQueueVerticle extends AbstractVerticle
         // it to vert.x address 'my-pub-queue'
         OutgoingLinkOptions options = new OutgoingLinkOptions();
         options.setReliability(ReliabilityMode.AT_LEAST_ONCE);
-        
+
         System.out
         .println("Attempting to establish an outgoing link from the bridge to 'amqp://localhost:5672/my-queue'");
         service.establishOutgoingLink("amqp://localhost:6672/my-queue", "my-pub-queue", "my-pub-notifications",

@@ -19,7 +19,7 @@ import io.vertx.ext.amqp.AmqpService;
 import io.vertx.ext.amqp.DeliveryTracker;
 import io.vertx.ext.amqp.NotificationHelper;
 import io.vertx.ext.amqp.ServiceOptions;
-import io.vertx.ext.amqp.NotificationHelper.NotificationType;
+import io.vertx.ext.amqp.NotificationType;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

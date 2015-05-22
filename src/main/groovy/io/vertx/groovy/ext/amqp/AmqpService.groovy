@@ -52,12 +52,13 @@ public class AmqpService {
   }
   /**
    * Allows an application to establish a link to an AMQP message-source for
-   * receiving messages. The service will receive the messages on behalf of
-   * the application and forward it to the event-bus address specified in the
-   * consume method. The application will be listening on this address.
+   * receiving messages. The vertx-amqp-service will receive the messages on
+   * behalf of the application and forward it to the event-bus address
+   * specified in the consume method. The application will be listening on
+   * this address.
    * @param amqpAddress A link will be created to the the AMQP message-source identified by this address. .
    * @param eventbusAddress The event-bus address to be mapped to the above link. The application should register a handler for this address on the event bus to receive the messages.
-   * @param notificationAddress The event-bus address to which notifications about the incoming link is sent. Ex. Errors. The application should register a handler with the event-bus to receive these updates.
+   * @param notificationAddress The event-bus address to which notifications about the incoming link is sent. Ex. Errors. The application should register a handler with the event-bus to receive these updates. Please see {@link NotificationType} and {@link NotificationHelper} for more details.
    * @param options Options to configure the link behavior (Ex prefetch, reliability). {@link IncommingLinkOptions} (see <a href="../../../../../../../cheatsheet/IncomingLinkOptions.html">IncomingLinkOptions</a>)
    * @param result The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association.
    * @return A reference to the service.
@@ -97,7 +98,7 @@ public class AmqpService {
    * and forward it to the respective AMQP message sink.
    * @param amqpAddress A link will be created to the the AMQP message-sink identified by this address.
    * @param eventbusAddress The event-bus address to be mapped to the above link. The application should send the messages using this address.
-   * @param notificationAddress The event-bus address to which notifications about the outgoing link is sent. Ex. Errors, Delivery Status, credit availability. The application should register a handler with the event-bus to receive these updates.
+   * @param notificationAddress The event-bus address to which notifications about the outgoing link is sent. Ex. Errors, Delivery Status, credit availability. The application should register a handler with the event-bus to receive these updates. Please see {@link NotificationType} and {@link NotificationHelper} for more details.
    * @param options Options to configure the link behavior (Ex reliability). {@link IncommingLinkOptions} (see <a href="../../../../../../../cheatsheet/OutgoingLinkOptions.html">OutgoingLinkOptions</a>)
    * @param result The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association.
    * @return A reference to the service.
@@ -119,7 +120,7 @@ public class AmqpService {
   }
   /**
    * Allows an application to accept a message it has received.
-   * @param msgRef - The string ref. Use {@link AmqpMessage#getMsgRef()}
+   * @param msgRef The string ref. Use {@link AmqpMessage#getMsgRef()}
    * @param result Notifies if there is an error.
    * @return A reference to the service.
    */
@@ -129,7 +130,7 @@ public class AmqpService {
   }
   /**
    * Allows an application to reject a message it has received.
-   * @param msgRef - The string ref. Use {@link AmqpMessage#getMsgRef()}
+   * @param msgRef The string ref. Use {@link AmqpMessage#getMsgRef()}
    * @param result Notifies if there is an error.
    * @return A reference to the service.
    */
@@ -139,7 +140,7 @@ public class AmqpService {
   }
   /**
    * Allows an application to release a message it has received.
-   * @param msgRef - The string ref. Use {@link AmqpMessage#getMsgRef()}
+   * @param msgRef The string ref. Use {@link AmqpMessage#getMsgRef()}
    * @param result Notifies if there is an error.
    * @return A reference to the service.
    */
@@ -147,26 +148,52 @@ public class AmqpService {
     this.delegate.release(msgRef, result);
     return this;
   }
+  /**
+   * Allows a vertx.application to register a Service it provides with the
+   * vertx-amqp-service. This allows any AMQP peer to interact with this
+   * service by sending (and receiving) messages with the service.
+   * @param eventbusAddress The event-bus address the service is listening for incoming requests. The application needs to register a handler with the event-bus using this address to receive the above requests.
+   * @param notificationAddres The event-bus address to which notifications about the service is sent. The application should register a handler with the event-bus to receive these updates. Ex notifies the application of an incoming link created by an AMQP peer to send requests. Please see {@link NotificationType} and {@link NotificationHelper} for more details.
+   * @param options Options to configure the Service behavior (Ex initial capacity). {@link ServiceOptions} (see <a href="../../../../../../../cheatsheet/ServiceOptions.html">ServiceOptions</a>)
+   * @param result Notifies if there is an error.
+   * @return A reference to the service.
+   */
   public AmqpService registerService(String eventbusAddress, String notificationAddres, Map<String, Object> options, Handler<AsyncResult<Void>> result) {
     this.delegate.registerService(eventbusAddress, notificationAddres, options != null ? new io.vertx.ext.amqp.ServiceOptions(new io.vertx.core.json.JsonObject(options)) : null, result);
     return this;
   }
+  /**
+   * Allows an application to unregister a service with vertx-amqp-service.
+   * @param eventbusAddress The event-bus address used when registering the service
+   * @param result Notifies if there is an error.
+   * @return A reference to the service.
+   */
   public AmqpService unregisterService(String eventbusAddress, Handler<AsyncResult<Void>> result) {
     this.delegate.unregisterService(eventbusAddress, result);
     return this;
   }
+  /**
+   * Allows the service to issue credits to a particular incoming link
+   * (created by a remote AMQP peer) for sending more service requests. This
+   * allows the Service to always be in control of how many messages it
+   * receives so it can maintain the required QoS requirements.
+   * @param linkId The ref for the incoming link. The service gets notified of an incoming link by registering for notifications. Please {@link NotificationType#INCOMING_LINK_OPENED} and {@link NotificationHelper#getLinkRef(io.vertx.core.json.JsonObject)} for more details.
+   * @param credits The number of message (requests) the AMQP peer is allowed to send.
+   * @param result Notifies if there is an error.
+   * @return A reference to the service.
+   */
   public AmqpService issueCredits(String linkId, int credits, Handler<AsyncResult<Void>> result) {
     this.delegate.issueCredits(linkId, credits, result);
     return this;
   }
   /**
-   * Start the AMQP Service
+   * Start the vertx-amqp-service
    */
   public void start() {
     this.delegate.start();
   }
   /**
-   * Stop the AMQP Service
+   * Stop the vertx-amqp-service
    */
   public void stop() {
     this.delegate.stop();
