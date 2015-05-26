@@ -37,6 +37,7 @@ import io.vertx.ext.amqp.impl.AddressParser;
 import io.vertx.ext.amqp.impl.AmqpServiceConfig;
 import io.vertx.ext.amqp.impl.AmqpServiceImpl;
 import io.vertx.ext.amqp.impl.protocol.ConnectionImpl.State;
+import io.vertx.ext.amqp.impl.util.Functions;
 import io.vertx.ext.amqp.impl.util.LogManager;
 
 import java.util.Collections;
@@ -95,13 +96,13 @@ public class LinkManager extends AbstractAmqpEventListener
 
         URL_CACHE = Collections.synchronizedMap(new LinkedHashMap<String, ConnectionSettings>(config
                 .getMaxedCachedURLEntries() + 1, 1.1f, true)
-        {
+                {
             @Override
             protected boolean removeEldestEntry(Map.Entry<String, ConnectionSettings> eldest)
             {
                 return size() > config.getMaxedCachedURLEntries();
             }
-        });
+                });
 
         NetServerOptions serverOp = new NetServerOptions();
         serverOp.setHost(config.getInboundHost());
@@ -283,6 +284,14 @@ public class LinkManager extends AbstractAmqpEventListener
             throws MessagingException
     {
         final ConnectionSettings settings = getConnectionSettings(amqpAddress);
+        if (settings.getHost().equals(_config.getInboundHost()) && settings.getPort() == _config.getInboundPort())
+        {
+            // prevent cycle.
+            throw new MessagingException(format(
+                    "Ignoring request for connection[%s:%s] as it points to vertx-amqp-service inbound server[%s:%s]",
+                    settings.getHost(), settings.getPort(), settings.getHost(), settings.getPort()),
+                    ErrorCode.INTERNAL_ERROR);
+        }
         ManagedConnection con = getConnection(settings);
         OutgoingLinkImpl link = con.createOutboundLink(settings.getNode(), options.getReliability());
         LOG.info("Created outgoing link to AMQP peer [address=%s @ %s:%s, options=%s] ", settings.getNode(),
@@ -449,10 +458,12 @@ public class LinkManager extends AbstractAmqpEventListener
         boolean inbound = link.getConnection().isInbound();
         String id = link.getName();
         String address = link.getTarget();
+        /*
         print("Local Source %s ", link.getProtocolLink().getSource() == null ? "null" : link.getProtocolLink().getSource().getAddress());
         print("Remote Source %s ", link.getProtocolLink().getRemoteSource() == null ? "null" : link.getProtocolLink().getRemoteSource().getAddress());
         print("Local Target %s ", link.getProtocolLink().getTarget() == null ? "null" : link.getProtocolLink().getTarget().getAddress());
         print("Remote Target %s ", link.getProtocolLink().getRemoteTarget() == null ? "null" : link.getProtocolLink().getRemoteTarget().getAddress());
+        */
         if (id == null || id.trim().isEmpty())
         {
             id = address;

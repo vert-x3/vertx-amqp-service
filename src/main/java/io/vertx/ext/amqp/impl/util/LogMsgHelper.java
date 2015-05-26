@@ -103,22 +103,22 @@ public class LogMsgHelper
         return strBuilder.toString();
     }
 
-    public static void logVertxMsgForMsgBasedRouting(LogManager log, Message<JsonObject> vertxMsg, String linkAddress)
-    {
-        if (log.isDebugEnabled())
-        {
-            log.debug(OUTBOUND_MSG_BASED_ROUTING_LOG_FORMAT, vertxMsg.address(), vertxMsg.replyAddress(), vertxMsg
-                    .body().encode(), vertxMsg.replyAddress(), linkAddress);
-        }
-    }
-
-    public static void logVertxMsgForLinkBasedRouting(LogManager log, Message<JsonObject> vertxMsg,
+    public static void logVertxMsgForMsgBasedRouting(LogManager log, Message<JsonObject> vertxMsg,
             List<String> amqpAddressList)
     {
         if (log.isDebugEnabled())
         {
-            log.debug(OUTBOUND_LINK_BASED_ROUTING_LOG_FORMAT, vertxMsg.address(), vertxMsg.replyAddress(), vertxMsg
+            log.debug(OUTBOUND_MSG_BASED_ROUTING_LOG_FORMAT, vertxMsg.address(), vertxMsg.replyAddress(), vertxMsg
                     .body().encode(), vertxMsg.replyAddress(), amqpAddressList);
+        }
+    }
+
+    public static void logVertxMsgForLinkBasedRouting(LogManager log, Message<JsonObject> vertxMsg, String linkAddress)
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug(OUTBOUND_LINK_BASED_ROUTING_LOG_FORMAT, vertxMsg.address(), vertxMsg.replyAddress(), vertxMsg
+                    .body().encode(), vertxMsg.replyAddress(), linkAddress);
         }
     }
 

@@ -43,6 +43,7 @@ import io.vertx.ext.amqp.impl.protocol.MessageDisposition;
 import io.vertx.ext.amqp.impl.routing.LinkRouter;
 import io.vertx.ext.amqp.impl.routing.MessageRouter;
 import io.vertx.ext.amqp.impl.translators.MessageTranslator;
+import io.vertx.ext.amqp.impl.util.Functions;
 import io.vertx.ext.amqp.impl.util.LogManager;
 import io.vertx.ext.amqp.impl.util.LogMsgHelper;
 
@@ -381,7 +382,7 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
                 try
                 {
                     _linkManager.sendViaLink(linkId, outMsg, inMsg);
-                    LogMsgHelper.logVertxMsgForMsgBasedRouting(LOG, vertxMsg, linkId);
+                    LogMsgHelper.logVertxMsgForLinkBasedRouting(LOG, vertxMsg, linkId);
                 }
                 catch (MessagingException e)
                 {
@@ -406,7 +407,7 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
                                 e.getMessage(), amqpAddress);
                     }
                 }
-                LogMsgHelper.logVertxMsgForLinkBasedRouting(LOG, vertxMsg, amqpAddressList);
+                LogMsgHelper.logVertxMsgForMsgBasedRouting(LOG, vertxMsg, amqpAddressList);
             }
         }
         catch (MessagingException e)
@@ -498,6 +499,7 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
             }
             else
             {
+                LOG.info("Mapping address %s to outgoing-link %s", address, id);
                 _linkBasedRouter.addOutgoingRoute(address, id);
                 _eb.consumer(address, this);
                 _outgoingLinkRefs.put(id, new OutgoingLinkRef(id, null, null, null, null));
@@ -681,8 +683,11 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
     {
         if (_outgoingLinkRefs.containsKey(id))
         {
-            sendNotificatonMessage(_outgoingLinkRefs.get(id)._notificationAddr,
-                    NotificationMessageFactory.credit(id, credits));
+            if (_outgoingLinkRefs.get(id)._notificationAddr != null)
+            {
+                sendNotificatonMessage(_outgoingLinkRefs.get(id)._notificationAddr,
+                        NotificationMessageFactory.credit(id, credits));
+            }
         }
         else
         {
@@ -692,7 +697,10 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
 
     private void sendNotificatonMessage(String address, JsonObject msg)
     {
-        _eb.send(address, msg);
+        if (address != null)
+        {
+            _eb.send(address, msg);
+        }
     }
 
     // ---------- Helper classes
@@ -700,7 +708,6 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
     class ReplyHandler implements Handler<AsyncResult<Message<JsonObject>>>
     {
         String _replyTo;
-
         String _notificationAddr;
 
         ReplyHandler(String replyTo, String notificationAddr)
@@ -715,10 +722,27 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
             Message<JsonObject> msg = result.result();
             try
             {
-                print("Reply received %s ", msg.body().encodePrettily());
+                print("Reply received %s ", msg.body() == null ? "" : msg.body().encodePrettily());
                 LogMsgHelper.logOutboundReplyTo(LOG, msg, _replyTo);
                 org.apache.qpid.proton.message.Message out = _msgTranslator.convert(msg.body());
-                _linkManager.sendViaAddress(_replyTo, out, msg.body());
+                String linkId = _linkBasedRouter.routeOutgoing(Functions.extractDestination(_replyTo));
+                if (linkId != null)
+                {
+                    try
+                    {
+                        _linkManager.sendViaLink(linkId, out, msg.body());
+                        LOG.info(" vertx-amqp-service is hosting reply-to destination '%s'", _replyTo);
+                    }
+                    catch (MessagingException e)
+                    {
+                        LOG.warn(e, "Error {code=%s, msg='%s'} sending to link %s", e.getErrorCode(), e.getMessage(),
+                                linkId);
+                    }
+                }
+                else
+                {
+                    _linkManager.sendViaAddress(_replyTo, out, msg.body());
+                }
                 if (_notificationAddr != null && msg.body().containsKey(AmqpService.OUTGOING_MSG_REF))
                 {
                     print("Adding the reply-to:notification pair {%s : %s}", msg.body().getString(AmqpService.OUTGOING_MSG_REF), _notificationAddr);
@@ -746,13 +770,13 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
 
         IncomingLinkRef(String id, String amqpAddr, String ebAddr, String notificationAddr,
                 Handler<AsyncResult<String>> resultHandler)
-        {
+                {
             _id = id;
             _amqpAddr = amqpAddr;
             _ebAddr = ebAddr;
             _notificationAddr = notificationAddr;
             _resultHandler = resultHandler;
-        }
+                }
     }
 
     class OutgoingLinkRef
@@ -769,13 +793,13 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
 
         OutgoingLinkRef(String id, String amqpAddr, String ebAddr, String notificationAddr,
                 Handler<AsyncResult<String>> resultHandler)
-        {
+                {
             _id = id;
             _amqpAddr = amqpAddr;
             _ebAddr = ebAddr;
             _notificationAddr = notificationAddr;
             _resultHandler = resultHandler;
-        }
+                }
     }
 
     class ServiceRef
