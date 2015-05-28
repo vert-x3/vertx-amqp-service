@@ -1,0 +1,15 @@
+{
+"address" : "vertx.service-amqp",
+"amqp.inbound-host" : "localhost",
+"amqp.inbound-port"  : 5673,
+"amqp.default-outbound-address" : "amqp://localhost:5672/vertx",
+"vertx.default-handler-address" : "vertx.service-amqp.bridge",
+"vertx.handlers" : ["hello-service-amqp"],
+
+"vertx.routing-outbound" : {
+			"routes" :{
+				     "hello-service-amqp" : "amqp://localhost:5672/hello-service-amqp"
+	     			  }
+	         
+	     }
+}
