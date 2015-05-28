@@ -74,8 +74,8 @@ public class AmqpService {
    * @param result The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association.
    * @return A reference to the service.
    */
-  public AmqpService establishIncommingLink(String amqpAddress, String eventbusAddress, String notificationAddress, IncomingLinkOptions options, Handler<AsyncResult<String>> result) { 
-    this.delegate.establishIncommingLink(amqpAddress, eventbusAddress, notificationAddress, options, result);
+  public AmqpService establishIncomingLink(String amqpAddress, String eventbusAddress, String notificationAddress, IncomingLinkOptions options, Handler<AsyncResult<String>> result) { 
+    this.delegate.establishIncomingLink(amqpAddress, eventbusAddress, notificationAddress, options, result);
     return this;
   }
 
@@ -91,9 +91,9 @@ public class AmqpService {
    * @param options Options to configure the link behavior (Ex prefetch, reliability). {@link IncommingLinkOptions}
    * @return 
    */
-  public Observable<String> establishIncommingLinkObservable(String amqpAddress, String eventbusAddress, String notificationAddress, IncomingLinkOptions options) { 
+  public Observable<String> establishIncomingLinkObservable(String amqpAddress, String eventbusAddress, String notificationAddress, IncomingLinkOptions options) { 
     io.vertx.rx.java.ObservableFuture<String> result = io.vertx.rx.java.RxHelper.observableFuture();
-    establishIncommingLink(amqpAddress, eventbusAddress, notificationAddress, options, result.toHandler());
+    establishIncomingLink(amqpAddress, eventbusAddress, notificationAddress, options, result.toHandler());
     return result;
   }
 
@@ -132,8 +132,8 @@ public class AmqpService {
    * @param result Notifies if there is an error.
    * @return A reference to the service.
    */
-  public AmqpService cancelIncommingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result) { 
-    this.delegate.cancelIncommingLink(incomingLinkRef, result);
+  public AmqpService cancelIncomingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result) { 
+    this.delegate.cancelIncomingLink(incomingLinkRef, result);
     return this;
   }
 
@@ -143,9 +143,9 @@ public class AmqpService {
    * @param incomingLinkRef The String ref return by the establishIncommingLink method. This uniquely identifies the incoming link and it's mapping to an event-bus address.
    * @return 
    */
-  public Observable<Void> cancelIncommingLinkObservable(String incomingLinkRef) { 
+  public Observable<Void> cancelIncomingLinkObservable(String incomingLinkRef) { 
     io.vertx.rx.java.ObservableFuture<Void> result = io.vertx.rx.java.RxHelper.observableFuture();
-    cancelIncommingLink(incomingLinkRef, result.toHandler());
+    cancelIncomingLink(incomingLinkRef, result.toHandler());
     return result;
   }
 

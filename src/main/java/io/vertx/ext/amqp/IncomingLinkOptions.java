@@ -74,9 +74,9 @@ public class IncomingLinkOptions
 
     /**
      * <i>Defaults to "1". </i><br>
-     * <i>If set to a value > 0 </i>, the vertx-amqp-service will automatically
+     * <i>If set to a value > 0 </i>, the Vert.x-AMQP-Service will automatically
      * fetch more messages when a certain number of messages are marked as
-     * either accepted, rejected or released. The ertx-amqp-service will
+     * either accepted, rejected or released. The Vert.x-AMQP-Service will
      * determine the optimum threshold for when the fetch happens and how much
      * to fetch. <br>
      * <i>If set to "zero"</i>, the vert.x application will need to explicitly

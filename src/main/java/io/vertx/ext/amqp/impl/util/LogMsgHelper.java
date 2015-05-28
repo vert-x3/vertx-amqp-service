@@ -87,7 +87,7 @@ public class LogMsgHelper
     {
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append("{\n============= Inbound Routing (Reply-to) ============");
-        strBuilder.append("\nReceived reply-message [address=%s, body=%s] from AMQP peer");
+        strBuilder.append("\nReceived reply-message from AMQP peer [address=%s, body=%s]");
         strBuilder.append("\nIt's a reply to vertx message with reply-to=%s");
         strBuilder.append("\n============= /Inbound Routing (Reply-to) ============\n}");
         return strBuilder.toString();
@@ -96,10 +96,10 @@ public class LogMsgHelper
     public static String outboundReplyToLogFormat()
     {
         StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("{\n============= Inbound Routing (Reply-to) ============");
-        strBuilder.append("\nReceived reply-message [address=%s, body=%s] from Vertx event-bus");
+        strBuilder.append("{\n============= Outbound Routing (Reply-to) ============");
+        strBuilder.append("\nReceived reply-message from Vert.x event-bus [address=%s, body=%s]");
         strBuilder.append("\nIt's a reply to AMQP message with reply-to=%s");
-        strBuilder.append("\n============= /Inbound Routing (Reply-to) ============\n}");
+        strBuilder.append("\n============= /Outbound Routing (Reply-to) ============\n}");
         return strBuilder.toString();
     }
 
@@ -154,7 +154,7 @@ public class LogMsgHelper
     {
         if (log.isDebugEnabled())
         {
-            log.debug(INBOUND_REPLYTO_LOG_FORMAT, msg.address(), msg.body().encode(), amqpReplyTo);
+            log.debug(OUTBOUND_REPLYTO_LOG_FORMAT, msg.address(), msg.body().encode(), amqpReplyTo);
         }
     }
 }

@@ -60,10 +60,10 @@ var AmqpService = function(j_val) {
    @param result {function} The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association. 
    @return {AmqpService} A reference to the service.
    */
-  this.establishIncommingLink = function(amqpAddress, eventbusAddress, notificationAddress, options, result) {
+  this.establishIncomingLink = function(amqpAddress, eventbusAddress, notificationAddress, options, result) {
     var __args = arguments;
     if (__args.length === 5 && typeof __args[0] === 'string' && typeof __args[1] === 'string' && typeof __args[2] === 'string' && typeof __args[3] === 'object' && typeof __args[4] === 'function') {
-      j_amqpService["establishIncommingLink(java.lang.String,java.lang.String,java.lang.String,io.vertx.ext.amqp.IncomingLinkOptions,io.vertx.core.Handler)"](amqpAddress, eventbusAddress, notificationAddress, options != null ? new IncomingLinkOptions(new JsonObject(JSON.stringify(options))) : null, function(ar) {
+      j_amqpService["establishIncomingLink(java.lang.String,java.lang.String,java.lang.String,io.vertx.ext.amqp.IncomingLinkOptions,io.vertx.core.Handler)"](amqpAddress, eventbusAddress, notificationAddress, options != null ? new IncomingLinkOptions(new JsonObject(JSON.stringify(options))) : null, function(ar) {
       if (ar.succeeded()) {
         result(ar.result(), null);
       } else {
@@ -108,10 +108,10 @@ var AmqpService = function(j_val) {
    @param result {function} Notifies if there is an error. 
    @return {AmqpService} A reference to the service.
    */
-  this.cancelIncommingLink = function(incomingLinkRef, result) {
+  this.cancelIncomingLink = function(incomingLinkRef, result) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'function') {
-      j_amqpService["cancelIncommingLink(java.lang.String,io.vertx.core.Handler)"](incomingLinkRef, function(ar) {
+      j_amqpService["cancelIncomingLink(java.lang.String,io.vertx.core.Handler)"](incomingLinkRef, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {

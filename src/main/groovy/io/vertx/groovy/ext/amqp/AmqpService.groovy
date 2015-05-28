@@ -63,8 +63,8 @@ public class AmqpService {
    * @param result The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association.
    * @return A reference to the service.
    */
-  public AmqpService establishIncommingLink(String amqpAddress, String eventbusAddress, String notificationAddress, Map<String, Object> options, Handler<AsyncResult<String>> result) {
-    this.delegate.establishIncommingLink(amqpAddress, eventbusAddress, notificationAddress, options != null ? new io.vertx.ext.amqp.IncomingLinkOptions(new io.vertx.core.json.JsonObject(options)) : null, result);
+  public AmqpService establishIncomingLink(String amqpAddress, String eventbusAddress, String notificationAddress, Map<String, Object> options, Handler<AsyncResult<String>> result) {
+    this.delegate.establishIncomingLink(amqpAddress, eventbusAddress, notificationAddress, options != null ? new io.vertx.ext.amqp.IncomingLinkOptions(new io.vertx.core.json.JsonObject(options)) : null, result);
     return this;
   }
   /**
@@ -87,8 +87,8 @@ public class AmqpService {
    * @param result Notifies if there is an error.
    * @return A reference to the service.
    */
-  public AmqpService cancelIncommingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result) {
-    this.delegate.cancelIncommingLink(incomingLinkRef, result);
+  public AmqpService cancelIncomingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result) {
+    this.delegate.cancelIncomingLink(incomingLinkRef, result);
     return this;
   }
   /**

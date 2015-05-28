@@ -47,7 +47,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     this._address = address;
   }
 
-  public AmqpService establishIncommingLink(String amqpAddress, String eventbusAddress, String notificationAddress, IncomingLinkOptions options, Handler<AsyncResult<String>> result) {
+  public AmqpService establishIncomingLink(String amqpAddress, String eventbusAddress, String notificationAddress, IncomingLinkOptions options, Handler<AsyncResult<String>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
@@ -58,7 +58,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     _json.put("notificationAddress", notificationAddress);
     _json.put("options", options == null ? null : options.toJson());
     DeliveryOptions _deliveryOptions = new DeliveryOptions();
-    _deliveryOptions.addHeader("action", "establishIncommingLink");
+    _deliveryOptions.addHeader("action", "establishIncomingLink");
     _vertx.eventBus().<String>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
         result.handle(Future.failedFuture(res.cause()));
@@ -89,7 +89,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService cancelIncommingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result) {
+  public AmqpService cancelIncomingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
@@ -97,7 +97,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     JsonObject _json = new JsonObject();
     _json.put("incomingLinkRef", incomingLinkRef);
     DeliveryOptions _deliveryOptions = new DeliveryOptions();
-    _deliveryOptions.addHeader("action", "cancelIncommingLink");
+    _deliveryOptions.addHeader("action", "cancelIncomingLink");
     _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
         result.handle(Future.failedFuture(res.cause()));

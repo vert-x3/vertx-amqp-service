@@ -100,16 +100,16 @@ public class AmqpServiceVertxProxyHandler extends ProxyHandler {
     accessed();
     switch (action) {
 
-      case "establishIncommingLink": {
-        service.establishIncommingLink((java.lang.String)json.getValue("amqpAddress"), (java.lang.String)json.getValue("eventbusAddress"), (java.lang.String)json.getValue("notificationAddress"), json.getJsonObject("options") == null ? null : new io.vertx.ext.amqp.IncomingLinkOptions(json.getJsonObject("options")), createHandler(msg));
+      case "establishIncomingLink": {
+        service.establishIncomingLink((java.lang.String)json.getValue("amqpAddress"), (java.lang.String)json.getValue("eventbusAddress"), (java.lang.String)json.getValue("notificationAddress"), json.getJsonObject("options") == null ? null : new io.vertx.ext.amqp.IncomingLinkOptions(json.getJsonObject("options")), createHandler(msg));
         break;
       }
       case "fetch": {
         service.fetch((java.lang.String)json.getValue("incomingLinkRef"), (int)json.getValue("messages"), createHandler(msg));
         break;
       }
-      case "cancelIncommingLink": {
-        service.cancelIncommingLink((java.lang.String)json.getValue("incomingLinkRef"), createHandler(msg));
+      case "cancelIncomingLink": {
+        service.cancelIncomingLink((java.lang.String)json.getValue("incomingLinkRef"), createHandler(msg));
         break;
       }
       case "establishOutgoingLink": {

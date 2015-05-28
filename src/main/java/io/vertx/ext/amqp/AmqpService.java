@@ -65,7 +65,7 @@ public interface AmqpService
      * an application to identify the source of a message if it is receiving
      * from multiple sources. If the application established this link
      * themselves, the identity returned via the AsyncResult via the handler in
-     * {@link AmqpService#establishIncommingLink(String, String, String, IncomingLinkOptions, Handler)}
+     * {@link AmqpService#establishIncomingLink(String, String, String, IncomingLinkOptions, Handler)}
      * is the same reference, so you could correlate the message received to the
      * link created.
      */
@@ -106,7 +106,7 @@ public interface AmqpService
      * @return A reference to the service.
      */
     @Fluent
-    public AmqpService establishIncommingLink(String amqpAddress, String eventbusAddress, String notificationAddress,
+    public AmqpService establishIncomingLink(String amqpAddress, String eventbusAddress, String notificationAddress,
             IncomingLinkOptions options, Handler<AsyncResult<String>> result);
 
     /**
@@ -142,7 +142,7 @@ public interface AmqpService
      * @return A reference to the service.
      */
     @Fluent
-    public AmqpService cancelIncommingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result);
+    public AmqpService cancelIncomingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result);
 
     /**
      * Allows an application to establish a link to an AMQP message-sink for

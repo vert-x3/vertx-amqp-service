@@ -140,7 +140,7 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
     }
 
     @Override
-    public AmqpService establishIncommingLink(String amqpAddress, String eventbusAddress, String notificationAddress,
+    public AmqpService establishIncomingLink(String amqpAddress, String eventbusAddress, String notificationAddress,
             IncomingLinkOptions options, Handler<AsyncResult<String>> result)
     {
         try
@@ -182,7 +182,7 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
     }
 
     @Override
-    public AmqpService cancelIncommingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result)
+    public AmqpService cancelIncomingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result)
     {
         try
         {
@@ -364,7 +364,7 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
     {
         try
         {
-            LOG.debug(format("Received msg : {address : %s, reply-to : %s, body : %s} ", vertxMsg.address(),
+            LOG.debug(format("Received msg from Vert.x event bus : {address : %s, reply-to : %s, body : %s} ", vertxMsg.address(),
                     vertxMsg.replyAddress(), vertxMsg.body() == null ? "" : vertxMsg.body().encodePrettily()));
             org.apache.qpid.proton.message.Message outMsg = _msgTranslator.convert(vertxMsg.body());
             JsonObject inMsg = vertxMsg.body();
@@ -518,7 +518,7 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
     @Override
     public void outgoingLinkFinal(String id, String address, boolean isFromInboundConnection)
     {
-        print("Incoming Link closed outbound=%s", isFromInboundConnection);
+        print("Outgoing Link closed outbound=%s", isFromInboundConnection);
         if (isFromInboundConnection)
         {
             if (_serviceRefs.containsKey(address))
@@ -722,10 +722,11 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
             Message<JsonObject> msg = result.result();
             try
             {
-                print("Reply received %s ", msg.body() == null ? "" : msg.body().encodePrettily());
+                print("Reply received from Vert.x event-bus %s ", msg.body() == null ? "" : msg.body().encodePrettily());
                 LogMsgHelper.logOutboundReplyTo(LOG, msg, _replyTo);
                 org.apache.qpid.proton.message.Message out = _msgTranslator.convert(msg.body());
                 String linkId = _linkBasedRouter.routeOutgoing(Functions.extractDestination(_replyTo));
+                print("_replyTo=%s, linkId=%s", _replyTo, linkId);
                 if (linkId != null)
                 {
                     try
