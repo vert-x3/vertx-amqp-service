@@ -144,6 +144,22 @@ public class AmqpServiceVertxProxyHandler extends ProxyHandler {
         service.issueCredits((java.lang.String)json.getValue("linkId"), (int)json.getValue("credits"), createHandler(msg));
         break;
       }
+      case "addInboundRoute": {
+        service.addInboundRoute((java.lang.String)json.getValue("pattern"), (java.lang.String)json.getValue("eventBusAddress"));
+        break;
+      }
+      case "removeInboundRoute": {
+        service.removeInboundRoute((java.lang.String)json.getValue("pattern"), (java.lang.String)json.getValue("eventBusAddress"));
+        break;
+      }
+      case "addOutboundRoute": {
+        service.addOutboundRoute((java.lang.String)json.getValue("pattern"), (java.lang.String)json.getValue("amqpAddress"));
+        break;
+      }
+      case "removeOutboundRoute": {
+        service.removeOutboundRoute((java.lang.String)json.getValue("pattern"), (java.lang.String)json.getValue("amqpAddress"));
+        break;
+      }
       case "start": {
         service.start();
         break;

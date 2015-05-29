@@ -216,7 +216,7 @@ public class Examples extends AbstractVerticle
             properties.getString("message_id", "<message_id>"); // <5>
             properties.getString("correlation_id", "<correlation_id>"); // <6>
         }
-                
+
         JsonObject appProps = msg.getJsonObject("application-properties"); // <7>
         if (appProps != null)
         {
@@ -268,4 +268,18 @@ public class Examples extends AbstractVerticle
         });        
     }    
 
+    //Manage routes
+    public void manageRoutes()
+    {
+        AmqpService service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+        service.addInboundRoute("weather.us.*", "us-weather"); // <1>
+        service.addInboundRoute("weather.us.bos.*", "bos-weather"); // <1>
+
+        service.removeInboundRoute("weather.us.bos.*", "bos-weather"); // <2>
+
+        service.addOutboundRoute("news.*", "amqp://localhost:5672/all-news"); //<3>
+        service.addOutboundRoute("news.ca.*", "amqp://localhost:5672/can-news"); //<3>
+
+        service.removeOutboundRoute("news.ca.*", "amqp://localhost:5672/can-news"); //<4>
+    }
 }

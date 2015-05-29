@@ -59,6 +59,7 @@ public class MessageRouter
     {
         String routingKey = extractOutgoingRoutingKey(vertxMsg);
         List<String> addrList = new ArrayList<String>();
+        System.out.println("outgoing route map " + _config.getInboundRoutes());
         for (String key : _config.getOutboundRoutes().keySet())
         {
             ConfigRouteEntry route = _config.getOutboundRoutes().get(key);
@@ -66,6 +67,10 @@ public class MessageRouter
             {
                 addrList.addAll(route.getAddressList());
             }
+        }
+        if (addrList.size() == 0)
+        {
+            addrList.add(_config.getDefaultOutboundAddress());
         }
         return addrList;
     }
@@ -86,8 +91,12 @@ public class MessageRouter
      */
     private String extractOutgoingRoutingKey(Message<JsonObject> vertxMsg)
     {
-        String routingKey = vertxMsg.address(); // default
-        if (_config.isUseCustomPropertyForOutbound() && _config.getOutboundRoutingPropertyName() != null)
+        String routingKey = null;
+        if (vertxMsg.body().containsKey("vertx.routing-key"))
+        {
+            routingKey = vertxMsg.body().getString("vertx.routing-key");
+        }
+        else if (_config.isUseCustomPropertyForOutbound() && _config.getOutboundRoutingPropertyName() != null)
         {
             if (vertxMsg.body().containsKey(_config.getOutboundRoutingPropertyName()))
             {
@@ -118,9 +127,9 @@ public class MessageRouter
                 LOG.debug("============= /Custom Routing Property ============/n");
             }
         }
-        else if (vertxMsg.body().containsKey("vertx.routing-key"))
+        if (routingKey == null)
         {
-            routingKey = vertxMsg.body().getString("vertx.routing-key");
+            routingKey = vertxMsg.address();
         }
         return routingKey;
     }
@@ -136,6 +145,7 @@ public class MessageRouter
         }
 
         List<String> addressList = new ArrayList<String>();
+        System.out.println("inbound route map " + _config.getInboundRoutes());
         for (String k : _config.getInboundRoutes().keySet())
         {
             ConfigRouteEntry route = _config.getInboundRoutes().get(k);
@@ -177,77 +187,77 @@ public class MessageRouter
         }
     }
 
-    public void addOutboundRoute(String eventbusAddress, String amqpAddress)
+    public void addOutboundRoute(String eventbusAddressPattern, String amqpAddress)
     {
-        if (_config.getOutboundRoutes().containsKey(eventbusAddress))
+        if (_config.getOutboundRoutes().containsKey(eventbusAddressPattern))
         {
-            _config.getOutboundRoutes().get(eventbusAddress).add(amqpAddress);
+            _config.getOutboundRoutes().get(eventbusAddressPattern).add(amqpAddress);
         }
         else
         {
-            _config.getOutboundRoutes().put(eventbusAddress,
-                    AmqpServiceConfigImpl.createRouteEntry(eventbusAddress, amqpAddress));
+            _config.getOutboundRoutes().put(eventbusAddressPattern,
+                    AmqpServiceConfigImpl.createRouteEntry(eventbusAddressPattern, amqpAddress));
         }
         if (LOG.isInfoEnabled())
         {
             LOG.info("\n============= Outbound Route ============");
-            LOG.info("Adding the route entry : {%s : %s}", eventbusAddress, amqpAddress);
+            LOG.info("Adding the route entry : {%s : %s}", eventbusAddressPattern, amqpAddress);
             LOG.info("============= /Outbound Route) ============\n");
         }
     }
 
-    public void removeOutboundRoute(String eventbusAddress, String amqpAddress)
+    public void removeOutboundRoute(String eventbusAddressPattern, String amqpAddress)
     {
-        if (_config.getOutboundRoutes().containsKey(eventbusAddress))
+        if (_config.getOutboundRoutes().containsKey(eventbusAddressPattern))
         {
-            ConfigRouteEntry entry = _config.getOutboundRoutes().get(eventbusAddress);
+            ConfigRouteEntry entry = _config.getOutboundRoutes().get(eventbusAddressPattern);
             entry.remove(amqpAddress);
             if (entry.getAddressList().size() == 0)
             {
-                _config.getOutboundRoutes().remove(eventbusAddress);
+                _config.getOutboundRoutes().remove(eventbusAddressPattern);
             }
             if (LOG.isInfoEnabled())
             {
                 LOG.info("\n============= Outbound Route ============");
-                LOG.info("Removing the route entry : {%s : %s}", eventbusAddress, amqpAddress);
+                LOG.info("Removing the route entry : {%s : %s}", eventbusAddressPattern, amqpAddress);
                 LOG.info("============= /Outbound Route) ============\n");
             }
         }
     }
 
-    public void addInboundRoute(String amqpAddress, String eventbusAddress)
+    public void addInboundRoute(String amqpAddressPattern, String eventbusAddress)
     {
-        if (_config.getInboundRoutes().containsKey(amqpAddress))
+        if (_config.getInboundRoutes().containsKey(amqpAddressPattern))
         {
-            _config.getInboundRoutes().get(amqpAddress).add(eventbusAddress);
+            _config.getInboundRoutes().get(amqpAddressPattern).add(eventbusAddress);
         }
         else
         {
-            _config.getInboundRoutes().put(amqpAddress,
-                    AmqpServiceConfigImpl.createRouteEntry(amqpAddress, eventbusAddress));
+            _config.getInboundRoutes().put(amqpAddressPattern,
+                    AmqpServiceConfigImpl.createRouteEntry(amqpAddressPattern, eventbusAddress));
         }
         if (LOG.isInfoEnabled())
         {
             LOG.info("\n============= Inbound Route ============");
-            LOG.info("Adding the route entry : {%s : %s}", amqpAddress, eventbusAddress);
+            LOG.info("Adding the route entry : {%s : %s}", amqpAddressPattern, eventbusAddress);
             LOG.info("============= /Inbound Route) ============\n");
         }
     }
 
-    public void removeInboundRoute(String amqpAddress, String eventbusAddress)
+    public void removeInboundRoute(String amqpAddressPattern, String eventbusAddress)
     {
-        if (_config.getOutboundRoutes().containsKey(amqpAddress))
+        if (_config.getOutboundRoutes().containsKey(amqpAddressPattern))
         {
-            ConfigRouteEntry entry = _config.getOutboundRoutes().get(amqpAddress);
+            ConfigRouteEntry entry = _config.getOutboundRoutes().get(amqpAddressPattern);
             entry.remove(eventbusAddress);
             if (entry.getAddressList().size() == 0)
             {
-                _config.getOutboundRoutes().remove(amqpAddress);
+                _config.getOutboundRoutes().remove(amqpAddressPattern);
             }
             if (LOG.isInfoEnabled())
             {
                 LOG.info("\n============= Inbound Route ============");
-                LOG.info(String.format("Removing the route entry : {%s : %s}", amqpAddress, eventbusAddress));
+                LOG.info(String.format("Removing the route entry : {%s : %s}", amqpAddressPattern, eventbusAddress));
                 LOG.info("============= /Inbound Route) ============\n");
             }
         }

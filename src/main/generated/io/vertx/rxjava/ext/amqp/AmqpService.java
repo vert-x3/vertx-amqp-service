@@ -356,6 +356,52 @@ public class AmqpService {
   }
 
   /**
+   * Adds an entry to the inbound routing table. If an existing entry exists
+   * under the same pattern, the event-bus address will be added to the list.
+   * @param pattern The pattern to be matched against the chosen message-property from the incoming message.
+   * @param eventBusAddress The Vert.x event-bus address the message should be sent to if matched.
+   * @return A reference to the service.
+   */
+  public AmqpService addInboundRoute(String pattern, String eventBusAddress) { 
+    this.delegate.addInboundRoute(pattern, eventBusAddress);
+    return this;
+  }
+
+  /**
+   * Removes the entry from the inbound routing table.
+   * @param pattern The pattern (key) used when adding the entry to the table.
+   * @param eventBusAddress The Vert.x event-bus address the message should be sent to if matched.
+   * @return 
+   */
+  public AmqpService removeInboundRoute(String pattern, String eventBusAddress) { 
+    this.delegate.removeInboundRoute(pattern, eventBusAddress);
+    return this;
+  }
+
+  /**
+   * Adds an entry to the outbound routing table. If an existing entry exists
+   * under the same pattern, the amqp address will be added to the list.
+   * @param pattern The pattern to be matched against the chosen message-property from the outgoing message.
+   * @param amqpAddress The AMQP address the message should be sent to if matched.
+   * @return A reference to the service.
+   */
+  public AmqpService addOutboundRoute(String pattern, String amqpAddress) { 
+    this.delegate.addOutboundRoute(pattern, amqpAddress);
+    return this;
+  }
+
+  /**
+   * Removes the entry from the outbound routing table.
+   * @param pattern The pattern (key) used when adding the entry to the table.
+   * @param amqpAddress The AMQP address the message should be sent to if matched.
+   * @return 
+   */
+  public AmqpService removeOutboundRoute(String pattern, String amqpAddress) { 
+    this.delegate.removeOutboundRoute(pattern, amqpAddress);
+    return this;
+  }
+
+  /**
    * Start the vertx-amqp-service
    */
   public void start() { 

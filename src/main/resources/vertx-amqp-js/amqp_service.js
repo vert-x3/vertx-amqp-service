@@ -314,6 +314,72 @@ var AmqpService = function(j_val) {
   };
 
   /**
+   Adds an entry to the inbound routing table. If an existing entry exists
+   under the same pattern, the event-bus address will be added to the list.
+
+   @public
+   @param pattern {string} The pattern to be matched against the chosen message-property from the incoming message. 
+   @param eventBusAddress {string} The Vert.x event-bus address the message should be sent to if matched. 
+   @return {AmqpService} A reference to the service.
+   */
+  this.addInboundRoute = function(pattern, eventBusAddress) {
+    var __args = arguments;
+    if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'string') {
+      j_amqpService["addInboundRoute(java.lang.String,java.lang.String)"](pattern, eventBusAddress);
+      return that;
+    } else utils.invalidArgs();
+  };
+
+  /**
+   Removes the entry from the inbound routing table.
+
+   @public
+   @param pattern {string} The pattern (key) used when adding the entry to the table. 
+   @param eventBusAddress {string} The Vert.x event-bus address the message should be sent to if matched. 
+   @return {AmqpService} 
+   */
+  this.removeInboundRoute = function(pattern, eventBusAddress) {
+    var __args = arguments;
+    if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'string') {
+      j_amqpService["removeInboundRoute(java.lang.String,java.lang.String)"](pattern, eventBusAddress);
+      return that;
+    } else utils.invalidArgs();
+  };
+
+  /**
+   Adds an entry to the outbound routing table. If an existing entry exists
+   under the same pattern, the amqp address will be added to the list.
+
+   @public
+   @param pattern {string} The pattern to be matched against the chosen message-property from the outgoing message. 
+   @param amqpAddress {string} The AMQP address the message should be sent to if matched. 
+   @return {AmqpService} A reference to the service.
+   */
+  this.addOutboundRoute = function(pattern, amqpAddress) {
+    var __args = arguments;
+    if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'string') {
+      j_amqpService["addOutboundRoute(java.lang.String,java.lang.String)"](pattern, amqpAddress);
+      return that;
+    } else utils.invalidArgs();
+  };
+
+  /**
+   Removes the entry from the outbound routing table.
+
+   @public
+   @param pattern {string} The pattern (key) used when adding the entry to the table. 
+   @param amqpAddress {string} The AMQP address the message should be sent to if matched. 
+   @return {AmqpService} 
+   */
+  this.removeOutboundRoute = function(pattern, amqpAddress) {
+    var __args = arguments;
+    if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'string') {
+      j_amqpService["removeOutboundRoute(java.lang.String,java.lang.String)"](pattern, amqpAddress);
+      return that;
+    } else utils.invalidArgs();
+  };
+
+  /**
    Start the vertx-amqp-service
 
    @public

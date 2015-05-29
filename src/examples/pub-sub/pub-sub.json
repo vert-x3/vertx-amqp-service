@@ -8,8 +8,8 @@
 
 "vertx.routing-inbound" : {
 			"routes" :{
-				     "amqp://localhost:5673/foo.*" : "foo-all",
-                                     "amqp://localhost:5673/foo.bar*" : "foo-bar"
+				     "foo.*" : "foo-all",
+                                     "foo.bar*" : "foo-bar"
 	     			  }
 	         
 	     } 

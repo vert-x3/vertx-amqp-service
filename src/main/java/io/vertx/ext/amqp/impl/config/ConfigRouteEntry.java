@@ -50,4 +50,10 @@ public class ConfigRouteEntry
     {
         return _addressList;
     }
+
+    @Override
+    public String toString()
+    {
+        return String.format("[pattern=%s, address-list=%s", _pattern, _addressList);
+    }
 }

@@ -1,8 +1,11 @@
 = Vert.x AMQP Service
 :toc: top
 
-Vert.x AMQP Service allows AMQP 1.0 applications and Vert.x applications to communicate with each other by acting as a bridge which
-translates between the message formats and address spaces.
+Vert.x AMQP Service allows AMQP 1.0 applications and Vert.x applications to communicate with each other by acting as a router+bridge which,
+
+* Routes between the AMQP and Vert.x address spaces.
+
+* Translates between the message formats.
 
 It facilitates reliable communication via message passing, while maintaining QoS by allowing control of the message flow in both directions.
 
@@ -12,19 +15,12 @@ image::http://people.apache.org/~rajith/vert.x/vertx-amqp.jpeg[]
 
 == Key Features:
 
-* Static and dynamic configuration for routing between the two address spaces.
-* Communicate with different levels of reliability (unreliable, at-least-once).
-* Flow control to main QoS service in both directions.
-* Service API to allow Vert.x applications to communicate with the Vert.x-AMQP-Service.
-* Existing Vert.x & AMQP applications could work together without extra code in bridge managed mode 
-  (Reliability and flow control will be managed by the bridge. If explicit control is required the Vert.x application needs to use the Service interface).
-
-
-== Features planned for future releases:
-* Statistics generation.
-* AMQP 1.0 management support to allow the management of the Vert.x-AMQP-Service (bridge).
-* Hawt.io pluggin to allow the management of the Vert.x-AMQP-Service (bridge).
-
+* Expose Vert.x Services to AMQP client applications.
+* Expose AMQP Services to Vert.x client applications.
+* Static and dynamic configuration of routes between the two address spaces.
+* Allow different levels of reliability [unreliable (default) | at-least-once].
+* Facilitate flow control (in both directions) to maintain Quality of Service.
+* Management & Statistics(via AMQP 1.0 management protocol & hawt.io pluging - future release).
 
 == Prerequisites.
 This documentation assumes that you are familiar with Vert.x, basic messaging concepts & AMQP 1.0 concepts.
@@ -35,7 +31,7 @@ The AMQP examples require Apache QPid Proton installed.
 * Apache QPid Proton http://qpid.apache.org/proton[Install] | http://qpid.apache.org/proton[Python Manual]
 
 
-== Setting up the Service.
+== Deploying AMQP Service.
 The first step is to deploy the AMQP Service (bridge) as a standalone service or programmatically.
 
 === Deploy it as a standalone service
@@ -72,7 +68,7 @@ vertx.deployVerticle("service:io.vertx.vertx-amqp-service", options, res -> {
 Lets start with a simple request-reply example involving a Vert.x app and an AMQP app.
 We will first run the examples before going through the concepts and the code.
 
-=== AMQP Client using a Vert.x Service
+=== AMQP Client -> Vert.x Service
 image::http://people.apache.org/~rajith/vert.x/vertx-service-amqp-client.jpeg[]
 
 * Step 1. Start the Vert.x-AMQP-Service. +
@@ -136,7 +132,7 @@ self.sender = event.container.create_sender(self.service_addr)
 event.sender.send(Message(reply_to=self.reply_to, body=request));
 ----
 * The Vert.x-AMQP-Service then translates the message into the json format and puts it into the Vert.x event-bus
-* By default the AMQP Target is used as the event-bus address. You could configure a different mapping. See <<config_deployment_time>> for more details.
+* By default the AMQP Target is used as the event-bus address. You could configure a different mapping. See <<configuration>> for more details.
 * The Vert.x Service (HelloServiceVerticle) listens on this address and receives this message.
 [source, java]
 ----
@@ -145,7 +141,7 @@ vertx.eventBus().consumer("hello-service-vertx", this);
 * Once received, it prepares the response (in this case appends hello to the request msg and uppercase the string) and replies on the message.
 * The reply is received by the Vert.x-AMQP-Service which then forwards it to the AMQP client.
 
-=== Vert.x Client using an AMQP Service
+=== Vert.x Client -> AMQP Service
 image::http://people.apache.org/~rajith/vert.x/amqp-service-vertx-client.jpeg[]
 
 * Step 1. Start the Vert.x-AMQP-Service. +
@@ -216,7 +212,52 @@ delivery = sender.send(Message(body=unicode(greeting)))
 ----
 * The Vert.x-AMQP-Service which receives the response, looks up the mapping and forwards it to the ClientVerticle via the event-bus.
 
-[[config_deployment_time]]
+[[routing]]
+== How routing works
+The Vert.x-AMQP-Service acts as a router between the AMQP and Vert.x space.
+This section provides insight into how the routing works and how it can be configured at deploy time and runtime.
+
+=== Inbound Routing
+When a message is received by the Vert.x-AMQP-Service from an AMQP peer
+
+* It checks to see if the Vert.x-AMQP-Service knows about the __'incoming AMQP link'__ associated with the message.
+* If it has an association to a _Vert.x address_, the message will be forwarded to this Vert.x address via the event bus. +
+  These associations are created,
+  
+  ** When a Vert.x application establishes incoming links via the Service API. See <<incoming-link>>
+  ** When an AMQP application sends messages to a known __Vert.x 'Service'__ registered with the Vert.x-AMQP-Service via the Service API. See <<exposing-service>>
+  
+* If there is no known association, it will use the chosen _message-property_ to lookup the routing table. (see <<configuration>>)
+* If the value of that __message-property__ matches a Vert.x address, the message will be forwarded to that address via the event-bus.
+* If there is no match the message will be sent on the event-bus using one of the following.
+ 
+ ** If a default-inbound-address (a.k.a dead-letter address) is specified (via 'vertx.default-inbound-address'), it will be sent to that address.
+ ** If no default address is specified, it will use the __'target'__ field for the given link as the address.
+
+=== Outbound Routing
+When a message is received by the Vert.x-AMQP-Service from a Verticle via the event-bus
+
+* It checks if the Vert.x address the message was sent to, have a known association with an _'outgoing AMQP link'_.
+* If such an association is found, the message will be dispatched via that AMQP link. +
+  These associations are created,
+  
+  ** When a Vert.x application establishes outgoing links via the Service API. See <<outgoing-link>>
+
+* If no such association is found, it looks for a message-property in the following order and use the value of it to look up the routing table.
+ 
+  1. If 'vertx.routing-key' is specified it will use the value of it as the lookup key (overrides everything below).
+  2. If not specified & a custom property is specified via _**routing-property-type=CUSTOM**_ & _**routing-property-name=<property-name>**_.
+     It will look for it in the following order,
+     
+     . Look for that property as a top-level property within the json message.
+     . Look for that property within the __'properties'__ section within the json message.
+     . Look for that property within the __'application-properties'__ section within the json message.
+     
+  3. If not specified it will simply use the Vert.x address the message was sent to as the lookup key.
+  
+* If the routing table has no matching entry, it will send the message to the default outbound address (dead-letter queue) configured via __'amqp.default-outbound-address'__.  
+
+[[configuration]]
 == Configuring Vert.x AMQP Service.
 Static configuration is specified via a json file at deployment time. Please check the examples above for sample configuration files.
 [NOTE]
@@ -230,8 +271,10 @@ Please note all configuration is optional.
 |address| vertx.service-amqp| The address for sending messages (method calls) to the Vert.x AMQP Service
 |amqp.inbound-host| localhost| Specifies the host ip for inbound AMQP connections.
 |amqp.inbound-port| 5673| Specifies the port for inbound AMQP connections
+|amqp.default-outbound-address| amqp://localhost:5672/vertx | dead-letter-queue for unmatched outbound message.
 |vertx.default-handler-address| vertx.service-amqp.bridge| The default address for sending messages (content) to the Vert.x AMQP Service to be routed into the AMQP space.
-|vertx.handlers| []| A list of Vert.x event-bus addresses the AMQP Service should listen on.
+|vertx.handlers| []| A list of additional Vert.x event-bus addresses the AMQP Service should listen on.
+|vertx.default-inbound-address | NULL | | dead-letter-address for unmatched inbound message.
 |vertx.routing-outbound| {}| A map configuring outbound routing, including routes.
 See 'Table 2. vertx.routing-outbound'.
 |vertx.routing-inbound| {}| A map configuring inbound routing, including routes.
@@ -285,17 +328,20 @@ See # <2>
           }
 ----
 
-== Using AMQP features via the AmqpService interface
+== AmqpService Interface
 The AmqpService interface allows a Vert.x application to interact with the Vert.x-AMQP-Service (bridge) and leverage some of the important features of AMQP.
 Please refer to the API documentation for more information.
 
-=== Obtaining a ref to a Service Proxy.
+=== AmqpService access via Proxy.
 [source, java]
 ----
 AmqpService service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
 ----
 
-=== Setting up & destroying an outgoing link.
+=== Link Management
+
+[[outgoing-link]]
+==== Setting up & destroying an outgoing link.
 
 [source, java]
 ----
@@ -329,81 +375,9 @@ availability. The application should register a handler with the event-bus to re
 <4> Uses the options object to specify the desired level of reliability. Default is UNRELIABLE.
 <5> The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association.
 <6> The outgoing link is closed and the mapping btw it and the event-bus address is removed.
- 
-=== Sending a message reliably.
-Messages are sent asynchronously and delivery confirmations are sent to the notification address.
-[source, java]
-----
-JsonObject msg = new JsonObject();
-msg.put("body", "rajith");
-String msgRef = "msg-ref".concat(String.valueOf(counter++));
-msg.put(AmqpService.OUTGOING_MSG_REF, msgRef); // <1>
-vertx.eventBus().publish("my-pub-queue", msg); // <2>
 
-// ....
-
-vertx.eventBus().<JsonObject>consumer("my-pub-notifications", noticeMsg -> { // <3>
-    NotificationType type = NotificationHelper.getType(noticeMsg.body()); // <4>
-    if (type == NotificationType.DELIVERY_STATE)
-    {
-        DeliveryTracker tracker = NotificationHelper.getDeliveryTracker(noticeMsg.body());
-        System.out.println("Delivery State : " + tracker.getMessageRef());  // <1>
-        System.out.println("Delivery State : " + tracker.getDeliveryState()); // <5>
-        System.out.println("Message State : " + tracker.getMessageState());   // <6>             
-    }
-});
-----
-<1> Set a unique reference. The application then uses this ref to correlate a delivery confirmation to a sent message.
-<2> Sending the message via the event-bus.
-<3> Subscribing to the event-bus to receive notifications.
-<4> Use NotificationHelper class to parse the notification message.
-<5> Retrieve the delivery state. Whether it's SETTLED, or in doubt (UNKNOWN, LINK_FAILURE) due to some error.
-<6> Retrieve the message state. One of ACCEPTED, REJECTED or RELEASED.
-
-=== Respecting flow control when sending.
-This allows the receiving application (AMQP app) to be in control of many message it can receive at any given time.
-[source, java]
-----
-vertx.eventBus().<JsonObject>consumer("my-pub-notifications", msg -> { // <1>
-    NotificationType type = NotificationHelper.getType(msg.body()); // <2>
-    if (type == NotificationType.LINK_CREDIT)
-    {
-        int msgsWeCanSend = NotificationHelper.getCredits(msg.body()); //<3>              
-    }
-});
-----
-<1> Subscribing to the event-bus to receive notifications.
-<2> Use NotificationHelper class to parse the notification message.
-<3> Use NotificationHelper.getCredits() method to retrieve the credits given by the receiving app.
-
-=== Setting AMQP message properties when sending.
-[source, java]
-----
-JsonObject msg = new JsonObject();
-msg.put("body", "rajith"); // <1>
-
-JsonObject properties = new JsonObject();
-msg.put("properties", properties); // <2>
-properties.put("subject", "<message-subject>"); // <3>
-properties.put("reply-to", "<reply-to-address>"); // <4>
-properties.put("message_id", "<message_id>"); // <5>
-properties.put("correlation_id", "<correlation_id>"); // <6>
-
-JsonObject appProps = new JsonObject();
-msg.put("application-properties", appProps); // <7>
-appProps.put("key_1", "val_1"); // <8>
-appProps.put("key_n", "val_n"); // <8>
-----
-<1> Use "body" to set the message content.
-<2> The message-translator will look for "properties" and inspect it to look for the items below that will be mapped to fields in AMQP Properties.
-<3> The "subject" will be mapped AMQP Property subject.
-<4> The "reply-to" will be mapped AMQP Property reply-to.
-<5> The "message-id" will be mapped AMQP Property message-id.
-<6> The "correlation-id" will be mapped AMQP Property correlation-id.
-<7> The message-translator will look for "application-properties" and copy all the contents into the AMQP application-properties.
-<8> Application defined Key-Value pairs, that will be copied into AMQP application-properties.
-
-=== Setting up & destroying an incoming link.
+[[incoming-link]]
+==== Setting up & destroying an incoming link.
 
 [source, java]
 ----
@@ -440,9 +414,86 @@ either accepted, rejected or released. The Vert.x-AMQP-Service will determine th
 to fetch. +
    __If set to "0"__, the vert.x application will need to explicitly request messages using AmqpService#fetch(String, int, io.vertx.core.Handler).
 <6> The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association.
-<7> The incoming link is closed and the mapping btw it and the event-bus address is removed. 
+<7> The incoming link is closed and the mapping btw it and the event-bus address is removed.  
+ 
+=== Sending Messages 
+ 
+==== Sending a message reliably.
+Messages are sent asynchronously and delivery confirmations are sent to the notification address.
+[source, java]
+----
+JsonObject msg = new JsonObject();
+msg.put("body", "rajith");
+String msgRef = "msg-ref".concat(String.valueOf(counter++));
+msg.put(AmqpService.OUTGOING_MSG_REF, msgRef); // <1>
+vertx.eventBus().publish("my-pub-queue", msg); // <2>
 
-=== Fetching messages explicitly when prefetch is disabled.
+// ....
+
+vertx.eventBus().<JsonObject>consumer("my-pub-notifications", noticeMsg -> { // <3>
+    NotificationType type = NotificationHelper.getType(noticeMsg.body()); // <4>
+    if (type == NotificationType.DELIVERY_STATE)
+    {
+        DeliveryTracker tracker = NotificationHelper.getDeliveryTracker(noticeMsg.body());
+        System.out.println("Delivery State : " + tracker.getMessageRef());  // <1>
+        System.out.println("Delivery State : " + tracker.getDeliveryState()); // <5>
+        System.out.println("Message State : " + tracker.getMessageState());   // <6>             
+    }
+});
+----
+<1> Set a unique reference. The application then uses this ref to correlate a delivery confirmation to a sent message.
+<2> Sending the message via the event-bus.
+<3> Subscribing to the event-bus to receive notifications.
+<4> Use NotificationHelper class to parse the notification message.
+<5> Retrieve the delivery state. Whether it's SETTLED, or in doubt (UNKNOWN, LINK_FAILURE) due to some error.
+<6> Retrieve the message state. One of ACCEPTED, REJECTED or RELEASED.
+
+==== Respecting flow control when sending.
+This allows the receiving application (AMQP app) to be in control of many message it can receive at any given time.
+[source, java]
+----
+vertx.eventBus().<JsonObject>consumer("my-pub-notifications", msg -> { // <1>
+    NotificationType type = NotificationHelper.getType(msg.body()); // <2>
+    if (type == NotificationType.LINK_CREDIT)
+    {
+        int msgsWeCanSend = NotificationHelper.getCredits(msg.body()); //<3>              
+    }
+});
+----
+<1> Subscribing to the event-bus to receive notifications.
+<2> Use NotificationHelper class to parse the notification message.
+<3> Use NotificationHelper.getCredits() method to retrieve the credits given by the receiving app.
+
+==== Setting AMQP message properties when sending.
+[source, java]
+----
+JsonObject msg = new JsonObject();
+msg.put("body", "rajith"); // <1>
+
+JsonObject properties = new JsonObject();
+msg.put("properties", properties); // <2>
+properties.put("subject", "<message-subject>"); // <3>
+properties.put("reply-to", "<reply-to-address>"); // <4>
+properties.put("message_id", "<message_id>"); // <5>
+properties.put("correlation_id", "<correlation_id>"); // <6>
+
+JsonObject appProps = new JsonObject();
+msg.put("application-properties", appProps); // <7>
+appProps.put("key_1", "val_1"); // <8>
+appProps.put("key_n", "val_n"); // <8>
+----
+<1> Use "body" to set the message content.
+<2> The message-translator will look for "properties" and inspect it to look for the items below that will be mapped to fields in AMQP Properties.
+<3> The "subject" will be mapped AMQP Property subject.
+<4> The "reply-to" will be mapped AMQP Property reply-to.
+<5> The "message-id" will be mapped AMQP Property message-id.
+<6> The "correlation-id" will be mapped AMQP Property correlation-id.
+<7> The message-translator will look for "application-properties" and copy all the contents into the AMQP application-properties.
+<8> Application defined Key-Value pairs, that will be copied into AMQP application-properties.
+
+=== Receiving Messages
+
+==== Fetching messages explicitly when prefetch is disabled.
 [source, java]
 ----
 service.fetch(incomingLinkRef, // <1>
@@ -461,7 +512,7 @@ service.fetch(incomingLinkRef, // <1>
 <1> The link reference obtain when setting up the link.
 <2> The number of messages to fetch.
 
-=== Receiving messages reliably.
+==== Receiving messages reliably.
 [source, java]
 ----
 service.accept(msg.getString(AmqpService.INCOMING_MSG_REF), result -> { // <1>
@@ -475,7 +526,7 @@ service.accept(msg.getString(AmqpService.INCOMING_MSG_REF), result -> { // <1>
     The Vert.x-AMQP-Service uses this ref to lookup the correct AMQP message and accepts it. +
     Simillary you could __reject__ & __release__ messages.
 
-=== Retrieving AMQP message properties when receiving.
+==== Retrieving AMQP message properties when receiving.
 [source, java]
 ----
 JsonObject msg = new JsonObject();
@@ -489,7 +540,7 @@ if (properties != null)
     properties.getString("message_id", "<message_id>"); // <5>
     properties.getString("correlation_id", "<correlation_id>"); // <6>
 }
-        
+
 JsonObject appProps = msg.getJsonObject("application-properties"); // <7>
 if (appProps != null)
 {
@@ -504,8 +555,8 @@ if (appProps != null)
 <6> The AMQP Property correlation-id will be mapped "correlation-id".
 <7> The message-translator will copy any entries within AMQP application-properties into "application-properties" section of the json message.
 
-
-== Exposing a Vert.x Service via the AmqpService interface.
+[[exposing-service]]
+=== Exposing a Vert.x Service via AMQP.
 The first example we looked at exposed a Vert.x service by simply mapping an event-bus address to an AMQP endpoint.
 The AMQP endpoint was managed by the Vert.x-AMQP-Service (bridge) and forwarded any requests to the Vert.x event-bus address.
 
@@ -514,7 +565,7 @@ The focus there was simplicity and no AMQP specifc interface or code was used.
 
 Lets now look at how a __service__ could register with the Vert.x-AMQP-Service to gain more control on how it want to interact with AMQP clients.
 
-=== Registering a __Service__.
+==== Registering a __Service__.
 [source, java]
 ----
 AmqpService service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
@@ -551,7 +602,7 @@ service.unregisterService("fortune-cookie-service", result -> {
     __The default is '0'__, which means the service needs to explicity grant credits via the "issueCredits" methods (see below) for a client to be able send requests.
 <4> De-registering the service from Vert.x-AMQP-Service.
 
-=== Managing __clients__
+==== Managing __clients__
 This sections shows you how to,
 * Identify a client uniquely
 * How to control the flow of requests by managing request credits.
@@ -574,6 +625,28 @@ vertx.eventBus().<JsonObject>consumer("notice-address", msg -> { // <1>
     In this example, the Verticle issues an initial request credit when a new link (client) is opened.
     Subsequently you could use service.issueCredits(<link-ref>, <request-credits>) to __**issue further credits**__ any time the Verticle (Vert.x Service) deems necessary.
 
+=== Manage Routes
+The following examples show how the routing tables can be manipulated at runtime via the AmqpService interface.
+For more info on how routing works, see <<routing>>
+
+[source, java]
+----
+AmqpService service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+service.addInboundRoute("weather.us.*", "us-weather"); // <1>
+service.addInboundRoute("weather.us.bos.*", "bos-weather"); // <1>
+
+service.removeInboundRoute("weather.us.bos.*", "bos-weather"); // <2>
+
+service.addOutboundRoute("news.*", "amqp://localhost:5672/all-news"); //<3>
+service.addOutboundRoute("news.ca.*", "amqp://localhost:5672/can-news"); //<3>
+
+service.removeOutboundRoute("news.ca.*", "amqp://localhost:5672/can-news"); //<4>
+----
+<1> Adds an entry to to the incoming routing table. The pattern is applied to the extracted routing-key and if matched, will be fowarded to the given Vert.x event-bus addresses.
+<2> Removes the entry from the incoming routing table.
+<3> Adds an entry to to the outgoing routing table. The pattern is applied to the extracted routing-key and if matched, will be fowarded to the given AMQP addresses.
+<4> Removes the entry from the outgoing routing table.
+
 == Putting it all together.
 Lets look at an example that puts the above concepts into use.
 
@@ -586,7 +659,7 @@ The diagram below describes the interaction pattern for both examples.
 
 image::http://people.apache.org/~rajith/vert.x/example1.jpeg[]
 
-=== AMQP Client using Vert.x FortuneCookie Service
+=== AMQP Client -> Vert.x Service
  
 * Step 1. Start the Vert.x-AMQP-Service. +
 [source] 
@@ -633,7 +706,7 @@ See <<running_amqp_examples>> for more information.
 
 You could start additional clients and observe that the Vert.x service is in control at all times without being overwhelmed by additional clients.
  
-=== Vert.x Client using AMQP FortuneCookie Service
+=== Vert.x Client -> AMQP Service
  
 * Step 1. Start the Vert.x-AMQP-Service. +
 [source] 
@@ -670,24 +743,24 @@ The above class is located in _src/examples/fortunecookie/java_ folder within th
 vertx run FortuneCookieClientVerticle.java -cluster
 ----
 
-You could start additional clients and observe that the Vert.x service is in control at all times without being overwhelmed by additional clients.
+You could start additional clients (Verticles) and observe that the AMQP service is in control at all times without being overwhelmed by additional clients.
   
   
 [[running_amqp_examples]]
 == Running the AMQP examples.
 The AMQP examples require Apache QPid Proton installed.
 
-=== Setting up the env
+* Setting up the env
 For ease of use, the AMQP examples are written using the Proton Python API.
 Use the links below to setup the environment.
 
 * Apache QPid Proton https://git-wip-us.apache.org/repos/asf?p=qpid-proton.git;a=blob_plain;f=INSTALL.md;hb=0.9.1[Install]
 * http://qpid.apache.org/releases/qpid-proton-0.9.1/proton/python/tutorial/tutorial.html[Python Tutorial]
  
-=== Using a 3rd party AMQP intermediary
+* Using a 3rd party AMQP intermediary
 The examples are using the Vert.x-AMQP-Service (bridge) as an intermediary when required.
 Ex. for setting up a temp destination for replies. 
 But you could use a 3rd part AMQP service just as well. (Ex. Message Broker or Router)
 
-* Apache QPid Dispatch Router http://qpid.apache.org/components/dispatch-router[Manual]
-* Apache ActiveMQ http://activemq.apache.org[Website] | http://activemq.apache.org/amqp.html[AMQP config]
+** Apache QPid Dispatch Router http://qpid.apache.org/components/dispatch-router[Manual]
+** Apache ActiveMQ http://activemq.apache.org[Website] | http://activemq.apache.org/amqp.html[AMQP config]

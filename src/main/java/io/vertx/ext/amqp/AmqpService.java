@@ -289,6 +289,61 @@ public interface AmqpService
     public AmqpService issueCredits(String linkId, int credits, Handler<AsyncResult<Void>> result);
 
     /**
+     * Adds an entry to the inbound routing table. If an existing entry exists
+     * under the same pattern, the event-bus address will be added to the list.
+     * 
+     * @param pattern
+     *            The pattern to be matched against the chosen message-property
+     *            from the incoming message.
+     * @param eventBusAddress
+     *            The Vert.x event-bus address the message should be sent to if
+     *            matched.
+     * @return A reference to the service.
+     */
+    @Fluent
+    public AmqpService addInboundRoute(String pattern, String eventBusAddress);
+
+    /**
+     * Removes the entry from the inbound routing table.
+     * 
+     * @param pattern
+     *            The pattern (key) used when adding the entry to the table.
+     * 
+     * @param eventBusAddress
+     *            The Vert.x event-bus address the message should be sent to if
+     *            matched.
+     * @return
+     */
+    @Fluent
+    public AmqpService removeInboundRoute(String pattern, String eventBusAddress);
+
+    /**
+     * Adds an entry to the outbound routing table. If an existing entry exists
+     * under the same pattern, the amqp address will be added to the list.
+     * 
+     * @param pattern
+     *            The pattern to be matched against the chosen message-property
+     *            from the outgoing message.
+     * @param amqpAddress
+     *            The AMQP address the message should be sent to if matched.
+     * @return A reference to the service.
+     */
+    @Fluent
+    public AmqpService addOutboundRoute(String pattern, String amqpAddress);
+
+    /**
+     * Removes the entry from the outbound routing table.
+     * 
+     * @param pattern
+     *            The pattern (key) used when adding the entry to the table.
+     * @param amqpAddress
+     *            The AMQP address the message should be sent to if matched.
+     * @return
+     */
+    @Fluent
+    public AmqpService removeOutboundRoute(String pattern, String amqpAddress);
+    
+    /**
      * Start the vertx-amqp-service
      */
     @ProxyIgnore

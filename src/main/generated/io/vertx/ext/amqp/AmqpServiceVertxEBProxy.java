@@ -266,6 +266,58 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
+  public AmqpService addInboundRoute(String pattern, String eventBusAddress) {
+    if (closed) {
+      throw new IllegalStateException("Proxy is closed");
+    }
+    JsonObject _json = new JsonObject();
+    _json.put("pattern", pattern);
+    _json.put("eventBusAddress", eventBusAddress);
+    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    _deliveryOptions.addHeader("action", "addInboundRoute");
+    _vertx.eventBus().send(_address, _json, _deliveryOptions);
+    return this;
+  }
+
+  public AmqpService removeInboundRoute(String pattern, String eventBusAddress) {
+    if (closed) {
+      throw new IllegalStateException("Proxy is closed");
+    }
+    JsonObject _json = new JsonObject();
+    _json.put("pattern", pattern);
+    _json.put("eventBusAddress", eventBusAddress);
+    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    _deliveryOptions.addHeader("action", "removeInboundRoute");
+    _vertx.eventBus().send(_address, _json, _deliveryOptions);
+    return this;
+  }
+
+  public AmqpService addOutboundRoute(String pattern, String amqpAddress) {
+    if (closed) {
+      throw new IllegalStateException("Proxy is closed");
+    }
+    JsonObject _json = new JsonObject();
+    _json.put("pattern", pattern);
+    _json.put("amqpAddress", amqpAddress);
+    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    _deliveryOptions.addHeader("action", "addOutboundRoute");
+    _vertx.eventBus().send(_address, _json, _deliveryOptions);
+    return this;
+  }
+
+  public AmqpService removeOutboundRoute(String pattern, String amqpAddress) {
+    if (closed) {
+      throw new IllegalStateException("Proxy is closed");
+    }
+    JsonObject _json = new JsonObject();
+    _json.put("pattern", pattern);
+    _json.put("amqpAddress", amqpAddress);
+    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    _deliveryOptions.addHeader("action", "removeOutboundRoute");
+    _vertx.eventBus().send(_address, _json, _deliveryOptions);
+    return this;
+  }
+
   public void start() {
   }
 

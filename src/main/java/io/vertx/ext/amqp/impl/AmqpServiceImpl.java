@@ -356,6 +356,30 @@ public class AmqpServiceImpl implements Handler<Message<JsonObject>>, LinkEventL
                     "Address '%s' doesn't match any registered service", eventbusAddress), ErrorCode.ADDRESS_NOT_FOUND)));
         }
         return this;
+    }
+
+    public AmqpService addInboundRoute(String pattern, String eventbusAddress)
+    {
+        _msgBasedRouter.addInboundRoute(pattern, eventbusAddress);
+        return this;
+    }
+
+    public AmqpService removeInboundRoute(String pattern, String eventbusAddress)
+    {
+        _msgBasedRouter.removeInboundRoute(pattern, eventbusAddress);
+        return this;
+    }
+
+    public AmqpService addOutboundRoute(String pattern, String amqpAddress)
+    {
+        _msgBasedRouter.addOutboundRoute(pattern, amqpAddress);
+        return this;
+    }
+
+    public AmqpService removeOutboundRoute(String pattern, String amqpAddress)
+    {
+        _msgBasedRouter.addOutboundRoute(pattern, amqpAddress);
+        return this;
     }// ------------\ AmqpService -----------------
 
     // -- Handler method for receiving messages from the event-bus -----------
