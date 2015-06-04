@@ -18,21 +18,20 @@ package io.vertx.ext.amqp;
 /**
  * Outgoing message-delivery state
  */
-public enum DeliveryState
-{
-    /**
-     * Message has been settled by the remote peer.
-     */
-    SETTLED,
+public enum DeliveryState {
+  /**
+   * Message has been settled by the remote peer.
+   */
+  SETTLED,
 
-    /**
-     * Delivery is still pending and the state is not known.
-     */
-    UNKNOWN,
+  /**
+   * Delivery is still pending and the state is not known.
+   */
+  UNKNOWN,
 
-    /**
-     * The link has failed due to the underlying network connection failure. The
-     * message associated with this delivery is in-doubt.
-     */
-    LINK_FAILED
+  /**
+   * The link has failed due to the underlying network connection failure. The
+   * message associated with this delivery is in-doubt.
+   */
+  LINK_FAILED
 }

@@ -15,9 +15,8 @@
  */
 package io.vertx.ext.amqp.impl.protocol;
 
-public interface Link
-{
-    public String getAddress();
+public interface Link {
+  public String getAddress();
 
-    public boolean isInbound();
+  public boolean isInbound();
 }

@@ -22,15 +22,12 @@ import io.vertx.ext.amqp.MessagingException;
  * Thrown when an operation fails to complete within the given timeout.
  */
 @SuppressWarnings("serial")
-public class TimeoutException extends MessagingException
-{
-    public TimeoutException(String msg)
-    {
-        super(msg, ErrorCode.OPERATION_TIMED_OUT);
-    }
+public class TimeoutException extends MessagingException {
+  public TimeoutException(String msg) {
+    super(msg, ErrorCode.OPERATION_TIMED_OUT);
+  }
 
-    public TimeoutException(String msg, Throwable t)
-    {
-        super(msg, t, ErrorCode.OPERATION_TIMED_OUT);
-    }
+  public TimeoutException(String msg, Throwable t) {
+    super(msg, t, ErrorCode.OPERATION_TIMED_OUT);
+  }
 }

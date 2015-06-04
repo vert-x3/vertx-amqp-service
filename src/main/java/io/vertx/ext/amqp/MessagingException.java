@@ -19,29 +19,24 @@ package io.vertx.ext.amqp;
  * Base class for all messaging exceptions.
  */
 @SuppressWarnings("serial")
-public class MessagingException extends Exception
-{
-    private final ErrorCode code;
+public class MessagingException extends Exception {
+  private final ErrorCode code;
 
-    public MessagingException(String msg, ErrorCode code)
-    {
-        super(msg);
-        this.code = code;
-    }
+  public MessagingException(String msg, ErrorCode code) {
+    super(msg);
+    this.code = code;
+  }
 
-    public MessagingException(String msg, Throwable t)
-    {
-        this(msg, t, ErrorCode.INTERNAL_ERROR);
-    }
+  public MessagingException(String msg, Throwable t) {
+    this(msg, t, ErrorCode.INTERNAL_ERROR);
+  }
 
-    public MessagingException(String msg, Throwable t, ErrorCode code)
-    {
-        super(msg, t);
-        this.code = code;
-    }
+  public MessagingException(String msg, Throwable t, ErrorCode code) {
+    super(msg, t);
+    this.code = code;
+  }
 
-    public ErrorCode getErrorCode()
-    {
-        return code;
-    }
+  public ErrorCode getErrorCode() {
+    return code;
+  }
 }

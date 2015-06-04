@@ -18,47 +18,39 @@ package io.vertx.ext.amqp.impl.routing;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class LinkRouter
-{
-    protected final Map<String, String> _incomingLinkToVertxAddr = new ConcurrentHashMap<String, String>();
+public class LinkRouter {
+  protected final Map<String, String> _incomingLinkToVertxAddr = new ConcurrentHashMap<String, String>();
 
-    protected final Map<String, String> _vertxAddrToOutgoingLink = new ConcurrentHashMap<String, String>();
+  protected final Map<String, String> _vertxAddrToOutgoingLink = new ConcurrentHashMap<String, String>();
 
-    // Reverse map for easy cleanup
-    protected final Map<String, String> _outgoingLinkToVertxAddr = new ConcurrentHashMap<String, String>();
+  // Reverse map for easy cleanup
+  protected final Map<String, String> _outgoingLinkToVertxAddr = new ConcurrentHashMap<String, String>();
 
-    public LinkRouter()
-    {
-    }
+  public LinkRouter() {
+  }
 
-    public String routeIncoming(String linkId)
-    {
-        return _incomingLinkToVertxAddr.get(linkId);
-    }
+  public String routeIncoming(String linkId) {
+    return _incomingLinkToVertxAddr.get(linkId);
+  }
 
-    public String routeOutgoing(String vertxAddress)
-    {
-        return _vertxAddrToOutgoingLink.get(vertxAddress);
-    }
+  public String routeOutgoing(String vertxAddress) {
+    return _vertxAddrToOutgoingLink.get(vertxAddress);
+  }
 
-    public void addIncomingRoute(String linkId, String vertxAddr)
-    {
-        _incomingLinkToVertxAddr.put(linkId, vertxAddr);
-    }
+  public void addIncomingRoute(String linkId, String vertxAddr) {
+    _incomingLinkToVertxAddr.put(linkId, vertxAddr);
+  }
 
-    public void removeIncomingRoute(String linkId)
-    {
-        _incomingLinkToVertxAddr.remove(linkId);
-    }
+  public void removeIncomingRoute(String linkId) {
+    _incomingLinkToVertxAddr.remove(linkId);
+  }
 
-    public void addOutgoingRoute(String vertxAddr, String linkId)
-    {
-        _vertxAddrToOutgoingLink.put(vertxAddr, linkId);
-        _outgoingLinkToVertxAddr.put(linkId, vertxAddr);
-    }
+  public void addOutgoingRoute(String vertxAddr, String linkId) {
+    _vertxAddrToOutgoingLink.put(vertxAddr, linkId);
+    _outgoingLinkToVertxAddr.put(linkId, vertxAddr);
+  }
 
-    public void removeOutgoingRoute(String linkId)
-    {
-        _vertxAddrToOutgoingLink.remove(_outgoingLinkToVertxAddr.remove(linkId));
-    }
+  public void removeOutgoingRoute(String linkId) {
+    _vertxAddrToOutgoingLink.remove(_outgoingLinkToVertxAddr.remove(linkId));
+  }
 }

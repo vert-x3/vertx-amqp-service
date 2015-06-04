@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 the original author or authors.
  *
@@ -18,21 +17,19 @@
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
 
-public class PubVerticle extends AbstractVerticle
-{
-    @Override
-    public void start()
-    {
-        JsonObject msg1 = new JsonObject();
-        msg1.put("vertx.routing-key", "foo.bar");
-        msg1.put("body", "hello world from foo bar");
-        vertx.eventBus().publish("vertx.service-amqp.bridge", msg1);
-        System.out.println("Publiser verticle sent msg : " + msg1.encodePrettily());
+public class PubVerticle extends AbstractVerticle {
+  @Override
+  public void start() {
+    JsonObject msg1 = new JsonObject();
+    msg1.put("vertx.routing-key", "foo.bar");
+    msg1.put("body", "hello world from foo bar");
+    vertx.eventBus().publish("vertx.service-amqp.bridge", msg1);
+    System.out.println("Publiser verticle sent msg : " + msg1.encodePrettily());
 
-        JsonObject msg2 = new JsonObject();
-        msg2.put("vertx.routing-key", "foo.baz");
-        msg2.put("body", "hello world from foo baz");
-        vertx.eventBus().publish("vertx.service-amqp.bridge", msg2);
-        System.out.println("Publiser verticle sent msg : " + msg2.encodePrettily());
-    }
+    JsonObject msg2 = new JsonObject();
+    msg2.put("vertx.routing-key", "foo.baz");
+    msg2.put("body", "hello world from foo baz");
+    vertx.eventBus().publish("vertx.service-amqp.bridge", msg2);
+    System.out.println("Publiser verticle sent msg : " + msg2.encodePrettily());
+  }
 }

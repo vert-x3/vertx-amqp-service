@@ -19,23 +19,20 @@ import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 
-public class HelloServiceVerticle extends AbstractVerticle implements Handler<Message<JsonObject>>
-{
-    @Override
-    public void start()
-    {
-        vertx.eventBus().consumer("hello-service-vertx", this);
-    }
+public class HelloServiceVerticle extends AbstractVerticle implements Handler<Message<JsonObject>> {
+  @Override
+  public void start() {
+    vertx.eventBus().consumer("hello-service-vertx", this);
+  }
 
-    @Override
-    public void handle(Message<JsonObject> requestMsg)
-    {
-        System.out.println("Hello-Service-Verticle received request : " + requestMsg.body().encodePrettily());
+  @Override
+  public void handle(Message<JsonObject> requestMsg) {
+    System.out.println("Hello-Service-Verticle received request : " + requestMsg.body().encodePrettily());
 
-        JsonObject replyMsg = new JsonObject();
-        replyMsg.put("body", "HELLO " + requestMsg.body().getString("body").toUpperCase());
-        requestMsg.reply(replyMsg);
+    JsonObject replyMsg = new JsonObject();
+    replyMsg.put("body", "HELLO " + requestMsg.body().getString("body").toUpperCase());
+    requestMsg.reply(replyMsg);
 
-        System.out.println("Hello-Service-Verticle sent reply : " + replyMsg.encodePrettily());
-    }
+    System.out.println("Hello-Service-Verticle sent reply : " + replyMsg.encodePrettily());
+  }
 }

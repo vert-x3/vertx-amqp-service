@@ -19,190 +19,137 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.amqp.ErrorCode;
 import io.vertx.ext.amqp.MessageFormatException;
+import org.apache.qpid.proton.amqp.Binary;
+import org.apache.qpid.proton.amqp.messaging.*;
+import org.apache.qpid.proton.message.Message;
 
 import java.util.List;
 import java.util.Map;
 
-import org.apache.qpid.proton.amqp.Binary;
-import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
-import org.apache.qpid.proton.amqp.messaging.AmqpValue;
-import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
-import org.apache.qpid.proton.amqp.messaging.Data;
-import org.apache.qpid.proton.amqp.messaging.Properties;
-import org.apache.qpid.proton.amqp.messaging.Section;
-import org.apache.qpid.proton.message.Message;
+public class MessageTranslator {
+  private void convert(JsonObject in, Properties out) {
+    if (in.containsKey("to")) {
+      out.setTo(in.getString("to"));
+    }
+    if (in.containsKey("subject")) {
+      out.setSubject(in.getString("subject"));
+    }
+    if (in.containsKey("reply_to")) {
+      out.setReplyTo(in.getString("reply_to"));
+    }
+    if (in.containsKey("message_id")) {
+      // TODO: handle other types (UUID and long)
+      out.setMessageId(in.getString("message_id"));
+    }
+    if (in.containsKey("correlation_id")) {
+      // TODO: handle other types (UUID and long)
+      out.setCorrelationId(in.getString("correlation_id"));
+    }
+    // TODO: handle other fields
+  }
 
-public class MessageTranslator
-{
-    private void convert(JsonObject in, Properties out)
-    {
-        if (in.containsKey("to"))
-        {
-            out.setTo(in.getString("to"));
-        }
-        if (in.containsKey("subject"))
-        {
-            out.setSubject(in.getString("subject"));
-        }
-        if (in.containsKey("reply_to"))
-        {
-            out.setReplyTo(in.getString("reply_to"));
-        }
-        if (in.containsKey("message_id"))
-        {
-            // TODO: handle other types (UUID and long)
-            out.setMessageId(in.getString("message_id"));
-        }
-        if (in.containsKey("correlation_id"))
-        {
-            // TODO: handle other types (UUID and long)
-            out.setCorrelationId(in.getString("correlation_id"));
-        }
-        // TODO: handle other fields
+  private void convert(Properties in, JsonObject out) {
+    if (in.getTo() != null) {
+      out.put("to", in.getTo());
+    }
+    if (in.getSubject() != null) {
+      out.put("subject", in.getSubject());
+    }
+    if (in.getReplyTo() != null) {
+      out.put("reply_to", in.getReplyTo());
+    }
+    if (in.getMessageId() != null) {
+      out.put("message_id", in.getMessageId().toString());
+    }
+    if (in.getCorrelationId() != null) {
+      out.put("correlation_id", in.getCorrelationId().toString());
+    }
+    // TODO: handle other fields
+  }
+
+  public Message convert(JsonObject in) throws MessageFormatException {
+    Message out = Message.Factory.create();
+
+    if (in.containsKey("properties")) {
+      out.setProperties(new Properties());
+      convert(in.getJsonObject("properties"), out.getProperties());
     }
 
-    private void convert(Properties in, JsonObject out)
-    {
-        if (in.getTo() != null)
-        {
-            out.put("to", in.getTo());
-        }
-        if (in.getSubject() != null)
-        {
-            out.put("subject", in.getSubject());
-        }
-        if (in.getReplyTo() != null)
-        {
-            out.put("reply_to", in.getReplyTo());
-        }
-        if (in.getMessageId() != null)
-        {
-            out.put("message_id", in.getMessageId().toString());
-        }
-        if (in.getCorrelationId() != null)
-        {
-            out.put("correlation_id", in.getCorrelationId().toString());
-        }
-        // TODO: handle other fields
+    if (in.containsKey("application_properties")) {
+      out.setApplicationProperties(new ApplicationProperties(in.getJsonObject("application_properties").getMap()));
     }
 
-    public Message convert(JsonObject in) throws MessageFormatException
-    {
-        Message out = Message.Factory.create();
-
-        if (in.containsKey("properties"))
-        {
-            out.setProperties(new Properties());
-            convert(in.getJsonObject("properties"), out.getProperties());
+    if (in.containsKey("body")) {
+      String bodyType = in.getString("body_type");
+      if (bodyType == null || bodyType.equals("value")) {
+        Object o = in.getValue("body");
+        if (o instanceof JsonObject) {
+          o = ((JsonObject) o).getMap();
+        } else if (o instanceof JsonArray) {
+          o = ((JsonArray) o).getList();
         }
-
-        if (in.containsKey("application_properties"))
-        {
-            out.setApplicationProperties(new ApplicationProperties(in.getJsonObject("application_properties").getMap()));
-        }
-
-        if (in.containsKey("body"))
-        {
-            String bodyType = in.getString("body_type");
-            if (bodyType == null || bodyType.equals("value"))
-            {
-                Object o = in.getValue("body");
-                if (o instanceof JsonObject)
-                {
-                    o = ((JsonObject) o).getMap();
-                }
-                else if (o instanceof JsonArray)
-                {
-                    o = ((JsonArray) o).getList();
-                }
-                out.setBody(new AmqpValue(o));
-            }
-            else if (bodyType.equals("data"))
-            {
-                out.setBody(new Data(new Binary(in.getBinary("body"))));
-            }
-            else if (bodyType.equals("sequence"))
-            {
-                out.setBody(new AmqpSequence(((JsonArray) in.getValue("body")).getList()));
-            }
-            else
-            {
-                throw new MessageFormatException("Unrecognised body type: " + bodyType, ErrorCode.INVALID_MSG_FORMAT);
-            }
-        }
-        return out;
+        out.setBody(new AmqpValue(o));
+      } else if (bodyType.equals("data")) {
+        out.setBody(new Data(new Binary(in.getBinary("body"))));
+      } else if (bodyType.equals("sequence")) {
+        out.setBody(new AmqpSequence(((JsonArray) in.getValue("body")).getList()));
+      } else {
+        throw new MessageFormatException("Unrecognised body type: " + bodyType, ErrorCode.INVALID_MSG_FORMAT);
+      }
     }
+    return out;
+  }
 
-    @SuppressWarnings("rawtypes")
-    private static Object toJsonable(Object in) throws MessageFormatException
-    {
-        if (in instanceof Number || in instanceof String)
-        {
-            return in;
-        }
-        else if (in instanceof Map)
-        {
-            JsonObject out = new JsonObject();
-            for (Object o : ((Map) in).entrySet())
-            {
-                Map.Entry e = (Map.Entry) o;
-                out.put((String) e.getKey(), toJsonable(e.getValue()));
-            }
-            return out;
-        }
-        else if (in instanceof List)
-        {
-            JsonArray out = new JsonArray();
-            for (Object i : (List) in)
-            {
-                out.add(toJsonable(i));
-            }
-            return out;
-        }
-        else if (in instanceof Binary)
-        {
-            Thread.dumpStack();
-            return ((Binary) in).getArray();
-        }
-        else
-        {
-            throw new MessageFormatException("Warning: can't convert object of type " + in.getClass() + " to JSON",
-                    ErrorCode.INVALID_MSG_FORMAT);
-        }
+  @SuppressWarnings("rawtypes")
+  private static Object toJsonable(Object in) throws MessageFormatException {
+    if (in instanceof Number || in instanceof String) {
+      return in;
+    } else if (in instanceof Map) {
+      JsonObject out = new JsonObject();
+      for (Object o : ((Map) in).entrySet()) {
+        Map.Entry e = (Map.Entry) o;
+        out.put((String) e.getKey(), toJsonable(e.getValue()));
+      }
+      return out;
+    } else if (in instanceof List) {
+      JsonArray out = new JsonArray();
+      for (Object i : (List) in) {
+        out.add(toJsonable(i));
+      }
+      return out;
+    } else if (in instanceof Binary) {
+      Thread.dumpStack();
+      return ((Binary) in).getArray();
+    } else {
+      throw new MessageFormatException("Warning: can't convert object of type " + in.getClass() + " to JSON",
+        ErrorCode.INVALID_MSG_FORMAT);
     }
+  }
 
-    @SuppressWarnings("unchecked")
-    public JsonObject convert(Message in) throws MessageFormatException
-    {
-        JsonObject out = new JsonObject();
-        Properties p = in.getProperties();
-        if (p != null)
-        {
-            JsonObject props = new JsonObject();
-            convert(p, props);
-            out.put("properties", props);
-        }
-        ApplicationProperties ap = in.getApplicationProperties();
-        if (ap != null && ap.getValue() != null)
-        {
-            out.put("application_properties", new JsonObject(ap.getValue()));
-        }
-        Section body = in.getBody();
-        if (body instanceof AmqpValue)
-        {
-            out.put("body", toJsonable(((AmqpValue) body).getValue()));
-            out.put("body_type", "value");
-        }
-        else if (body instanceof Data)
-        {
-            out.put("body", ((Data) body).getValue().getArray());
-            out.put("body_type", "data");
-        }
-        else if (body instanceof AmqpSequence)
-        {
-            out.put("body", new JsonArray(((AmqpSequence) body).getValue()));
-            out.put("body_type", "sequence");
-        }
-        return out;
+  @SuppressWarnings("unchecked")
+  public JsonObject convert(Message in) throws MessageFormatException {
+    JsonObject out = new JsonObject();
+    Properties p = in.getProperties();
+    if (p != null) {
+      JsonObject props = new JsonObject();
+      convert(p, props);
+      out.put("properties", props);
     }
+    ApplicationProperties ap = in.getApplicationProperties();
+    if (ap != null && ap.getValue() != null) {
+      out.put("application_properties", new JsonObject(ap.getValue()));
+    }
+    Section body = in.getBody();
+    if (body instanceof AmqpValue) {
+      out.put("body", toJsonable(((AmqpValue) body).getValue()));
+      out.put("body_type", "value");
+    } else if (body instanceof Data) {
+      out.put("body", ((Data) body).getValue().getArray());
+      out.put("body_type", "data");
+    } else if (body instanceof AmqpSequence) {
+      out.put("body", new JsonArray(((AmqpSequence) body).getValue()));
+      out.put("body_type", "sequence");
+    }
+    return out;
+  }
 }

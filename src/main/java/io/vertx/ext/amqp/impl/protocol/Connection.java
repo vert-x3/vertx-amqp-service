@@ -15,11 +15,10 @@
  */
 package io.vertx.ext.amqp.impl.protocol;
 
-public interface Connection
-{
-    public boolean isOpen();
+public interface Connection {
+  public boolean isOpen();
 
-    public boolean isInbound();
+  public boolean isInbound();
 
-    public void close();
+  public void close();
 }

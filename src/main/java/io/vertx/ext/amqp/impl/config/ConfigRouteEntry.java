@@ -19,41 +19,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class ConfigRouteEntry
-{
-    Pattern _pattern;
+public class ConfigRouteEntry {
+  Pattern _pattern;
 
-    List<String> _addressList = new ArrayList<String>();
+  List<String> _addressList = new ArrayList<String>();
 
-    public ConfigRouteEntry(Pattern p, String addr)
-    {
-        _pattern = p;
-        _addressList.add(addr);
-    }
+  public ConfigRouteEntry(Pattern p, String addr) {
+    _pattern = p;
+    _addressList.add(addr);
+  }
 
-    public void add(String addr)
-    {
-        _addressList.add(addr);
-    }
+  public void add(String addr) {
+    _addressList.add(addr);
+  }
 
-    public void remove(String addr)
-    {
-        _addressList.remove(addr);
-    }
+  public void remove(String addr) {
+    _addressList.remove(addr);
+  }
 
-    public Pattern getPattern()
-    {
-        return _pattern;
-    }
+  public Pattern getPattern() {
+    return _pattern;
+  }
 
-    public List<String> getAddressList()
-    {
-        return _addressList;
-    }
+  public List<String> getAddressList() {
+    return _addressList;
+  }
 
-    @Override
-    public String toString()
-    {
-        return String.format("[pattern=%s, address-list=%s", _pattern, _addressList);
-    }
+  @Override
+  public String toString() {
+    return String.format("[pattern=%s, address-list=%s", _pattern, _addressList);
+  }
 }

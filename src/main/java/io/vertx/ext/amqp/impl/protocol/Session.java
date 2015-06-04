@@ -15,23 +15,22 @@
  */
 package io.vertx.ext.amqp.impl.protocol;
 
-import io.vertx.ext.amqp.CreditMode;
+import io.vertx.ext.amqp.impl.CreditMode;
 import io.vertx.ext.amqp.MessageFormatException;
 import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.ReliabilityMode;
 
 
-public interface Session
-{
-    public OutgoingLink createOutboundLink(String address, ReliabilityMode mode) throws MessagingException;
+public interface Session {
+  public OutgoingLink createOutboundLink(String address, ReliabilityMode mode) throws MessagingException;
 
-    public IncomingLink createInboundLink(String address, ReliabilityMode mode, CreditMode creditMode)
-            throws MessagingException;
+  public IncomingLink createInboundLink(String address, ReliabilityMode mode, CreditMode creditMode)
+    throws MessagingException;
 
-    public void disposition(AmqpMessage msg, MessageDisposition disposition, int... flags)
-            throws MessageFormatException, MessagingException;
+  public void disposition(AmqpMessage msg, MessageDisposition disposition, int... flags)
+    throws MessageFormatException, MessagingException;
 
-    public void settle(AmqpMessage msg, int... flags) throws MessageFormatException, MessagingException;
+  public void settle(AmqpMessage msg, int... flags) throws MessageFormatException, MessagingException;
 
-    public void close();
+  public void close();
 }

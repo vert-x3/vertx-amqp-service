@@ -17,95 +17,94 @@ package io.vertx.ext.amqp.impl.protocol;
 
 import java.util.Map;
 
-public interface AmqpMessage
-{
-    public String getMsgRef();
+public interface AmqpMessage {
+  public String getMsgRef();
 
-    public boolean isDurable();
+  public boolean isDurable();
 
-    public long getDeliveryCount();
+  public long getDeliveryCount();
 
-    public short getPriority();
+  public short getPriority();
 
-    public boolean isFirstAcquirer();
+  public boolean isFirstAcquirer();
 
-    public long getTtl();
+  public long getTtl();
 
-    public Object getMessageId();
+  public Object getMessageId();
 
-    public long getGroupSequence();
+  public long getGroupSequence();
 
-    public String getReplyToGroupId();
+  public String getReplyToGroupId();
 
-    public long getCreationTime();
+  public long getCreationTime();
 
-    public String getAddress();
+  public String getAddress();
 
-    public byte[] getUserId();
+  public byte[] getUserId();
 
-    public String getReplyTo();
+  public String getReplyTo();
 
-    public String getGroupId();
+  public String getGroupId();
 
-    public String getContentType();
+  public String getContentType();
 
-    public long getExpiryTime();
+  public long getExpiryTime();
 
-    public Object getCorrelationId();
+  public Object getCorrelationId();
 
-    public String getContentEncoding();
+  public String getContentEncoding();
 
-    public String getSubject();
+  public String getSubject();
 
-    public Map getMessageAnnotations();
+  public Map getMessageAnnotations();
 
-    public Map getDeliveryAnnotations();
+  public Map getDeliveryAnnotations();
 
-    public Map getApplicationProperties();
+  public Map getApplicationProperties();
 
-    public Object getContent();
+  public Object getContent();
 
-    public void setDurable(boolean durable);
+  public void setDurable(boolean durable);
 
-    public void setTtl(long ttl);
+  public void setTtl(long ttl);
 
-    public void setDeliveryCount(long deliveryCount);
+  public void setDeliveryCount(long deliveryCount);
 
-    public void setFirstAcquirer(boolean firstAcquirer);
+  public void setFirstAcquirer(boolean firstAcquirer);
 
-    public void setPriority(short priority);
+  public void setPriority(short priority);
 
-    public void setGroupSequence(long groupSequence);
+  public void setGroupSequence(long groupSequence);
 
-    public void setUserId(byte[] userId);
+  public void setUserId(byte[] userId);
 
-    public void setCreationTime(long creationTime);
+  public void setCreationTime(long creationTime);
 
-    public void setSubject(String subject);
+  public void setSubject(String subject);
 
-    public void setGroupId(String groupId);
+  public void setGroupId(String groupId);
 
-    public void setAddress(String to);
+  public void setAddress(String to);
 
-    public void setExpiryTime(long absoluteExpiryTime);
+  public void setExpiryTime(long absoluteExpiryTime);
 
-    public void setReplyToGroupId(String replyToGroupId);
+  public void setReplyToGroupId(String replyToGroupId);
 
-    public void setContentEncoding(String contentEncoding);
+  public void setContentEncoding(String contentEncoding);
 
-    public void setContentType(String contentType);
+  public void setContentType(String contentType);
 
-    public void setReplyTo(String replyTo);
+  public void setReplyTo(String replyTo);
 
-    public void setCorrelationId(Object correlationId);
+  public void setCorrelationId(Object correlationId);
 
-    public void setMessageId(Object messageId);
+  public void setMessageId(Object messageId);
 
-    public void setMessageAnnotations(Map map);
+  public void setMessageAnnotations(Map map);
 
-    public void setDeliveryAnnotations(Map map);
+  public void setDeliveryAnnotations(Map map);
 
-    public void setApplicationProperties(Map map);
+  public void setApplicationProperties(Map map);
 
-    public void setContent(Object content);
+  public void setContent(Object content);
 }

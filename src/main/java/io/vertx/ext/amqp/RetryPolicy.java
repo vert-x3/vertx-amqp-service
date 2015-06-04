@@ -17,23 +17,21 @@ package io.vertx.ext.amqp;
 
 /**
  * Specifies the number of retry attempts to be made before giving up.
- *
  */
-public enum RetryPolicy
-{
-    /**
-     * No retry. An error will be sent, notifying the link failed.
-     */
-    NO_RETRY,
+public enum RetryPolicy {
+  /**
+   * No retry. An error will be sent, notifying the link failed.
+   */
+  NO_RETRY,
 
-    /**
-     * Stop retrying once the number of unsuccessful retries have reached the
-     * limit set by {@link RecoveryOptions#setMaxRetryLimit(int)}
-     */
-    RETRY_UPTO_MAX_LIMIT,
+  /**
+   * Stop retrying once the number of unsuccessful retries have reached the
+   * limit set by {@link RecoveryOptions#setMaxRetryLimit(int)}
+   */
+  RETRY_UPTO_MAX_LIMIT,
 
-    /**
-     * Continue to retry until the link is successfully re-established.
-     */
-    RETRY_UNTIL_SUCCESS;
+  /**
+   * Continue to retry until the link is successfully re-established.
+   */
+  RETRY_UNTIL_SUCCESS;
 }

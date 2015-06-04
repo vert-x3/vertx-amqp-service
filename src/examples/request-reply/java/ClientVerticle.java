@@ -20,21 +20,18 @@ import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 
-public class ClientVerticle extends AbstractVerticle implements Handler<AsyncResult<Message<JsonObject>>>
-{
-    @Override
-    public void start()
-    {
-        JsonObject requestMsg = new JsonObject();
-        requestMsg.put("body", "rajith muditha attapattu");
-        vertx.eventBus().send("hello-service-amqp", requestMsg, this);
-        System.out.println("Client verticle sent request : " + requestMsg.encodePrettily());
-    }
+public class ClientVerticle extends AbstractVerticle implements Handler<AsyncResult<Message<JsonObject>>> {
+  @Override
+  public void start() {
+    JsonObject requestMsg = new JsonObject();
+    requestMsg.put("body", "rajith muditha attapattu");
+    vertx.eventBus().send("hello-service-amqp", requestMsg, this);
+    System.out.println("Client verticle sent request : " + requestMsg.encodePrettily());
+  }
 
-    @Override
-    public void handle(AsyncResult<Message<JsonObject>> result)
-    {
-        Message<JsonObject> msg = result.result();
-        System.out.println("Client verticle received response : " + msg.body().encodePrettily());
-    }
+  @Override
+  public void handle(AsyncResult<Message<JsonObject>> result) {
+    Message<JsonObject> msg = result.result();
+    System.out.println("Client verticle received response : " + msg.body().encodePrettily());
+  }
 }

@@ -21,33 +21,32 @@ import io.vertx.ext.amqp.impl.routing.InboundRoutingPropertyType;
 import java.util.List;
 import java.util.Map;
 
-public interface AmqpServiceConfig
-{
-    public String getInboundHost();
+public interface AmqpServiceConfig {
+  public String getInboundHost();
 
-    public int getInboundPort();
+  public int getInboundPort();
 
-    public String getDefaultHandlerAddress();
+  public String getDefaultHandlerAddress();
 
-    public String getDefaultOutboundAddress();
+  public String getDefaultOutboundAddress();
 
-    public List<String> getHandlerAddressList();
+  public List<String> getHandlerAddressList();
 
-    public boolean isUseCustomPropertyForOutbound();
+  public boolean isUseCustomPropertyForOutbound();
 
-    public String getOutboundRoutingPropertyName();
+  public String getOutboundRoutingPropertyName();
 
-    public Map<String, ConfigRouteEntry> getOutboundRoutes();
+  public Map<String, ConfigRouteEntry> getOutboundRoutes();
 
-    public String getInboundRoutingPropertyName();
+  public String getInboundRoutingPropertyName();
 
-    public String getDefaultInboundAddress();
+  public String getDefaultInboundAddress();
 
-    public InboundRoutingPropertyType getInboundRoutingPropertyType();
+  public InboundRoutingPropertyType getInboundRoutingPropertyType();
 
-    public Map<String, ConfigRouteEntry> getInboundRoutes();
+  public Map<String, ConfigRouteEntry> getInboundRoutes();
 
-    public int getMaxedCachedURLEntries();
+  public int getMaxedCachedURLEntries();
 
-    public int getDefaultLinkCredit();
+  public int getDefaultLinkCredit();
 }

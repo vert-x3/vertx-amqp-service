@@ -18,35 +18,27 @@ package io.vertx.ext.amqp.impl.protocol;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.amqp.DeliveryState;
 
-class JsonHelper
-{
-    public static Tracker jsonToTracker(JsonObject in)
-    {
-        TrackerImpl tracker = new TrackerImpl(null);
-        if (in.containsKey("disposition"))
-        {
-            tracker.setDisposition(MessageDisposition.valueOf(in.getString("disposition").toUpperCase()));
-        }
-        if (in.containsKey("state"))
-        {
-            DeliveryState state = DeliveryState.valueOf(in.getString("state").toUpperCase());
-            if (state == DeliveryState.SETTLED)
-            {
-                tracker.markSettled();
-            }
-            else if (state == DeliveryState.LINK_FAILED)
-            {
-                tracker.markLinkFailed();
-            }
-        }
-        return tracker;
+class JsonHelper {
+  public static Tracker jsonToTracker(JsonObject in) {
+    TrackerImpl tracker = new TrackerImpl(null);
+    if (in.containsKey("disposition")) {
+      tracker.setDisposition(MessageDisposition.valueOf(in.getString("disposition").toUpperCase()));
     }
+    if (in.containsKey("state")) {
+      DeliveryState state = DeliveryState.valueOf(in.getString("state").toUpperCase());
+      if (state == DeliveryState.SETTLED) {
+        tracker.markSettled();
+      } else if (state == DeliveryState.LINK_FAILED) {
+        tracker.markLinkFailed();
+      }
+    }
+    return tracker;
+  }
 
-    public static JsonObject trackerToJson(Tracker t)
-    {
-        JsonObject out = new JsonObject();
-        out.put("disposition", t.getDisposition().toString());
-        out.put("state", t.getState().toString());
-        return out;
-    }
+  public static JsonObject trackerToJson(Tracker t) {
+    JsonObject out = new JsonObject();
+    out.put("disposition", t.getDisposition().toString());
+    out.put("state", t.getState().toString());
+    return out;
+  }
 }

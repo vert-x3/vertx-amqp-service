@@ -16,59 +16,47 @@
 package io.vertx.ext.amqp.impl.protocol;
 
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.amqp.AmqpService;
-import io.vertx.ext.amqp.DeliveryState;
-import io.vertx.ext.amqp.DeliveryTracker;
-import io.vertx.ext.amqp.MessageState;
-import io.vertx.ext.amqp.NotificationHelper;
+import io.vertx.ext.amqp.*;
 
-public class DeliveryTrackerImpl implements DeliveryTracker
-{
-    String _ref;
+public class DeliveryTrackerImpl implements DeliveryTracker {
+  String _ref;
 
-    DeliveryState _deliveryState;
+  DeliveryState _deliveryState;
 
-    MessageState _msgState;
+  MessageState _msgState;
 
-    DeliveryTrackerImpl(String ref, DeliveryState deliveryState, MessageState msgState)
-    {
-        super();
-        _ref = ref;
-        _deliveryState = deliveryState;
-        _msgState = msgState;
+  DeliveryTrackerImpl(String ref, DeliveryState deliveryState, MessageState msgState) {
+    super();
+    _ref = ref;
+    _deliveryState = deliveryState;
+    _msgState = msgState;
+  }
+
+  public static DeliveryTracker create(JsonObject json) {
+    String[] keys = {AmqpService.OUTGOING_MSG_REF, NotificationHelper.DELIVERY_STATE, NotificationHelper.MSG_STATE};
+    for (String key : keys) {
+      if (!json.containsKey(key)) {
+        throw new IllegalArgumentException(
+          String.format("Malformed delivery-tracker message, '%s' missing", key));
+      }
     }
+    return new DeliveryTrackerImpl(json.getString(AmqpService.OUTGOING_MSG_REF), DeliveryState.valueOf(json
+      .getString(NotificationHelper.DELIVERY_STATE)), MessageState.valueOf(json
+      .getString(NotificationHelper.MSG_STATE)));
+  }
 
-    public static DeliveryTracker create(JsonObject json)
-    {
-        String[] keys = { AmqpService.OUTGOING_MSG_REF, NotificationHelper.DELIVERY_STATE, NotificationHelper.MSG_STATE };
-        for (String key : keys)
-        {
-            if (!json.containsKey(key))
-            {
-                throw new IllegalArgumentException(
-                        String.format("Malformed delivery-tracker message, '%s' missing", key));
-            }
-        }
-        return new DeliveryTrackerImpl(json.getString(AmqpService.OUTGOING_MSG_REF), DeliveryState.valueOf(json
-                .getString(NotificationHelper.DELIVERY_STATE)), MessageState.valueOf(json
-                .getString(NotificationHelper.MSG_STATE)));
-    }
+  @Override
+  public DeliveryState getDeliveryState() {
+    return _deliveryState;
+  }
 
-    @Override
-    public DeliveryState getDeliveryState()
-    {
-        return _deliveryState;
-    }
+  @Override
+  public MessageState getMessageState() {
+    return _msgState;
+  }
 
-    @Override
-    public MessageState getMessageState()
-    {
-        return _msgState;
-    }
-
-    @Override
-    public String getMessageRef()
-    {
-        return _ref;
-    }
+  @Override
+  public String getMessageRef() {
+    return _ref;
+  }
 }

@@ -22,72 +22,61 @@ import io.vertx.core.json.JsonObject;
  * Allows a vert.x application to customize the establishing of an outgoing
  * link. Reliability are supported and recovery options in a future release.
  * Future extension point to add more options.
- * 
- * @author <a href="mailto:rajith@rajith.lk">Rajith Muditha Attapattu</a>
  *
+ * @author <a href="mailto:rajith@rajith.lk">Rajith Muditha Attapattu</a>
  */
 @DataObject
-public class OutgoingLinkOptions
-{
-    public final static String RELIABILITY = "reliability";
+public class OutgoingLinkOptions {
+  public final static String RELIABILITY = "reliability";
 
-    public final static String RECOVERY_OPTIONS = "recovery-options";
+  public final static String RECOVERY_OPTIONS = "recovery-options";
 
-    private ReliabilityMode reliability = ReliabilityMode.UNRELIABLE;
+  private ReliabilityMode reliability = ReliabilityMode.UNRELIABLE;
 
-    private RetryOptions recoveryOptions = new RetryOptions();
+  private RetryOptions recoveryOptions = new RetryOptions();
 
-    public OutgoingLinkOptions()
-    {
-    }
+  public OutgoingLinkOptions() {
+  }
 
-    public OutgoingLinkOptions(OutgoingLinkOptions options)
-    {
-        this.reliability = options.reliability;
-        this.recoveryOptions = options.recoveryOptions;
-    }
+  public OutgoingLinkOptions(OutgoingLinkOptions options) {
+    this.reliability = options.reliability;
+    this.recoveryOptions = options.recoveryOptions;
+  }
 
-    public OutgoingLinkOptions(JsonObject options)
-    {
-        this.reliability = ReliabilityMode.valueOf(options.getString(RELIABILITY, ReliabilityMode.UNRELIABLE.name()));
-        this.recoveryOptions = new RetryOptions(options.getJsonObject(RECOVERY_OPTIONS));
-    }
+  public OutgoingLinkOptions(JsonObject options) {
+    this.reliability = ReliabilityMode.valueOf(options.getString(RELIABILITY, ReliabilityMode.UNRELIABLE.name()));
+    this.recoveryOptions = new RetryOptions(options.getJsonObject(RECOVERY_OPTIONS));
+  }
 
-    public JsonObject toJson()
-    {
-        JsonObject json = new JsonObject();
-        json.put(RELIABILITY, reliability.name());
-        json.put(RECOVERY_OPTIONS, recoveryOptions.toJson());
-        return json;
-    }
+  public JsonObject toJson() {
+    JsonObject json = new JsonObject();
+    json.put(RELIABILITY, reliability.name());
+    json.put(RECOVERY_OPTIONS, recoveryOptions.toJson());
+    return json;
+  }
 
-    public ReliabilityMode getReliability()
-    {
-        return reliability;
-    }
+  public ReliabilityMode getReliability() {
+    return reliability;
+  }
 
-    /**
-     * Please see {@link ReliabilityMode} to understand the reliability modes
-     * and it's implications.
-     */
-    public void setReliability(ReliabilityMode reliability)
-    {
-        this.reliability = reliability;
-    }
+  /**
+   * Please see {@link ReliabilityMode} to understand the reliability modes
+   * and it's implications.
+   */
+  public void setReliability(ReliabilityMode reliability) {
+    this.reliability = reliability;
+  }
 
-    public RetryOptions getRecoveryOptions()
-    {
-        return recoveryOptions;
-    }
+  public RetryOptions getRecoveryOptions() {
+    return recoveryOptions;
+  }
 
-    public void setRecoveryOptions(RetryOptions recoveryOptions)
-    {
-        this.recoveryOptions = recoveryOptions;
-    }
+  public void setRecoveryOptions(RetryOptions recoveryOptions) {
+    this.recoveryOptions = recoveryOptions;
+  }
 
-    @Override
-    public String toString()
-    {
-        return toJson().encode();
-    }
+  @Override
+  public String toString() {
+    return toJson().encode();
+  }
 }

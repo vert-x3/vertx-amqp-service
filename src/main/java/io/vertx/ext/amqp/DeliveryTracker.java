@@ -16,11 +16,10 @@
 package io.vertx.ext.amqp;
 
 
-public interface DeliveryTracker
-{
-    public DeliveryState getDeliveryState();
+public interface DeliveryTracker {
+  public DeliveryState getDeliveryState();
 
-    public MessageState getMessageState();
+  public MessageState getMessageState();
 
-    public String getMessageRef();
+  public String getMessageRef();
 }

@@ -23,41 +23,34 @@ import io.vertx.ext.amqp.impl.AmqpServiceImpl;
 import io.vertx.ext.amqp.impl.config.AmqpServiceConfigImpl;
 import io.vertx.serviceproxy.ProxyHelper;
 
-public class AmqpVerticle extends AbstractVerticle
-{
-    private static final Logger _logger = LoggerFactory.getLogger(AmqpVerticle.class);
+public class AmqpVerticle extends AbstractVerticle {
+  private static final Logger LOGGER = LoggerFactory.getLogger(AmqpVerticle.class);
 
-    private AmqpServiceImpl _service;
+  private AmqpServiceImpl service;
 
-    @Override
-    public void start() throws Exception
-    {
-        super.start();
-        AmqpServiceConfig config = new AmqpServiceConfigImpl(config());
-        try
-        {
-            _service = new AmqpServiceImpl(vertx, config, this);
-            String address = config().getString("address");
-            if (address == null)
-            {
-                throw new IllegalStateException("address field must be specified in config for service verticle");
-            }
+  @Override
+  public void start() throws Exception {
+    super.start();
+    AmqpServiceConfig config = new AmqpServiceConfigImpl(config());
+    try {
+      service = new AmqpServiceImpl(vertx, config, this);
+      String address = config().getString("address");
+      if (address == null) {
+        throw new IllegalStateException("address field must be specified in config for service verticle");
+      }
 
-            ProxyHelper.registerService(AmqpService.class, vertx, _service, address);
-            _service.start();
-            _logger.info(String.format("AmqpService is now available via the address : %s", address));
-        }
-        catch (MessagingException e)
-        {
-            _logger.fatal("Exception when starting AMQP Service", e);
-        }
+      ProxyHelper.registerService(AmqpService.class, vertx, service, address);
+      service.start();
+      LOGGER.info(String.format("AmqpService is now available via the address : %s", address));
+    } catch (MessagingException e) {
+      LOGGER.fatal("Exception when starting AMQP Service", e);
     }
+  }
 
-    @Override
-    public void stop() throws Exception
-    {
-        _service.stop();
-        _logger.warn("Stopping AMQP Service");
-        super.stop();
-    }
+  @Override
+  public void stop() throws Exception {
+    service.stop();
+    LOGGER.warn("Stopping AMQP Service");
+    super.stop();
+  }
 }

@@ -19,15 +19,12 @@ package io.vertx.ext.amqp;
  * Thrown when the given Message is invalid or malformed.
  */
 @SuppressWarnings("serial")
-public class MessageFormatException extends MessagingException
-{
-    public MessageFormatException(String msg, ErrorCode code)
-    {
-        super(msg, code);
-    }
+public class MessageFormatException extends MessagingException {
+  public MessageFormatException(String msg, ErrorCode code) {
+    super(msg, code);
+  }
 
-    public MessageFormatException(String msg, Throwable t, ErrorCode code)
-    {
-        super(msg, t, code);
-    }
+  public MessageFormatException(String msg, Throwable t, ErrorCode code) {
+    super(msg, t, code);
+  }
 }

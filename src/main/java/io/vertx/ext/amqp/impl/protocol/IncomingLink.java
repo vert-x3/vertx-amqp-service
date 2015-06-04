@@ -15,18 +15,17 @@
  */
 package io.vertx.ext.amqp.impl.protocol;
 
-import io.vertx.ext.amqp.CreditMode;
+import io.vertx.ext.amqp.impl.CreditMode;
 import io.vertx.ext.amqp.MessagingException;
 import io.vertx.ext.amqp.ReliabilityMode;
 
-public interface IncomingLink extends Link
-{
-    public ReliabilityMode getReceiverMode();
+public interface IncomingLink extends Link {
+  public ReliabilityMode getReceiverMode();
 
-    public CreditMode getCreditMode();
+  public CreditMode getCreditMode();
 
-    public int getUnsettled() throws MessagingException;
+  public int getUnsettled() throws MessagingException;
 
-    public void setCredits(int credits) throws MessagingException;
+  public void setCredits(int credits) throws MessagingException;
 
 }

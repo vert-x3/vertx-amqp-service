@@ -17,131 +17,103 @@ package io.vertx.ext.amqp.impl.protocol;
 
 import io.vertx.ext.amqp.ErrorCode;
 import io.vertx.ext.amqp.MessagingException;
+import org.apache.qpid.proton.engine.Link;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.qpid.proton.engine.Link;
+abstract class BaseLink {
+  private final String _toString;
 
-abstract class BaseLink
-{
-    private final String _toString;
+  String _address;
 
-    String _address;
+  Link _link;
 
-    Link _link;
+  SessionImpl _ssn;
 
-    SessionImpl _ssn;
+  AtomicBoolean _closed = new AtomicBoolean(false);
 
-    AtomicBoolean _closed = new AtomicBoolean(false);
+  boolean _dynamic = false;
 
-    boolean _dynamic = false;
+  private Object _ctx;
 
-    private Object _ctx;
+  BaseLink(SessionImpl ssn, String address, Link link) {
+    _address = address;
+    _link = link;
+    _ssn = ssn;
+    _toString = ssn.getConnection().toString() + "/" + address;
+  }
 
-    BaseLink(SessionImpl ssn, String address, Link link)
-    {
-        _address = address;
-        _link = link;
-        _ssn = ssn;
-        _toString = ssn.getConnection().toString() + "/" + address;
+  public String getName() {
+    return _link.getName();
+  }
+
+  public String getAddress() {
+    return _address;
+  }
+
+  String getTarget() {
+    if (_link.getRemoteTarget() != null) {
+      return _link.getRemoteTarget().getAddress();
+    } else if (_link.getTarget() != null) {
+      return _link.getTarget().getAddress();
+    } else {
+      return null;
     }
+  }
 
-    public String getName()
-    {
-        return _link.getName();
+  String getSource() {
+    if (_link.getRemoteSource() != null) {
+      return _link.getRemoteSource().getAddress();
+    } else if (_link.getSource() != null) {
+      return _link.getSource().getAddress();
+    } else {
+      return null;
     }
+  }
 
-    public String getAddress()
-    {
-        return _address;
+  void checkClosed() throws MessagingException {
+    if (_closed.get()) {
+      throw new MessagingException("Link is closed", ErrorCode.LINK_CLOSED);
     }
+  }
 
-    String getTarget()
-    {
-        if (_link.getRemoteTarget() != null)
-        {
-            return _link.getRemoteTarget().getAddress();
-        }
-        else if (_link.getTarget() != null)
-        {
-            return _link.getTarget().getAddress();
-        }
-        else
-        {
-            return null;
-        }
-    }
+  public void close() {
+    closeImpl();
+    _ssn.removeLink(_link);
+    _ssn.getConnection().write();
+  }
 
-    String getSource()
-    {
-        if (_link.getRemoteSource() != null)
-        {
-            return _link.getRemoteSource().getAddress();
-        }
-        else if (_link.getSource() != null)
-        {
-            return _link.getSource().getAddress();
-        }
-        else
-        {
-            return null;
-        }
-    }
+  void closeImpl() {
+    _closed.set(true);
+    _link.close();
+  }
 
-    void checkClosed() throws MessagingException
-    {
-        if (_closed.get())
-        {
-            throw new MessagingException("Link is closed", ErrorCode.LINK_CLOSED);
-        }
-    }
+  void setDynamicAddress(boolean dynamic) {
+    _dynamic = dynamic;
+  }
 
-    public void close()
-    {
-        closeImpl();
-        _ssn.removeLink(_link);
-        _ssn.getConnection().write();
-    }
+  SessionImpl getSession() {
+    return _ssn;
+  }
 
-    void closeImpl()
-    {
-        _closed.set(true);
-        _link.close();
-    }
+  ConnectionImpl getConnection() {
+    return _ssn.getConnection();
+  }
 
-    void setDynamicAddress(boolean dynamic)
-    {
-        _dynamic = dynamic;
-    }
+  @Override
+  public String toString() {
+    return _toString;
+  }
 
-    SessionImpl getSession()
-    {
-        return _ssn;
-    }
+  Object getContext() {
+    return _ctx;
+  }
 
-    ConnectionImpl getConnection()
-    {
-        return _ssn.getConnection();
-    }
+  void setContext(Object ctx) {
+    _ctx = ctx;
+  }
 
-    @Override
-    public String toString()
-    {
-        return _toString;
-    }
-
-    Object getContext()
-    {
-        return _ctx;
-    }
-
-    void setContext(Object ctx)
-    {
-        _ctx = ctx;
-    }
-
-    Link getProtocolLink()
-    {
-        return _link;
-    }
+  Link getProtocolLink() {
+    return _link;
+  }
 }

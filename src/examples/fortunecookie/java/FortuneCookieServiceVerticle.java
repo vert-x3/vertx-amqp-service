@@ -16,11 +16,7 @@
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.amqp.AmqpService;
-import io.vertx.ext.amqp.DeliveryTracker;
-import io.vertx.ext.amqp.NotificationHelper;
-import io.vertx.ext.amqp.ServiceOptions;
-import io.vertx.ext.amqp.NotificationType;
+import io.vertx.ext.amqp.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -30,105 +26,90 @@ import java.util.Random;
 import java.util.UUID;
 
 /**
- * 
  * @author <a href="mailto:rajith77@gmail.com">Rajith Attapattu</a>
- *
  */
-public class FortuneCookieServiceVerticle extends AbstractVerticle
-{
-    final Map<Integer, String> fortuneCookies = new HashMap<Integer, String>();
+public class FortuneCookieServiceVerticle extends AbstractVerticle {
+  final Map<Integer, String> fortuneCookies = new HashMap<Integer, String>();
 
-    final Random random = new Random();
+  final Random random = new Random();
 
-    int bound = 0;
+  int bound = 0;
 
-    AmqpService service;
+  AmqpService service;
 
-    String serviceAddress = "fortune-cookie-service";
+  String serviceAddress = "fortune-cookie-service";
 
-    String noticeAddress = UUID.randomUUID().toString();
+  String noticeAddress = UUID.randomUUID().toString();
 
-    int count = 0;
+  int count = 0;
 
-    @Override
-    public void start() throws Exception
-    {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(
-                "/fortune-cookie.txt"))))
-        {
-            for (String line; (line = br.readLine()) != null;)
-            {
-                fortuneCookies.put(++bound, line);
-            }
+  @Override
+  public void start() throws Exception {
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(
+      "/fortune-cookie.txt")))) {
+      for (String line; (line = br.readLine()) != null; ) {
+        fortuneCookies.put(++bound, line);
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("Error setting up FortuneCookieServiceVerticle");
+    }
+
+    service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+
+    ServiceOptions options = new ServiceOptions();
+    service.registerService(
+      serviceAddress,
+      noticeAddress,
+      options,
+      result -> {
+        if (result.succeeded()) {
+          print("Service registered succesfully with the vertx-amqp-bridge using address : '%s'",
+            serviceAddress);
+        } else {
+          print("Unable to register service");
         }
-        catch (Exception e)
-        {
-            throw new RuntimeException("Error setting up FortuneCookieServiceVerticle");
-        }
+      });
 
-        service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+    vertx.eventBus().<JsonObject>consumer(serviceAddress, msg -> {
+      JsonObject request = msg.body();
+      // print(request.encodePrettily());
+      String linkId = request.getString(AmqpService.INCOMING_MSG_LINK_REF);
+      print("Received a request for a fortune-cookie from client [%s]", linkId);
+      print("reply-to %s", msg.replyAddress());
+      service.accept(request.getString(AmqpService.INCOMING_MSG_REF), result -> {
+      });
 
-        ServiceOptions options = new ServiceOptions();
-        service.registerService(
-                serviceAddress,
-                noticeAddress,
-                options,
-                result -> {
-                    if (result.succeeded())
-                    {
-                        print("Service registered succesfully with the vertx-amqp-bridge using address : '%s'",
-                                serviceAddress);
-                    }
-                    else
-                    {
-                        print("Unable to register service");
-                    }
-                });
+      JsonObject response = new JsonObject();
+      response.put(AmqpService.OUTGOING_MSG_REF, linkId);
+      response.put("body", fortuneCookies.get(random.nextInt(bound)));
+      msg.reply(response);
+    });
 
-        vertx.eventBus().<JsonObject> consumer(serviceAddress, msg -> {
-            JsonObject request = msg.body();
-            // print(request.encodePrettily());
-                String linkId = request.getString(AmqpService.INCOMING_MSG_LINK_REF);
-                print("Received a request for a fortune-cookie from client [%s]", linkId);
-                print("reply-to %s", msg.replyAddress());
-                service.accept(request.getString(AmqpService.INCOMING_MSG_REF), result -> {
-                });
-
-                JsonObject response = new JsonObject();
-                response.put(AmqpService.OUTGOING_MSG_REF, linkId);
-                response.put("body", fortuneCookies.get(random.nextInt(bound)));
-                msg.reply(response);
+    vertx.eventBus()
+      .<JsonObject>consumer(
+        noticeAddress,
+        msg -> {
+          NotificationType type = NotificationHelper.getType(msg.body());
+          if (type == NotificationType.DELIVERY_STATE) {
+            DeliveryTracker tracker = NotificationHelper.getDeliveryTracker(msg.body());
+            print("The the fortune-cookie is acknowledged by the client. Issuing another request credit after a 30s delay");
+            print("=============================================================\n");
+            vertx.setTimer(30 * 1000, timer -> {
+              service.issueCredits(tracker.getMessageRef(), 1, result -> {
+              });
             });
+          } else if (type == NotificationType.INCOMING_LINK_OPENED) {
+            String linkRef = NotificationHelper.getLinkRef(msg.body());
+            print("A client [%s] contacted the fortune-cookie service, issueing a single request-credit to start with",
+              linkRef);
+            print("=============================================================");
+            service.issueCredits(linkRef, 1, result -> {
+            });
+          }
+        });
+  }
 
-        vertx.eventBus()
-                .<JsonObject> consumer(
-                        noticeAddress,
-                        msg -> {
-                            NotificationType type = NotificationHelper.getType(msg.body());
-                            if (type == NotificationType.DELIVERY_STATE)
-                            {
-                                DeliveryTracker tracker = NotificationHelper.getDeliveryTracker(msg.body());
-                                print("The the fortune-cookie is acknowledged by the client. Issuing another request credit after a 30s delay");
-                                print("=============================================================\n");
-                                vertx.setTimer(30 * 1000, timer -> {
-                                    service.issueCredits(tracker.getMessageRef(), 1, result -> {
-                                    });
-                                });
-                            }
-                            else if (type == NotificationType.INCOMING_LINK_OPENED)
-                            {
-                                String linkRef = NotificationHelper.getLinkRef(msg.body());
-                                print("A client [%s] contacted the fortune-cookie service, issueing a single request-credit to start with",
-                                        linkRef);
-                                print("=============================================================");
-                                service.issueCredits(linkRef, 1, result -> {
-                                });
-                            }
-                        });
-    }
-
-    public static void print(String format, Object... args)
-    {
-        System.out.println(String.format(format, args));
-    }
+  public static void print(String format, Object... args) {
+    System.out.println(String.format(format, args));
+  }
 }

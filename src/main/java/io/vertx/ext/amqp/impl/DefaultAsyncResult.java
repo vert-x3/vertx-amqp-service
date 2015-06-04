@@ -17,62 +17,53 @@ package io.vertx.ext.amqp.impl;
 
 import io.vertx.core.AsyncResult;
 
-public class DefaultAsyncResult<T> implements AsyncResult<T>
-{
-    private T _result;
+public class DefaultAsyncResult<T> implements AsyncResult<T> {
+  private T _result;
 
-    private boolean _success;
+  private boolean _success;
 
-    private Throwable _th;
+  private Throwable _th;
 
-    public static DefaultAsyncResult<Void> VOID_SUCCESS = new DefaultAsyncResult<Void>(null, true, null);
+  public static DefaultAsyncResult<Void> VOID_SUCCESS = new DefaultAsyncResult<Void>(null, true, null);
 
-    DefaultAsyncResult(T result)
-    {
-        this(result, true, null);
-    }
+  DefaultAsyncResult(T result) {
+    this(result, true, null);
+  }
 
-    DefaultAsyncResult(Throwable th)
-    {
-        this(null, false, th);
-    }
+  DefaultAsyncResult(Throwable th) {
+    this(null, false, th);
+  }
 
-    /*
-     * error could be an int code or a string msg, depending on the type of T.
-     */
-    DefaultAsyncResult(T error, Throwable th)
-    {
-        this(error, false, th);
-    }
+  /*
+   * error could be an int code or a string msg, depending on the type of T.
+   */
+  DefaultAsyncResult(T error, Throwable th) {
+    this(error, false, th);
+  }
 
-    DefaultAsyncResult(T result, boolean success, Throwable th)
-    {
-        _result = result;
-        _success = success;
-        _th = th;
-    }
+  DefaultAsyncResult(T result, boolean success, Throwable th) {
+    _result = result;
+    _success = success;
+    _th = th;
+  }
 
-    @Override
-    public Throwable cause()
-    {
-        return _th;
-    }
+  @Override
+  public Throwable cause() {
+    return _th;
+  }
 
-    @Override
-    public boolean failed()
-    {
-        return !_success;
-    }
+  @Override
+  public boolean failed() {
+    return !_success;
+  }
 
-    @Override
-    public T result()
-    {
-        return _result;
-    }
+  @Override
+  public T result() {
+    return _result;
+  }
 
-    @Override
-    public boolean succeeded()
-    {
-        return _success;
-    }
+  @Override
+  public boolean succeeded() {
+    return _success;
+  }
 }

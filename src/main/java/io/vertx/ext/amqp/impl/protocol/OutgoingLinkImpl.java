@@ -18,90 +18,75 @@ package io.vertx.ext.amqp.impl.protocol;
 import io.vertx.ext.amqp.ErrorCode;
 import io.vertx.ext.amqp.MessageFormatException;
 import io.vertx.ext.amqp.MessagingException;
-
-import java.nio.ByteBuffer;
-
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Sender;
 
-class OutgoingLinkImpl extends BaseLink implements OutgoingLink
-{
-    OutgoingLinkImpl(SessionImpl ssn, String address, Link link)
-    {
-        super(ssn, address, link);
-    }
+import java.nio.ByteBuffer;
 
-    @Override
-    public void offerCredits(int credits) throws MessagingException
-    {
-        ((Sender) _link).offer(credits);
-        _ssn.getConnection().write();
-    }
+class OutgoingLinkImpl extends BaseLink implements OutgoingLink {
+  OutgoingLinkImpl(SessionImpl ssn, String address, Link link) {
+    super(ssn, address, link);
+  }
 
-    void init()
-    {
-        _link.open();
-    }
+  @Override
+  public void offerCredits(int credits) throws MessagingException {
+    ((Sender) _link).offer(credits);
+    _ssn.getConnection().write();
+  }
 
-    @Override
-    public boolean isInbound()
-    {
-        return false;
-    }
+  void init() {
+    _link.open();
+  }
 
-    @Override
-    public int getUnsettled() throws MessagingException
-    {
-        checkClosed();
-        return _link.getUnsettled();
-    }
+  @Override
+  public boolean isInbound() {
+    return false;
+  }
 
-    @Override
-    public TrackerImpl send(AmqpMessage msg) throws MessageFormatException, MessagingException
-    {
-        checkClosed();
-        if (msg instanceof AmqpMessageImpl)
-        {
-            return send(((AmqpMessageImpl) msg).getProtocolMessage());
-        }
-        else
-        {
-            throw new MessageFormatException("Unsupported message implementation", ErrorCode.INVALID_MSG_FORMAT);
-        }
-    }
+  @Override
+  public int getUnsettled() throws MessagingException {
+    checkClosed();
+    return _link.getUnsettled();
+  }
 
-    TrackerImpl send(org.apache.qpid.proton.message.Message m) throws MessageFormatException, MessagingException
-    {
-        checkClosed();
-        Sender sender = (Sender) _link;
-        byte[] tag = longToBytes(_ssn.getNextDeliveryTag());
-        Delivery delivery = sender.delivery(tag);
-        TrackerImpl tracker = new TrackerImpl(_ssn);
-        delivery.setContext(tracker);
-
-        if (m.getAddress() == null)
-        {
-            m.setAddress(_address);
-        }
-        byte[] buffer = new byte[1024];
-        int encoded = m.encode(buffer, 0, buffer.length);
-        sender.send(buffer, 0, encoded);
-        if (sender.getSenderSettleMode() == SenderSettleMode.SETTLED)
-        {
-            delivery.settle();
-            tracker.markSettled();
-        }
-        sender.advance();
-        _ssn.getConnection().write();
-        return tracker;
+  @Override
+  public TrackerImpl send(AmqpMessage msg) throws MessageFormatException, MessagingException {
+    checkClosed();
+    if (msg instanceof AmqpMessageImpl) {
+      return send(((AmqpMessageImpl) msg).getProtocolMessage());
+    } else {
+      throw new MessageFormatException("Unsupported message implementation", ErrorCode.INVALID_MSG_FORMAT);
     }
+  }
 
-    private static byte[] longToBytes(final long value)
-    {
-        ByteBuffer buffer = ByteBuffer.allocate(8);
-        buffer.putLong(value);
-        return buffer.array();
+  TrackerImpl send(org.apache.qpid.proton.message.Message m) throws MessageFormatException, MessagingException {
+    checkClosed();
+    Sender sender = (Sender) _link;
+    byte[] tag = longToBytes(_ssn.getNextDeliveryTag());
+    Delivery delivery = sender.delivery(tag);
+    TrackerImpl tracker = new TrackerImpl(_ssn);
+    delivery.setContext(tracker);
+
+    if (m.getAddress() == null) {
+      m.setAddress(_address);
     }
+    byte[] buffer = new byte[1024];
+    int encoded = m.encode(buffer, 0, buffer.length);
+    sender.send(buffer, 0, encoded);
+    if (sender.getSenderSettleMode() == SenderSettleMode.SETTLED) {
+      delivery.settle();
+      tracker.markSettled();
+    }
+    sender.advance();
+    _ssn.getConnection().write();
+    return tracker;
+  }
+
+  private static byte[] longToBytes(final long value) {
+    ByteBuffer buffer = ByteBuffer.allocate(8);
+    buffer.putLong(value);
+    return buffer.array();
+  }
 }

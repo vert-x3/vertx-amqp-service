@@ -15,24 +15,18 @@
  */
 package io.vertx.ext.amqp.impl.routing;
 
-public enum InboundRoutingPropertyType
-{
-    ADDRESS, SUBJECT, CUSTOM;
+public enum InboundRoutingPropertyType {
+  ADDRESS, SUBJECT, CUSTOM;
 
-    public static InboundRoutingPropertyType get(String key)
-    {
-        if (key == null || key.trim().equals(""))
-        {
-            return ADDRESS;
-        }
-
-        try
-        {
-            return InboundRoutingPropertyType.valueOf(key);
-        }
-        catch (IllegalArgumentException e)
-        {
-            return CUSTOM;
-        }
+  public static InboundRoutingPropertyType get(String key) {
+    if (key == null || key.trim().equals("")) {
+      return ADDRESS;
     }
+
+    try {
+      return InboundRoutingPropertyType.valueOf(key);
+    } catch (IllegalArgumentException e) {
+      return CUSTOM;
+    }
+  }
 }

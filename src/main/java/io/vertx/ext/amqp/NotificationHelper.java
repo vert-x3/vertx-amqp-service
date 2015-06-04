@@ -22,80 +22,62 @@ import io.vertx.ext.amqp.impl.protocol.DeliveryTrackerImpl;
  * A helper class for parsing notification messages. This allows applications to
  * not worry about the message format and instead deal with enums and java types
  * instead of json.
- * 
+ * <p/>
  * See {@link PublishToQueueVerticle} and {@link FortuneCookieServiceVerticle}
  * in the examples to see how this is used.
- * 
+ *
  * @author <a href="mailto:rajith@rajith.lk">Rajith Muditha Attapattu</a>
  */
-public class NotificationHelper
-{
-    public final static String TYPE = "vertx.amqp.notification-type";
+public class NotificationHelper {
+  public final static String TYPE = "vertx.amqp.notification-type";
 
-    public final static String LINK_REF = "vertx.amqp.link-ref";
+  public final static String LINK_REF = "vertx.amqp.link-ref";
 
-    public final static String LINK_CREDIT = "vertx.amqp.link-credit";
+  public final static String LINK_CREDIT = "vertx.amqp.link-credit";
 
-    public final static String DELIVERY_STATE = "vertx.amqp.delivery-state";
+  public final static String DELIVERY_STATE = "vertx.amqp.delivery-state";
 
-    public final static String MSG_STATE = "vertx.amqp.msg-state";
+  public final static String MSG_STATE = "vertx.amqp.msg-state";
 
-    public final static String ERROR_CODE = "vertx.amqp.error-code";
+  public final static String ERROR_CODE = "vertx.amqp.error-code";
 
-    public final static String ERROR_MSG = "vertx.amqp.error-msg";
+  public final static String ERROR_MSG = "vertx.amqp.error-msg";
 
-    public static NotificationType getType(JsonObject json)
-    {
-        if (json != null && json.containsKey(TYPE))
-        {
-            return NotificationType.valueOf(json.getString(TYPE));
-        }
-        else
-        {
-            throw new IllegalArgumentException("Malfored notification message. 'vertx.amqp.notification-type' missing");
-        }
+  public static NotificationType getType(JsonObject json) {
+    if (json != null && json.containsKey(TYPE)) {
+      return NotificationType.valueOf(json.getString(TYPE));
+    } else {
+      throw new IllegalArgumentException("Malfored notification message. 'vertx.amqp.notification-type' missing");
     }
+  }
 
-    public static ErrorCode getErrorCode(JsonObject json)
-    {
-        if (json != null && json.containsKey(ERROR_CODE))
-        {
-            return ErrorCode.valueOf(json.getString(ERROR_CODE));
-        }
-        else
-        {
-            throw new IllegalArgumentException("Malfored error message, 'vertx.amqp.error-code' missing");
-        }
+  public static ErrorCode getErrorCode(JsonObject json) {
+    if (json != null && json.containsKey(ERROR_CODE)) {
+      return ErrorCode.valueOf(json.getString(ERROR_CODE));
+    } else {
+      throw new IllegalArgumentException("Malfored error message, 'vertx.amqp.error-code' missing");
     }
+  }
 
-    public static String getLinkRef(JsonObject json)
-    {
-        if (json != null && json.containsKey(LINK_REF))
-        {
-            return json.getString(LINK_REF);
-        }
-        else
-        {
-            throw new IllegalArgumentException(String.format(
-                    "Malfored notification message, '%s' missing, but expected", LINK_REF));
-        }
+  public static String getLinkRef(JsonObject json) {
+    if (json != null && json.containsKey(LINK_REF)) {
+      return json.getString(LINK_REF);
+    } else {
+      throw new IllegalArgumentException(String.format(
+        "Malfored notification message, '%s' missing, but expected", LINK_REF));
     }
+  }
 
-    public static int getCredits(JsonObject json)
-    {
-        if (json != null && json.containsKey(LINK_CREDIT))
-        {
-            return json.getInteger(LINK_CREDIT);
-        }
-        else
-        {
-            throw new IllegalArgumentException(String.format("Malfored credit notification message, '%s' missing",
-                    LINK_CREDIT));
-        }
+  public static int getCredits(JsonObject json) {
+    if (json != null && json.containsKey(LINK_CREDIT)) {
+      return json.getInteger(LINK_CREDIT);
+    } else {
+      throw new IllegalArgumentException(String.format("Malfored credit notification message, '%s' missing",
+        LINK_CREDIT));
     }
+  }
 
-    public static DeliveryTracker getDeliveryTracker(JsonObject json)
-    {
-        return DeliveryTrackerImpl.create(json);
-    }
+  public static DeliveryTracker getDeliveryTracker(JsonObject json) {
+    return DeliveryTrackerImpl.create(json);
+  }
 }

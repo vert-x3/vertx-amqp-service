@@ -16,10 +16,8 @@
 package io.vertx.ext.amqp.impl.protocol;
 
 @SuppressWarnings("serial")
-public class ConditionManagerTimeoutException extends Exception
-{
-    public ConditionManagerTimeoutException(String message)
-    {
-        super(message);
-    }
+public class ConditionManagerTimeoutException extends Exception {
+  public ConditionManagerTimeoutException(String message) {
+    super(message);
+  }
 }

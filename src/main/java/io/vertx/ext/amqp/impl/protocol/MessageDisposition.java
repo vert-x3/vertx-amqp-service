@@ -18,25 +18,24 @@ package io.vertx.ext.amqp.impl.protocol;
 /**
  * Outgoing message disposition
  */
-public enum MessageDisposition
-{
-    /**
-     * Message has been accepted by the remote peer.
-     */
-    ACCEPTED,
+public enum MessageDisposition {
+  /**
+   * Message has been accepted by the remote peer.
+   */
+  ACCEPTED,
 
-    /**
-     * Message has been rejected by the remote peer.
-     */
-    REJECTED,
+  /**
+   * Message has been rejected by the remote peer.
+   */
+  REJECTED,
 
-    /**
-     * Message has been released by the remote peer.
-     */
-    RELEASED,
+  /**
+   * Message has been released by the remote peer.
+   */
+  RELEASED,
 
-    /**
-     * Disposition is not known.
-     */
-    UNKNOWN;
+  /**
+   * Disposition is not known.
+   */
+  UNKNOWN;
 }

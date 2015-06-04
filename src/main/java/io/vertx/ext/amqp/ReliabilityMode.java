@@ -18,17 +18,15 @@ package io.vertx.ext.amqp;
 /**
  * Specifies the level of reliability expected when sending and receiving
  * messages.
- *
  */
-public enum ReliabilityMode
-{
-    /**
-     * Best effort (a.k.a fire-and-forget) message delivery.
-     */
-    UNRELIABLE,
+public enum ReliabilityMode {
+  /**
+   * Best effort (a.k.a fire-and-forget) message delivery.
+   */
+  UNRELIABLE,
 
-    /**
-     * Guaranteed message delivery. There maybe duplicates.
-     */
-    AT_LEAST_ONCE,
+  /**
+   * Guaranteed message delivery. There maybe duplicates.
+   */
+  AT_LEAST_ONCE,
 }

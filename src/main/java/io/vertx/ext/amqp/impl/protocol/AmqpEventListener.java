@@ -18,31 +18,30 @@ package io.vertx.ext.amqp.impl.protocol;
 /*
  * A convenience interface for internal implementations.
  */
-public interface AmqpEventListener
-{
-    void onConnectionOpen(ConnectionImpl con);
+public interface AmqpEventListener {
+  void onConnectionOpen(ConnectionImpl con);
 
-    void onConnectionClosed(ConnectionImpl conn);
+  void onConnectionClosed(ConnectionImpl conn);
 
-    void onSessionOpen(SessionImpl ssn);
+  void onSessionOpen(SessionImpl ssn);
 
-    void onSessionClosed(SessionImpl ssn);
+  void onSessionClosed(SessionImpl ssn);
 
-    void onOutgoingLinkOpen(OutgoingLinkImpl link);
+  void onOutgoingLinkOpen(OutgoingLinkImpl link);
 
-    void onOutgoingLinkClosed(OutgoingLinkImpl link);
+  void onOutgoingLinkClosed(OutgoingLinkImpl link);
 
-    void onOutgoingLinkCredit(OutgoingLinkImpl link, int credits);
+  void onOutgoingLinkCredit(OutgoingLinkImpl link, int credits);
 
-    void onClearToSend(OutgoingLinkImpl link);
+  void onClearToSend(OutgoingLinkImpl link);
 
-    void onSettled(OutgoingLinkImpl link, TrackerImpl tracker);
+  void onSettled(OutgoingLinkImpl link, TrackerImpl tracker);
 
-    void onIncomingLinkOpen(IncomingLinkImpl link);
+  void onIncomingLinkOpen(IncomingLinkImpl link);
 
-    void onIncomingLinkClosed(IncomingLinkImpl link);
+  void onIncomingLinkClosed(IncomingLinkImpl link);
 
-    void onCreditOffered(IncomingLinkImpl link, int offered);
+  void onCreditOffered(IncomingLinkImpl link, int offered);
 
-    void onMessage(IncomingLinkImpl link, InboundMessage msg);
+  void onMessage(IncomingLinkImpl link, InboundMessage msg);
 }

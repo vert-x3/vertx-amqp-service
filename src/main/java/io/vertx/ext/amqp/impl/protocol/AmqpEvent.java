@@ -15,17 +15,16 @@
  */
 package io.vertx.ext.amqp.impl.protocol;
 
-public interface AmqpEvent
-{
-    EventType getType();
+public interface AmqpEvent {
+  EventType getType();
 
-    Connection getConnection();
+  Connection getConnection();
 
-    Session getSession();
+  Session getSession();
 
-    Link getLink();
+  Link getLink();
 
-    AmqpMessage getMessage();
+  AmqpMessage getMessage();
 
-    Tracker getDeliveryTracker();
+  Tracker getDeliveryTracker();
 }

@@ -15,39 +15,33 @@
  */
 package io.vertx.ext.amqp.impl.protocol;
 
-import static io.vertx.ext.amqp.impl.util.Functions.format;
 import io.vertx.ext.amqp.ErrorCode;
 import io.vertx.ext.amqp.MessagingException;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-class ManagedSession extends SessionImpl
-{
-    private final Map<String, Long> _refToSequenceMap = new ConcurrentHashMap<String, Long>();
+import static io.vertx.ext.amqp.impl.util.Functions.format;
 
-    public ManagedSession(ConnectionImpl conn, org.apache.qpid.proton.engine.Session ssn)
-    {
-        super(conn, ssn);
-    }
+class ManagedSession extends SessionImpl {
+  private final Map<String, Long> _refToSequenceMap = new ConcurrentHashMap<String, Long>();
 
-    void addMsgRef(String ref, long sequence)
-    {
-        _refToSequenceMap.put(ref, sequence);
-    }
+  public ManagedSession(ConnectionImpl conn, org.apache.qpid.proton.engine.Session ssn) {
+    super(conn, ssn);
+  }
 
-    void disposition(String ref, MessageDisposition disposition, int... flags) throws MessagingException,
-            MessagingException
-    {
-        if (_refToSequenceMap.containsKey(ref))
-        {
-            disposition(_refToSequenceMap.remove(ref), disposition, flags);
-        }
-        else
-        {
-            throw new MessagingException(format(
-                    "Invalid message reference : %s. Unable to find a matching AMQP message", ref),
-                    ErrorCode.INVALID_MSG_REF);
-        }
+  void addMsgRef(String ref, long sequence) {
+    _refToSequenceMap.put(ref, sequence);
+  }
+
+  void disposition(String ref, MessageDisposition disposition, int... flags) throws MessagingException,
+    MessagingException {
+    if (_refToSequenceMap.containsKey(ref)) {
+      disposition(_refToSequenceMap.remove(ref), disposition, flags);
+    } else {
+      throw new MessagingException(format(
+        "Invalid message reference : %s. Unable to find a matching AMQP message", ref),
+        ErrorCode.INVALID_MSG_REF);
     }
+  }
 }

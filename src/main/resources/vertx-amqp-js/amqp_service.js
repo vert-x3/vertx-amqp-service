@@ -34,10 +34,10 @@ var ServiceOptions = io.vertx.ext.amqp.ServiceOptions;
  <li>Send and Receive messages from AMQP peers with different reliability
  guarantees</li>
  </ul>
- 
+ <p/>
  For more information on AMQP visit www.amqp.org This service speaks AMQP 1.0
  and use QPid Proton(http://qpid.apache.org/proton) for protocol support.
- 
+
  @class
 */
 var AmqpService = function(j_val) {
@@ -55,8 +55,8 @@ var AmqpService = function(j_val) {
    @public
    @param amqpAddress {string} A link will be created to the the AMQP message-source identified by this address. . 
    @param eventbusAddress {string} The event-bus address to be mapped to the above link. The application should register a handler for this address on the event bus to receive the messages. 
-   @param notificationAddress {string} The event-bus address to which notifications about the incoming link is sent. Ex. Errors. The application should register a handler with the event-bus to receive these updates. Please see {@link NotificationType} and {@link NotificationHelper} for more details. 
-   @param options {Object} Options to configure the link behavior (Ex prefetch, reliability). {@link IncommingLinkOptions} 
+   @param notificationAddress {string} The event-bus address to which notifications about the incoming link is sent. Ex. Errors. The application should register a handler with the event-bus to receive these updates. Please see NotificationType and {@link NotificationHelper} for more details. 
+   @param options {Object} Options to configure the link behavior (Ex prefetch, reliability). <a href="../../cheatsheet/IncomingLinkOptions.html">IncomingLinkOptions</a> 
    @param result {function} The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association. 
    @return {AmqpService} A reference to the service.
    */
@@ -131,8 +131,8 @@ var AmqpService = function(j_val) {
    @public
    @param amqpAddress {string} A link will be created to the the AMQP message-sink identified by this address. 
    @param eventbusAddress {string} The event-bus address to be mapped to the above link. The application should send the messages using this address. 
-   @param notificationAddress {string} The event-bus address to which notifications about the outgoing link is sent. Ex. Errors, Delivery Status, credit availability. The application should register a handler with the event-bus to receive these updates. Please see {@link NotificationType} and {@link NotificationHelper} for more details. 
-   @param options {Object} Options to configure the link behavior (Ex reliability). {@link IncommingLinkOptions} 
+   @param notificationAddress {string} The event-bus address to which notifications about the outgoing link is sent. Ex. Errors, Delivery Status, credit availability. The application should register a handler with the event-bus to receive these updates. Please see NotificationType and {@link NotificationHelper} for more details. 
+   @param options {Object} Options to configure the link behavior (Ex reliability). <a href="../../cheatsheet/IncomingLinkOptions.html">IncomingLinkOptions</a> 
    @param result {function} The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association. 
    @return {AmqpService} A reference to the service.
    */
@@ -177,7 +177,7 @@ var AmqpService = function(j_val) {
    Allows an application to accept a message it has received.
 
    @public
-   @param msgRef {string} The string ref. Use {@link AmqpMessage#getMsgRef()} 
+   @param msgRef {string} The string ref. Use  
    @param result {function} Notifies if there is an error. 
    @return {AmqpService} A reference to the service.
    */
@@ -199,7 +199,7 @@ var AmqpService = function(j_val) {
    Allows an application to reject a message it has received.
 
    @public
-   @param msgRef {string} The string ref. Use {@link AmqpMessage#getMsgRef()} 
+   @param msgRef {string} The string ref. Use  
    @param result {function} Notifies if there is an error. 
    @return {AmqpService} A reference to the service.
    */
@@ -221,7 +221,7 @@ var AmqpService = function(j_val) {
    Allows an application to release a message it has received.
 
    @public
-   @param msgRef {string} The string ref. Use {@link AmqpMessage#getMsgRef()} 
+   @param msgRef {string} The string ref. Use  
    @param result {function} Notifies if there is an error. 
    @return {AmqpService} A reference to the service.
    */
@@ -246,8 +246,8 @@ var AmqpService = function(j_val) {
 
    @public
    @param eventbusAddress {string} The event-bus address the service is listening for incoming requests. The application needs to register a handler with the event-bus using this address to receive the above requests. 
-   @param notificationAddres {string} The event-bus address to which notifications about the service is sent. The application should register a handler with the event-bus to receive these updates. Ex notifies the application of an incoming link created by an AMQP peer to send requests. Please see {@link NotificationType} and {@link NotificationHelper} for more details. 
-   @param options {Object} Options to configure the Service behavior (Ex initial capacity). {@link ServiceOptions} 
+   @param notificationAddres {string} The event-bus address to which notifications about the service is sent. The application should register a handler with the event-bus to receive these updates. Ex notifies the application of an incoming link created by an AMQP peer to send requests. Please see NotificationType and {@link NotificationHelper} for more details. 
+   @param options {Object} Options to configure the Service behavior (Ex initial capacity). <a href="../../cheatsheet/ServiceOptions.html">ServiceOptions</a> 
    @param result {function} Notifies if there is an error. 
    @return {AmqpService} A reference to the service.
    */
@@ -294,7 +294,7 @@ var AmqpService = function(j_val) {
    receives so it can maintain the required QoS requirements.
 
    @public
-   @param linkId {string} The ref for the incoming link. The service gets notified of an incoming link by registering for notifications. Please {@link NotificationType#INCOMING_LINK_OPENED} and {@link NotificationHelper#getLinkRef(io.vertx.core.json.JsonObject)} for more details. 
+   @param linkId {string} The ref for the incoming link. The service gets notified of an incoming link by registering for notifications. Please  and {@link NotificationHelper#getLinkRef} for more details. 
    @param credits {number} The number of message (requests) the AMQP peer is allowed to send. 
    @param result {function} Notifies if there is an error. 
    @return {AmqpService} A reference to the service.

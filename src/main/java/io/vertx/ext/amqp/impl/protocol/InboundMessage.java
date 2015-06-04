@@ -15,48 +15,41 @@
  */
 package io.vertx.ext.amqp.impl.protocol;
 
-public class InboundMessage extends AmqpMessageImpl
-{
-    private String _ssnID;
+public class InboundMessage extends AmqpMessageImpl {
+  private String _ssnID;
 
-    private byte[] _deliveryTag;
+  private byte[] _deliveryTag;
 
-    private long _sequence;
+  private long _sequence;
 
-    private boolean _preSettled = false;
+  private boolean _preSettled = false;
 
-    InboundMessage(String ssnID, byte[] deliveryTag, long sequence, boolean preSettled,
-            org.apache.qpid.proton.message.Message msg)
-    {
-        super(msg);
-        _ssnID = ssnID;
-        _deliveryTag = deliveryTag;
-        _sequence = sequence;
-    }
+  InboundMessage(String ssnID, byte[] deliveryTag, long sequence, boolean preSettled,
+                 org.apache.qpid.proton.message.Message msg) {
+    super(msg);
+    _ssnID = ssnID;
+    _deliveryTag = deliveryTag;
+    _sequence = sequence;
+  }
 
-    @Override
-    public String getMsgRef()
-    {
-        return _ssnID.concat("#").concat(String.valueOf(_sequence));
-    }
+  @Override
+  public String getMsgRef() {
+    return _ssnID.concat("#").concat(String.valueOf(_sequence));
+  }
 
-    String getSessionID()
-    {
-        return _ssnID;
-    }
+  String getSessionID() {
+    return _ssnID;
+  }
 
-    byte[] getDeliveryTag()
-    {
-        return _deliveryTag;
-    }
+  byte[] getDeliveryTag() {
+    return _deliveryTag;
+  }
 
-    long getSequence()
-    {
-        return _sequence;
-    }
+  long getSequence() {
+    return _sequence;
+  }
 
-    public boolean isPreSettled()
-    {
-        return _preSettled;
-    }
+  public boolean isPreSettled() {
+    return _preSettled;
+  }
 }

@@ -17,11 +17,10 @@ package io.vertx.ext.amqp.impl.protocol;
 
 import io.vertx.ext.amqp.DeliveryState;
 
-public interface Tracker
-{
-    public DeliveryState getState();
+public interface Tracker {
+  public DeliveryState getState();
 
-    public MessageDisposition getDisposition();
+  public MessageDisposition getDisposition();
 
-    public boolean isSettled();
+  public boolean isSettled();
 }

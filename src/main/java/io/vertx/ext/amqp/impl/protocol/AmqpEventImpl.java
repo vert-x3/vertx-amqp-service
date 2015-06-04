@@ -16,83 +16,70 @@
 package io.vertx.ext.amqp.impl.protocol;
 
 
-class AmqpEventImpl implements AmqpEvent
-{
-    private final EventType _type;
+class AmqpEventImpl implements AmqpEvent {
+  private final EventType _type;
 
-    private Connection _con;
+  private Connection _con;
 
-    private Session _ssn;
+  private Session _ssn;
 
-    private Link _link;
+  private Link _link;
 
-    private AmqpMessage _msg;
+  private AmqpMessage _msg;
 
-    private Tracker _tracker;
+  private Tracker _tracker;
 
-    AmqpEventImpl(EventType type)
-    {
-        _type = type;
-    }
+  AmqpEventImpl(EventType type) {
+    _type = type;
+  }
 
-    void setConnection(Connection con)
-    {
-        _con = con;
-    }
+  void setConnection(Connection con) {
+    _con = con;
+  }
 
-    void setSession(Session ssn)
-    {
-        _ssn = ssn;
-    }
+  void setSession(Session ssn) {
+    _ssn = ssn;
+  }
 
-    void setLink(Link link)
-    {
-        _link = link;
-    }
+  void setLink(Link link) {
+    _link = link;
+  }
 
-    void setTracker(Tracker tracker)
-    {
-        _tracker = tracker;
-    }
+  void setTracker(Tracker tracker) {
+    _tracker = tracker;
+  }
 
-    void setMessage(AmqpMessage msg)
-    {
-        _msg = msg;
-    }
+  void setMessage(AmqpMessage msg) {
+    _msg = msg;
+  }
 
-    @Override
-    public EventType getType()
-    {
-        return _type;
-    }
+  @Override
+  public EventType getType() {
+    return _type;
+  }
 
-    @Override
-    public Connection getConnection()
-    {
-        return _con;
-    }
+  @Override
+  public Connection getConnection() {
+    return _con;
+  }
 
-    @Override
-    public Session getSession()
-    {
-        return _ssn;
-    }
+  @Override
+  public Session getSession() {
+    return _ssn;
+  }
 
-    @Override
-    public Link getLink()
-    {
-        return _link;
-    }
+  @Override
+  public Link getLink() {
+    return _link;
+  }
 
-    @Override
-    public Tracker getDeliveryTracker()
-    {
-        return _tracker;
-    }
+  @Override
+  public Tracker getDeliveryTracker() {
+    return _tracker;
+  }
 
-    @Override
-    public AmqpMessage getMessage()
-    {
-        return _msg;
-    }
+  @Override
+  public AmqpMessage getMessage() {
+    return _msg;
+  }
 }

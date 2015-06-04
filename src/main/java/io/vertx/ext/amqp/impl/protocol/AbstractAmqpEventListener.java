@@ -15,71 +15,57 @@
  */
 package io.vertx.ext.amqp.impl.protocol;
 
-public abstract class AbstractAmqpEventListener implements AmqpEventListener
-{
-    @Override
-    public void onConnectionOpen(ConnectionImpl con)
-    {
-    }
+public abstract class AbstractAmqpEventListener implements AmqpEventListener {
+  @Override
+  public void onConnectionOpen(ConnectionImpl con) {
+  }
 
-    @Override
-    public void onConnectionClosed(ConnectionImpl conn)
-    {
-    }
+  @Override
+  public void onConnectionClosed(ConnectionImpl conn) {
+  }
 
-    @Override
-    public void onSessionOpen(SessionImpl ssn)
-    {
-    }
+  @Override
+  public void onSessionOpen(SessionImpl ssn) {
+  }
 
-    @Override
-    public void onSessionClosed(SessionImpl ssn)
-    {
-    }
+  @Override
+  public void onSessionClosed(SessionImpl ssn) {
+  }
 
-    @Override
-    public void onOutgoingLinkOpen(OutgoingLinkImpl link)
-    {
-    }
+  @Override
+  public void onOutgoingLinkOpen(OutgoingLinkImpl link) {
+  }
 
-    @Override
-    public void onOutgoingLinkClosed(OutgoingLinkImpl link)
-    {
-    }
+  @Override
+  public void onOutgoingLinkClosed(OutgoingLinkImpl link) {
+  }
 
-    @Override
-    public void onOutgoingLinkCredit(OutgoingLinkImpl link, int credits)
-    {
-    }
+  @Override
+  public void onOutgoingLinkCredit(OutgoingLinkImpl link, int credits) {
+  }
 
-    @Override
-    public void onClearToSend(OutgoingLinkImpl link)
-    {
-    }
+  @Override
+  public void onClearToSend(OutgoingLinkImpl link) {
+  }
 
-    @Override
-    public void onSettled(OutgoingLinkImpl link, TrackerImpl tracker)
-    {
-    }
+  @Override
+  public void onSettled(OutgoingLinkImpl link, TrackerImpl tracker) {
+  }
 
-    @Override
-    public void onIncomingLinkOpen(IncomingLinkImpl link)
-    {
-    }
+  @Override
+  public void onIncomingLinkOpen(IncomingLinkImpl link) {
+  }
 
-    @Override
-    public void onIncomingLinkClosed(IncomingLinkImpl link)
-    {
-    }
+  @Override
+  public void onIncomingLinkClosed(IncomingLinkImpl link) {
+  }
 
-    @Override
-    public void onCreditOffered(IncomingLinkImpl link, int offered)
-    {
-    }
+  @Override
+  public void onCreditOffered(IncomingLinkImpl link, int offered) {
+  }
 
-    @Override
-    public void onMessage(IncomingLinkImpl link, InboundMessage msg)
-    {
-    }
+  @Override
+  public void onMessage(IncomingLinkImpl link, InboundMessage msg) {
+  }
 
 }

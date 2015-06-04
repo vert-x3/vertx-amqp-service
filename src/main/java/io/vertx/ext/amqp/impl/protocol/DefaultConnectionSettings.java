@@ -15,150 +15,128 @@
  */
 package io.vertx.ext.amqp.impl.protocol;
 
-import io.vertx.ext.amqp.ConnectionSettings;
+import io.vertx.ext.amqp.impl.ConnectionSettings;
 
 /**
  * Applications could extend this class to provide their own implementation of
  * the ConnectionSettings based on their configuration.
  */
-public class DefaultConnectionSettings implements ConnectionSettings
-{
-    protected String scheme = "amqp";
+public class DefaultConnectionSettings implements ConnectionSettings {
+  protected String scheme = "amqp";
 
-    protected String host = "localhost";
+  protected String host = "localhost";
 
-    protected int port = 5672;
+  protected int port = 5672;
 
-    protected String user = "";
+  protected String user = "";
 
-    protected String pass = "";
+  protected String pass = "";
 
-    protected String id = null;
+  protected String id = null;
 
-    protected boolean tcpNodelay = false;
+  protected boolean tcpNodelay = false;
 
-    protected int readBufferSize = 65535;
+  protected int readBufferSize = 65535;
 
-    protected int writeBufferSize = 65535;
+  protected int writeBufferSize = 65535;
 
-    protected long connectTimeout = Long.getLong("vertx-mod.connection.timeout", 60000);
+  protected long connectTimeout = Long.getLong("vertx-mod.connection.timeout", 60000);
 
-    protected long idleTimeout = Long.getLong("vertx-mod.connection.idle_timeout", 60000);
+  protected long idleTimeout = Long.getLong("vertx-mod.connection.idle_timeout", 60000);
 
-    protected String target = null;
+  protected String target = null;
 
-    public void setScheme(String scheme)
-    {
-        this.scheme = scheme;
-    }
+  public void setScheme(String scheme) {
+    this.scheme = scheme;
+  }
 
-    public void setHost(String host)
-    {
-        this.host = host;
-    }
+  public void setHost(String host) {
+    this.host = host;
+  }
 
-    public void setPort(int port)
-    {
-        this.port = port;
-    }
+  public void setPort(int port) {
+    this.port = port;
+  }
 
-    public void setUser(String user)
-    {
-        this.user = user;
-    }
+  public void setUser(String user) {
+    this.user = user;
+  }
 
-    public void setPass(String pass)
-    {
-        this.pass = pass;
-    }
+  public void setPass(String pass) {
+    this.pass = pass;
+  }
 
-    public void setId(String id)
-    {
-        this.id = id;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public void setTcpNodelay(boolean tcpNodelay)
-    {
-        this.tcpNodelay = tcpNodelay;
-    }
+  public void setTcpNodelay(boolean tcpNodelay) {
+    this.tcpNodelay = tcpNodelay;
+  }
 
-    public void setReadBufferSize(int readBufferSize)
-    {
-        this.readBufferSize = readBufferSize;
-    }
+  public void setReadBufferSize(int readBufferSize) {
+    this.readBufferSize = readBufferSize;
+  }
 
-    public void setWriteBufferSize(int writeBufferSize)
-    {
-        this.writeBufferSize = writeBufferSize;
-    }
+  public void setWriteBufferSize(int writeBufferSize) {
+    this.writeBufferSize = writeBufferSize;
+  }
 
-    public void setConnectTimeout(long connectTimeout)
-    {
-        this.connectTimeout = connectTimeout;
-    }
+  public void setConnectTimeout(long connectTimeout) {
+    this.connectTimeout = connectTimeout;
+  }
 
-    public void setIdleTimeout(long idleTimeout)
-    {
-        this.idleTimeout = idleTimeout;
-    }
+  public void setIdleTimeout(long idleTimeout) {
+    this.idleTimeout = idleTimeout;
+  }
 
-    @Override
-    public String getHost()
-    {
-        return host;
-    }
+  @Override
+  public String getHost() {
+    return host;
+  }
 
-    @Override
-    public int getPort()
-    {
-        return port;
-    }
+  @Override
+  public int getPort() {
+    return port;
+  }
 
-    @Override
-    public String getId()
-    {
-        return id;
-    }
+  @Override
+  public String getId() {
+    return id;
+  }
 
-    @Override
-    public boolean isTcpNodelay()
-    {
-        return tcpNodelay;
-    }
+  @Override
+  public boolean isTcpNodelay() {
+    return tcpNodelay;
+  }
 
-    @Override
-    public int getReadBufferSize()
-    {
-        return readBufferSize;
-    }
+  @Override
+  public int getReadBufferSize() {
+    return readBufferSize;
+  }
 
-    @Override
-    public int getWriteBufferSize()
-    {
-        return writeBufferSize;
-    }
+  @Override
+  public int getWriteBufferSize() {
+    return writeBufferSize;
+  }
 
-    @Override
-    public long getConnectTimeout()
-    {
-        return connectTimeout;
-    }
+  @Override
+  public long getConnectTimeout() {
+    return connectTimeout;
+  }
 
-    @Override
-    public long getIdleTimeout()
-    {
-        return idleTimeout;
-    }
+  @Override
+  public long getIdleTimeout() {
+    return idleTimeout;
+  }
 
-    @Override
-    public void setTarget(String target)
-    {
-        this.target = target;
-    }
+  @Override
+  public void setTarget(String target) {
+    this.target = target;
+  }
 
-    @Override
-    public String getNode()
-    {
-        return target;
-    }
+  @Override
+  public String getNode() {
+    return target;
+  }
 }

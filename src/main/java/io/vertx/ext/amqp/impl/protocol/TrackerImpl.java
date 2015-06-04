@@ -18,120 +18,96 @@ package io.vertx.ext.amqp.impl.protocol;
 import io.vertx.ext.amqp.DeliveryState;
 import io.vertx.ext.amqp.ErrorCode;
 import io.vertx.ext.amqp.MessagingException;
-
-import java.util.concurrent.TimeUnit;
-
 import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.messaging.Released;
 
-class TrackerImpl implements Tracker
-{
-    private MessageDisposition _disposition = MessageDisposition.UNKNOWN;
+import java.util.concurrent.TimeUnit;
 
-    private DeliveryState _state = DeliveryState.UNKNOWN;
+class TrackerImpl implements Tracker {
+  private MessageDisposition _disposition = MessageDisposition.UNKNOWN;
 
-    private ConditionManager _pending = new ConditionManager(true);
+  private DeliveryState _state = DeliveryState.UNKNOWN;
 
-    private boolean _settled = false;
+  private ConditionManager _pending = new ConditionManager(true);
 
-    private Session _ssn;
+  private boolean _settled = false;
 
-    private Object _ctx;
+  private Session _ssn;
 
-    TrackerImpl(Session ssn)
-    {
-        _ssn = ssn;
+  private Object _ctx;
+
+  TrackerImpl(Session ssn) {
+    _ssn = ssn;
+  }
+
+  @Override
+  public DeliveryState getState() {
+    return _state;
+  }
+
+  @Override
+  public MessageDisposition getDisposition() {
+    return _disposition;
+  }
+
+  public void awaitSettlement(int... flags) throws MessagingException {
+    _pending.waitUntilFalse();
+    if (_state == DeliveryState.LINK_FAILED) {
+      throw new MessagingException(
+        "The link has failed due to the underlying network connection failure. The message associated with this delivery is in-doubt",
+        ErrorCode.LINK_FAILED);
     }
+  }
 
-    @Override
-    public DeliveryState getState()
-    {
-        return _state;
+  public void awaitSettlement(long timeout, TimeUnit unit, int... flags) throws MessagingException, TimeoutException {
+    try {
+      _pending.waitUntilFalse(unit.toMillis(timeout));
+      if (_state == DeliveryState.LINK_FAILED) {
+        throw new MessagingException(
+          "The link has failed due to the underlying network connection failure. The message associated with this delivery is in-doubt",
+          ErrorCode.LINK_FAILED);
+      }
+    } catch (ConditionManagerTimeoutException e) {
+      throw new TimeoutException("The delivery was not settled within the given time period", e);
     }
+  }
 
-    @Override
-    public MessageDisposition getDisposition()
-    {
-        return _disposition;
-    }
+  @Override
+  public boolean isSettled() {
+    return _settled;
+  }
 
-    public void awaitSettlement(int... flags) throws MessagingException
-    {
-        _pending.waitUntilFalse();
-        if (_state == DeliveryState.LINK_FAILED)
-        {
-            throw new MessagingException(
-                    "The link has failed due to the underlying network connection failure. The message associated with this delivery is in-doubt",
-                    ErrorCode.LINK_FAILED);
-        }
-    }
+  void markSettled() {
+    _settled = true;
+    _state = DeliveryState.SETTLED;
+    _pending.setValueAndNotify(false);
+  }
 
-    public void awaitSettlement(long timeout, TimeUnit unit, int... flags) throws MessagingException, TimeoutException
-    {
-        try
-        {
-            _pending.waitUntilFalse(unit.toMillis(timeout));
-            if (_state == DeliveryState.LINK_FAILED)
-            {
-                throw new MessagingException(
-                        "The link has failed due to the underlying network connection failure. The message associated with this delivery is in-doubt",
-                        ErrorCode.LINK_FAILED);
-            }
-        }
-        catch (ConditionManagerTimeoutException e)
-        {
-            throw new TimeoutException("The delivery was not settled within the given time period", e);
-        }
-    }
+  void setDisposition(MessageDisposition disp) {
+    _disposition = disp;
+  }
 
-    @Override
-    public boolean isSettled()
-    {
-        return _settled;
+  void setDisposition(org.apache.qpid.proton.amqp.transport.DeliveryState state) {
+    if (state instanceof Accepted) {
+      _disposition = MessageDisposition.ACCEPTED;
+    } else if (state instanceof Released) {
+      _disposition = MessageDisposition.RELEASED;
+    } else if (state instanceof Rejected) {
+      _disposition = MessageDisposition.REJECTED;
     }
+  }
 
-    void markSettled()
-    {
-        _settled = true;
-        _state = DeliveryState.SETTLED;
-        _pending.setValueAndNotify(false);
-    }
+  void markLinkFailed() {
+    _state = DeliveryState.LINK_FAILED;
+    _pending.setValueAndNotify(false);
+  }
 
-    void setDisposition(MessageDisposition disp)
-    {
-        _disposition = disp;
-    }
+  Object getContext() {
+    return _ctx;
+  }
 
-    void setDisposition(org.apache.qpid.proton.amqp.transport.DeliveryState state)
-    {
-        if (state instanceof Accepted)
-        {
-            _disposition = MessageDisposition.ACCEPTED;
-        }
-        else if (state instanceof Released)
-        {
-            _disposition = MessageDisposition.RELEASED;
-        }
-        else if (state instanceof Rejected)
-        {
-            _disposition = MessageDisposition.REJECTED;
-        }
-    }
-
-    void markLinkFailed()
-    {
-        _state = DeliveryState.LINK_FAILED;
-        _pending.setValueAndNotify(false);
-    }
-
-    Object getContext()
-    {
-        return _ctx;
-    }
-
-    void setContext(Object ctx)
-    {
-        _ctx = ctx;
-    }
+  void setContext(Object ctx) {
+    _ctx = ctx;
+  }
 }

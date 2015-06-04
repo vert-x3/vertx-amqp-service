@@ -18,11 +18,10 @@ package io.vertx.ext.amqp.impl.protocol;
 import io.vertx.ext.amqp.MessageFormatException;
 import io.vertx.ext.amqp.MessagingException;
 
-public interface OutgoingLink extends Link
-{
-    public void offerCredits(int credits) throws MessagingException;
+public interface OutgoingLink extends Link {
+  public void offerCredits(int credits) throws MessagingException;
 
-    public int getUnsettled() throws MessagingException;
+  public int getUnsettled() throws MessagingException;
 
-    public Tracker send(AmqpMessage msg) throws MessageFormatException, MessagingException;
+  public Tracker send(AmqpMessage msg) throws MessageFormatException, MessagingException;
 }

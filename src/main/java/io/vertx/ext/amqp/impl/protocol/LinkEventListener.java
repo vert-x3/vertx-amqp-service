@@ -22,19 +22,18 @@ import io.vertx.ext.amqp.ReliabilityMode;
  * Internal interface to help delegate events to Service while
  * hiding link management in LinkManager 
  */
-public interface LinkEventListener
-{
-    void incomingLinkReady(String id, String address, boolean isFromInboundConnection);
+public interface LinkEventListener {
+  void incomingLinkReady(String id, String address, boolean isFromInboundConnection);
 
-    void incomingLinkFinal(String id, String address, boolean isFromInboundConnection);
+  void incomingLinkFinal(String id, String address, boolean isFromInboundConnection);
 
-    void outgoingLinkReady(String id, String address, boolean isFromInboundConnection);
+  void outgoingLinkReady(String id, String address, boolean isFromInboundConnection);
 
-    void outgoingLinkFinal(String id, String address, boolean isFromInboundConnection);
+  void outgoingLinkFinal(String id, String address, boolean isFromInboundConnection);
 
-    void message(String id, String linkAddress, ReliabilityMode reliability, InboundMessage msg);
+  void message(String id, String linkAddress, ReliabilityMode reliability, InboundMessage msg);
 
-    void deliveryUpdate(String linkRef, String msgRef, DeliveryState state, MessageDisposition disp);
+  void deliveryUpdate(String linkRef, String msgRef, DeliveryState state, MessageDisposition disp);
 
-    void outgoingLinkCreditGiven(String id, int credits);
+  void outgoingLinkCreditGiven(String id, int credits);
 }

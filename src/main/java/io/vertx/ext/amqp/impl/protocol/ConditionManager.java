@@ -15,147 +15,110 @@
  */
 package io.vertx.ext.amqp.impl.protocol;
 
-public class ConditionManager
-{
-    private final Object _lock = new Object();
+public class ConditionManager {
+  private final Object _lock = new Object();
 
-    private boolean _value;
+  private boolean _value;
 
-    private boolean _continue;
+  private boolean _continue;
 
-    public ConditionManager(boolean initialValue)
-    {
-        _value = initialValue;
+  public ConditionManager(boolean initialValue) {
+    _value = initialValue;
+  }
+
+  public void setValueAndNotify(boolean value) {
+    synchronized (_lock) {
+      if (_value != value) {
+        _value = value;
+        _lock.notifyAll();
+      }
+    }
+  }
+
+  public void wakeUpAndReturn() {
+    synchronized (_lock) {
+      _continue = false;
+      _lock.notifyAll();
+    }
+  }
+
+  public void waitUntilFalse() {
+    waitImpl(Boolean.FALSE, -1);
+  }
+
+  public long waitUntilFalse(long timeout) throws ConditionManagerTimeoutException {
+    long remaining = waitImpl(Boolean.FALSE, timeout);
+    if (_value) {
+      throw new ConditionManagerTimeoutException("Timed out waiting for condition to become false");
+    } else {
+      return remaining;
+    }
+  }
+
+  public void waitUntilTrue() {
+    waitImpl(Boolean.TRUE, -1);
+  }
+
+  public long waitUntilTrue(long timeout) throws ConditionManagerTimeoutException {
+    long remaining = waitImpl(Boolean.TRUE, timeout);
+    if (!_value) {
+      throw new ConditionManagerTimeoutException("Timed out waiting for condition to become true");
+    } else {
+      return remaining;
+    }
+  }
+
+  long waitImpl(boolean expected, long timeout) {
+    if (_value == expected) {
+      return timeout;
     }
 
-    public void setValueAndNotify(boolean value)
-    {
-        synchronized (_lock)
-        {
-            if (_value != value)
-            {
-                _value = value;
-                _lock.notifyAll();
-            }
+    synchronized (_lock) {
+      long start = 0;
+      long elapsed = 0;
+      _continue = true;
+      while ((_value != expected) && _continue) {
+        if (timeout > 0) {
+          start = System.currentTimeMillis();
         }
-    }
-
-    public void wakeUpAndReturn()
-    {
-        synchronized (_lock)
-        {
-            _continue = false;
-            _lock.notifyAll();
-        }
-    }
-
-    public void waitUntilFalse()
-    {
-        waitImpl(Boolean.FALSE, -1);
-    }
-
-    public long waitUntilFalse(long timeout) throws ConditionManagerTimeoutException
-    {
-        long remaining = waitImpl(Boolean.FALSE, timeout);
-        if (_value)
-        {
-            throw new ConditionManagerTimeoutException("Timed out waiting for condition to become false");
-        }
-        else
-        {
-            return remaining;
-        }
-    }
-
-    public void waitUntilTrue()
-    {
-        waitImpl(Boolean.TRUE, -1);
-    }
-
-    public long waitUntilTrue(long timeout) throws ConditionManagerTimeoutException
-    {
-        long remaining = waitImpl(Boolean.TRUE, timeout);
-        if (!_value)
-        {
-            throw new ConditionManagerTimeoutException("Timed out waiting for condition to become true");
-        }
-        else
-        {
-            return remaining;
-        }
-    }
-
-    long waitImpl(boolean expected, long timeout)
-    {
-        if (_value == expected)
-        {
-            return timeout;
+        try {
+          if (timeout < 0) {
+            preWaiting();
+            _lock.wait();
+          } else {
+            preWaiting();
+            _lock.wait(timeout - elapsed);
+          }
+        } catch (InterruptedException e) {
+        } finally {
+          postWaiting();
         }
 
-        synchronized (_lock)
-        {
-            long start = 0;
-            long elapsed = 0;
-            _continue = true;
-            while ((_value != expected) && _continue)
-            {
-                if (timeout > 0)
-                {
-                    start = System.currentTimeMillis();
-                }
-                try
-                {
-                    if (timeout < 0)
-                    {
-                        preWaiting();
-                        _lock.wait();
-                    }
-                    else
-                    {
-                        preWaiting();
-                        _lock.wait(timeout - elapsed);
-                    }
-                }
-                catch (InterruptedException e)
-                {
-                }
-                finally
-                {
-                    postWaiting();
-                }
-
-                if (timeout > 0)
-                {
-                    elapsed = System.currentTimeMillis() - start;
-                    if (timeout - elapsed <= 0)
-                    {
-                        break;
-                    }
-                }
-            }
-            return timeout - elapsed;
+        if (timeout > 0) {
+          elapsed = System.currentTimeMillis() - start;
+          if (timeout - elapsed <= 0) {
+            break;
+          }
         }
+      }
+      return timeout - elapsed;
     }
+  }
 
-    public boolean getCurrentValue()
-    {
-        synchronized (_lock)
-        {
-            return _value;
-        }
+  public boolean getCurrentValue() {
+    synchronized (_lock) {
+      return _value;
     }
+  }
 
-    public void preWaiting()
-    {
-    }
+  public void preWaiting() {
+  }
 
-    public void postWaiting()
-    {
-    }
+  public void postWaiting() {
+  }
 
-    @Override
-    public String toString()
-    {
-        return "ConditionManager value : " + _value + ", continue : " + _continue;
-    }
+  @Override
+  public String toString() {
+    return "ConditionManager value : " + _value + ", continue : " + _continue;
+  }
 }
