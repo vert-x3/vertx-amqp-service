@@ -1,0 +1,13 @@
+= AMQP bridge service
+
+WARNING: This service is experimental and the APIs are likely to change before completion.
+
+Provides a bi-directional bridge between Vert.x event bus addresses and AMQP addresses
+
+Please see the in source asciidoc documentation or the main documentation on the web-site for a full description
+of the service.
+
+* Web-site docs
+* link:src/main/asciidoc/java/index.adoc[Java in-source docs]
+* link:src/main/asciidoc/js/index.adoc[JavaScript in-source docs]
+* link:src/main/asciidoc/groovy/index.adoc[Groovy in-source docs]
