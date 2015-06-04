@@ -18,32 +18,39 @@ package io.vertx.ext.amqp;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.impl.LoggerFactory;
+import io.vertx.ext.amqp.impl.AmqpServiceConfig;
+import io.vertx.ext.amqp.impl.AmqpServiceImpl;
+import io.vertx.ext.amqp.impl.config.AmqpServiceConfigImpl;
+import io.vertx.serviceproxy.ProxyHelper;
 
-public class AmqpVerticle extends AbstractVerticle
-{
-    private static final Logger logger = LoggerFactory.getLogger(AmqpVerticle.class);
+public class AmqpVerticle extends AbstractVerticle {
+  private static final Logger LOGGER = LoggerFactory.getLogger(AmqpVerticle.class);
 
-    private Router _router;
+  private AmqpServiceImpl service;
 
-    @Override
-    public void start() throws Exception
-    {
-        super.start();
-        RouterConfig config = new RouterConfig(config());
-        try
-        {
-            _router = new Router(vertx, new MessageFactory(), config);
-        }
-        catch (MessagingException e)
-        {
-            logger.fatal("Exception when starting router", e);
-        }
+  @Override
+  public void start() throws Exception {
+    super.start();
+    AmqpServiceConfig config = new AmqpServiceConfigImpl(config());
+    try {
+      service = new AmqpServiceImpl(vertx, config, this);
+      String address = config().getString("address");
+      if (address == null) {
+        throw new IllegalStateException("address field must be specified in config for service verticle");
+      }
+
+      ProxyHelper.registerService(AmqpService.class, vertx, service, address);
+      service.start();
+      LOGGER.info(String.format("AmqpService is now available via the address : %s", address));
+    } catch (MessagingException e) {
+      LOGGER.fatal("Exception when starting AMQP Service", e);
     }
+  }
 
-    @Override
-    public void stop() throws Exception
-    {
-        _router.stop();
-        super.stop();
-    }
+  @Override
+  public void stop() throws Exception {
+    service.stop();
+    LOGGER.warn("Stopping AMQP Service");
+    super.stop();
+  }
 }

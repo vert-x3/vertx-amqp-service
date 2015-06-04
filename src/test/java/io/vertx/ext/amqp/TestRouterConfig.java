@@ -17,7 +17,9 @@ package io.vertx.ext.amqp;
  */
 
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.amqp.RouterConfig.*;
+import io.vertx.ext.amqp.impl.AmqpServiceConfig;
+import io.vertx.ext.amqp.impl.config.AmqpServiceConfigImpl;
+import io.vertx.ext.amqp.impl.routing.InboundRoutingPropertyType;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,33 +31,35 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
+/**
+ * 
+ * @author <a href="mailto:rajith@rajith.lk">Rajith Muditha Attapattu</a>
+ *
+ */
 public class TestRouterConfig extends TestCase
 {
     @Test
     public void testInboundRoutingKeyValues()
     {
-        assertEquals(INBOUND_ROUTING_PROPERTY_TYPE.SUBJECT, INBOUND_ROUTING_PROPERTY_TYPE.get("SUBJECT"));
-        assertEquals(INBOUND_ROUTING_PROPERTY_TYPE.CORRELATION_ID, INBOUND_ROUTING_PROPERTY_TYPE.get("CORRELATION_ID"));
-        assertEquals(INBOUND_ROUTING_PROPERTY_TYPE.MESSAGE_ID, INBOUND_ROUTING_PROPERTY_TYPE.get("MESSAGE_ID"));
-        assertEquals(INBOUND_ROUTING_PROPERTY_TYPE.REPLY_TO, INBOUND_ROUTING_PROPERTY_TYPE.get("REPLY_TO"));
-        assertEquals(INBOUND_ROUTING_PROPERTY_TYPE.ADDRESS, INBOUND_ROUTING_PROPERTY_TYPE.get(""));
-        assertEquals(INBOUND_ROUTING_PROPERTY_TYPE.ADDRESS, INBOUND_ROUTING_PROPERTY_TYPE.get(null));
-        assertEquals(INBOUND_ROUTING_PROPERTY_TYPE.CUSTOM, INBOUND_ROUTING_PROPERTY_TYPE.get("xxxxxxx"));
+        assertEquals(InboundRoutingPropertyType.SUBJECT, InboundRoutingPropertyType.get("SUBJECT"));
+        assertEquals(InboundRoutingPropertyType.ADDRESS, InboundRoutingPropertyType.get(""));
+        assertEquals(InboundRoutingPropertyType.ADDRESS, InboundRoutingPropertyType.get(null));
+        assertEquals(InboundRoutingPropertyType.CUSTOM, InboundRoutingPropertyType.get("xxxxxxx"));
     }
 
     @Test
     public void testConfigDefault()
     {
-        RouterConfig config = new RouterConfig(new JsonObject());
+        AmqpServiceConfig config = new AmqpServiceConfigImpl(new JsonObject());
 
         assertEquals("localhost", config.getInboundHost());
         assertEquals(5673, config.getInboundPort());
         assertEquals("amqp://localhost:5672/vertx", config.getDefaultOutboundAddress());
-        assertEquals("vertx.mod-amqp", config.getDefaultHandlerAddress());
+        assertEquals("vertx.service-amqp.bridge", config.getDefaultHandlerAddress());
         assertEquals(0, config.getHandlerAddressList().size());
         assertEquals(0, config.getInboundRoutes().size());
         assertEquals(0, config.getOutboundRoutes().size());
-        assertEquals(INBOUND_ROUTING_PROPERTY_TYPE.ADDRESS, config.getInboundRoutingPropertyType());
+        assertEquals(InboundRoutingPropertyType.ADDRESS, config.getInboundRoutingPropertyType());
         assertFalse(config.isUseCustomPropertyForOutbound());
         assertNull(config.getOutboundRoutingPropertyName());
         assertNull(config.getInboundRoutingPropertyName());
@@ -67,16 +71,16 @@ public class TestRouterConfig extends TestCase
         final URL url = getClass().getResource("/test-config1.json");
         JsonObject obj = new JsonObject(new Scanner(new File(url.toURI())).useDelimiter("\\Z").next());
 
-        RouterConfig config = new RouterConfig(obj);
+        AmqpServiceConfig config = new AmqpServiceConfigImpl(obj);
 
         assertEquals("localhost", config.getInboundHost());
         assertEquals(5673, config.getInboundPort());
         assertEquals("amqp://localhost:5672/vertx", config.getDefaultOutboundAddress());
-        assertEquals("vertx.mod-amqp", config.getDefaultHandlerAddress());
+        assertEquals("vertx.service-amqp.bridge", config.getDefaultHandlerAddress());
         assertEquals(0, config.getHandlerAddressList().size());
         assertEquals(0, config.getInboundRoutes().size());
         assertEquals(0, config.getOutboundRoutes().size());
-        assertEquals(INBOUND_ROUTING_PROPERTY_TYPE.ADDRESS, config.getInboundRoutingPropertyType());
+        assertEquals(InboundRoutingPropertyType.ADDRESS, config.getInboundRoutingPropertyType());
         assertFalse(config.isUseCustomPropertyForOutbound());
         assertNull(config.getOutboundRoutingPropertyName());
         assertNull(config.getInboundRoutingPropertyName());
@@ -89,16 +93,16 @@ public class TestRouterConfig extends TestCase
         final URL url = getClass().getResource("/test-config2.json");
         JsonObject obj = new JsonObject(new Scanner(new File(url.toURI())).useDelimiter("\\Z").next());
 
-        RouterConfig config = new RouterConfig(obj);
+        AmqpServiceConfig config = new AmqpServiceConfigImpl(obj);
 
         assertEquals("localhost", config.getInboundHost());
         assertEquals(5673, config.getInboundPort());
         assertEquals("amqp://localhost:5672/vertx", config.getDefaultOutboundAddress());
-        assertEquals("vertx.mod-amqp", config.getDefaultHandlerAddress());
+        assertEquals("vertx.service-amqp.bridge", config.getDefaultHandlerAddress());
         assertEquals(3, config.getHandlerAddressList().size());
         assertEquals(2, config.getInboundRoutes().size());
         assertEquals(3, config.getOutboundRoutes().size());
-        assertEquals(INBOUND_ROUTING_PROPERTY_TYPE.SUBJECT, config.getInboundRoutingPropertyType());
+        assertEquals(InboundRoutingPropertyType.SUBJECT, config.getInboundRoutingPropertyType());
         assertFalse(config.isUseCustomPropertyForOutbound());
         assertNull(config.getOutboundRoutingPropertyName());
         assertNull(config.getInboundRoutingPropertyName());
@@ -111,16 +115,16 @@ public class TestRouterConfig extends TestCase
         final URL url = getClass().getResource("/test-config3.json");
         JsonObject obj = new JsonObject(new Scanner(new File(url.toURI())).useDelimiter("\\Z").next());
 
-        RouterConfig config = new RouterConfig(obj);
+        AmqpServiceConfig config = new AmqpServiceConfigImpl(obj);
 
         assertEquals("localhost", config.getInboundHost());
         assertEquals(5673, config.getInboundPort());
         assertEquals("amqp://localhost:5672/vertx", config.getDefaultOutboundAddress());
-        assertEquals("vertx.mod-amqp", config.getDefaultHandlerAddress());
+        assertEquals("vertx.service-amqp.bridge", config.getDefaultHandlerAddress());
         assertEquals(3, config.getHandlerAddressList().size());
         assertEquals(2, config.getInboundRoutes().size());
         assertEquals(3, config.getOutboundRoutes().size());
-        assertEquals(INBOUND_ROUTING_PROPERTY_TYPE.CUSTOM, config.getInboundRoutingPropertyType());
+        assertEquals(InboundRoutingPropertyType.CUSTOM, config.getInboundRoutingPropertyType());
         assertTrue(config.isUseCustomPropertyForOutbound());
         assertEquals("routing-key", config.getOutboundRoutingPropertyName());
         assertEquals("station-code", config.getInboundRoutingPropertyName());

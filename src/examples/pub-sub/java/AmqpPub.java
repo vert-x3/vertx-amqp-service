@@ -19,25 +19,23 @@ import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.messenger.Messenger;
 
-public class AmqpPub
-{
-    public static void main(String[] args) throws Exception
-    {
-        Messenger mng = Proton.messenger();
-        mng.start();
+public class AmqpPub {
+  public static void main(String[] args) throws Exception {
+    Messenger mng = Proton.messenger();
+    mng.start();
 
-        Message msg = Proton.message();
-        msg.setBody(new AmqpValue("hello world from foo bar"));
-        msg.setAddress("amqp://localhost:5673/foo.bar");
-        mng.put(msg);
-        mng.send();
-        System.out.println("AMQP publisher sent message 'hello world from foo bar'");
-        
-        msg.setBody(new AmqpValue("hello world from foo baz"));
-        msg.setAddress("amqp://localhost:5673/foo.baz");
-        mng.put(msg);
-        mng.send();
-        System.out.println("AMQP publisher sent message 'hello world from foo baz'");
-        mng.stop();
-    }
+    Message msg = Proton.message();
+    msg.setBody(new AmqpValue("hello world from foo bar"));
+    msg.setAddress("amqp://localhost:5673/foo.bar");
+    mng.put(msg);
+    mng.send();
+    System.out.println("AMQP publisher sent message 'hello world from foo bar'");
+
+    msg.setBody(new AmqpValue("hello world from foo baz"));
+    msg.setAddress("amqp://localhost:5673/foo.baz");
+    mng.put(msg);
+    mng.send();
+    System.out.println("AMQP publisher sent message 'hello world from foo baz'");
+    mng.stop();
+  }
 }

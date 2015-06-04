@@ -19,22 +19,18 @@ import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.messenger.Messenger;
 
-public class AmqpSub2
-{
-    public static void main(String[] args) throws Exception
-    {
-        Messenger mng = Proton.messenger();
-        mng.start();
-        mng.subscribe("amqp://localhost:5673/foo.bar.*");
-        System.out.println("Subscribing to topic foo.bar.*");
-        while (true)
-        {
-            mng.recv(1);
-            while (mng.incoming() > 0)
-            {
-                Message m = mng.get();
-                System.out.println("AMQP subscriber received message : " + ((AmqpValue) m.getBody()).getValue());
-            }
-        }
+public class AmqpSub2 {
+  public static void main(String[] args) throws Exception {
+    Messenger mng = Proton.messenger();
+    mng.start();
+    mng.subscribe("amqp://localhost:5673/foo.bar.*");
+    System.out.println("Subscribing to topic foo.bar.*");
+    while (true) {
+      mng.recv(1);
+      while (mng.incoming() > 0) {
+        Message m = mng.get();
+        System.out.println("AMQP subscriber received message : " + ((AmqpValue) m.getBody()).getValue());
+      }
     }
+  }
 }

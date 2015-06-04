@@ -1,0 +1,30 @@
+== IncomingLinkOptions
+
+++++
+ Allows a vert.x application to customize the establishing of an incoming link.
+ Prefetch and reliability are supported and recovery options in a future
+ release. Future extension point to add more options.
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+
+|[[prefetch]]`prefetch`
+|`Number`
+|+++
+<i>Defaults to "1". </i><br>
+ <i>If set to a value > 0 </i>, the Vert.x-AMQP-Service will automatically
+ fetch more messages when a certain number of messages are marked as
+ either accepted, rejected or released. The Vert.x-AMQP-Service will
+ determine the optimum threshold for when the fetch happens and how much
+ to fetch. <br>
+ <i>If set to "zero"</i>, the vert.x application will need to explicitly
+ request messages using
+ link+++
+
+|[[recoveryOptions]]`recoveryOptions`
+|`link:RetryOptions.html[RetryOptions]`
+|-|===
