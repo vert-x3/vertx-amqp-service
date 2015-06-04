@@ -1,6 +1,6 @@
 = AMQP bridge service
 
-WARNING: This service is experimental and the APIs are likely to change before completion.
+WARNING: This service is experimental and the APIs are likely to change before settling down.
 
 Provides a bi-directional bridge between Vert.x event bus addresses and AMQP addresses
 
