@@ -33,14 +33,14 @@ public class DeliveryTrackerImpl implements DeliveryTracker {
   }
 
   public static DeliveryTracker create(JsonObject json) {
-    String[] keys = {AmqpService.OUTGOING_MSG_REF, NotificationHelper.DELIVERY_STATE, NotificationHelper.MSG_STATE};
+    String[] keys = {AMQPService.OUTGOING_MSG_REF, NotificationHelper.DELIVERY_STATE, NotificationHelper.MSG_STATE};
     for (String key : keys) {
       if (!json.containsKey(key)) {
         throw new IllegalArgumentException(
           String.format("Malformed delivery-tracker message, '%s' missing", key));
       }
     }
-    return new DeliveryTrackerImpl(json.getString(AmqpService.OUTGOING_MSG_REF), DeliveryState.valueOf(json
+    return new DeliveryTrackerImpl(json.getString(AMQPService.OUTGOING_MSG_REF), DeliveryState.valueOf(json
       .getString(NotificationHelper.DELIVERY_STATE)), MessageState.valueOf(json
       .getString(NotificationHelper.MSG_STATE)));
   }

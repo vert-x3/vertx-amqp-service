@@ -16,13 +16,10 @@
 
 package io.vertx.ext.amqp;
 
-import io.vertx.ext.amqp.AmqpService;
 import io.vertx.core.Vertx;
 import io.vertx.core.Handler;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.Message;
-import io.vertx.core.eventbus.DeliveryOptions;
-import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
 import java.util.ArrayList;
@@ -30,17 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import io.vertx.serviceproxy.ProxyHelper;
+
 import io.vertx.serviceproxy.ProxyHandler;
-import io.vertx.ext.amqp.ServiceOptions;
-import io.vertx.ext.amqp.AmqpService;
-import io.vertx.ext.amqp.OutgoingLinkOptions;
-import io.vertx.core.Vertx;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
-import io.vertx.ext.amqp.IncomingLinkOptions;
 
 /*
   Generated Proxy code - DO NOT EDIT
@@ -49,13 +37,13 @@ import io.vertx.ext.amqp.IncomingLinkOptions;
 public class AmqpServiceVertxProxyHandler extends ProxyHandler {
 
   private final Vertx vertx;
-  private final AmqpService service;
+  private final AMQPService service;
   private final String address;
   private final long timerID;
   private long lastAccessed;
   private final long timeoutSeconds;
 
-  public AmqpServiceVertxProxyHandler(Vertx vertx, AmqpService service, String address, boolean topLevel, long timeoutSeconds) {
+  public AmqpServiceVertxProxyHandler(Vertx vertx, AMQPService service, String address, boolean topLevel, long timeoutSeconds) {
     this.vertx = vertx;
     this.service = service;
     this.address = address;

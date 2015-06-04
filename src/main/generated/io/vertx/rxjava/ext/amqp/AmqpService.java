@@ -16,8 +16,7 @@
 
 package io.vertx.rxjava.ext.amqp;
 
-import java.util.Map;
-import io.vertx.lang.rxjava.InternalHelper;
+import io.vertx.ext.amqp.AMQPService;
 import rx.Observable;
 import io.vertx.ext.amqp.ServiceOptions;
 import io.vertx.ext.amqp.OutgoingLinkOptions;
@@ -41,14 +40,14 @@ import io.vertx.ext.amqp.IncomingLinkOptions;
  * and use QPid Proton(http://qpid.apache.org/proton) for protocol support.
  *
  * <p/>
- * NOTE: This class has been automatically generated from the {@link io.vertx.ext.amqp.AmqpService original} non RX-ified interface using Vert.x codegen.
+ * NOTE: This class has been automatically generated from the {@link io.vertx.ext.amqp.AMQPService original} non RX-ified interface using Vert.x codegen.
  */
 
 public class AmqpService {
 
-  final io.vertx.ext.amqp.AmqpService delegate;
+  final AMQPService delegate;
 
-  public AmqpService(io.vertx.ext.amqp.AmqpService delegate) {
+  public AmqpService(AMQPService delegate) {
     this.delegate = delegate;
   }
 
@@ -57,7 +56,7 @@ public class AmqpService {
   }
 
   public static AmqpService createEventBusProxy(Vertx vertx, String address) { 
-    AmqpService ret= AmqpService.newInstance(io.vertx.ext.amqp.AmqpService.createEventBusProxy((io.vertx.core.Vertx) vertx.getDelegate(), address));
+    AmqpService ret= AmqpService.newInstance(AMQPService.createEventBusProxy((io.vertx.core.Vertx) vertx.getDelegate(), address));
     return ret;
   }
 
@@ -416,7 +415,7 @@ public class AmqpService {
   }
 
 
-  public static AmqpService newInstance(io.vertx.ext.amqp.AmqpService arg) {
+  public static AmqpService newInstance(AMQPService arg) {
     return new AmqpService(arg);
   }
 }

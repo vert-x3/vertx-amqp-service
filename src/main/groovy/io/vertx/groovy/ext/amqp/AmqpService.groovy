@@ -16,13 +16,11 @@
 
 package io.vertx.groovy.ext.amqp;
 import groovy.transform.CompileStatic
-import io.vertx.lang.groovy.InternalHelper
-import io.vertx.ext.amqp.ServiceOptions
-import io.vertx.ext.amqp.OutgoingLinkOptions
+import io.vertx.ext.amqp.AMQPService
 import io.vertx.groovy.core.Vertx
 import io.vertx.core.AsyncResult
 import io.vertx.core.Handler
-import io.vertx.ext.amqp.IncomingLinkOptions
+
 /**
  * AMQP service allows a Vert.x application to,
  * <ul>
@@ -39,15 +37,15 @@ import io.vertx.ext.amqp.IncomingLinkOptions
 */
 @CompileStatic
 public class AmqpService {
-  final def io.vertx.ext.amqp.AmqpService delegate;
-  public AmqpService(io.vertx.ext.amqp.AmqpService delegate) {
+  final def AMQPService delegate;
+  public AmqpService(AMQPService delegate) {
     this.delegate = delegate;
   }
   public Object getDelegate() {
     return delegate;
   }
   public static AmqpService createEventBusProxy(Vertx vertx, String address) {
-    def ret= new io.vertx.groovy.ext.amqp.AmqpService(io.vertx.ext.amqp.AmqpService.createEventBusProxy((io.vertx.core.Vertx)vertx.getDelegate(), address));
+    def ret= new io.vertx.groovy.ext.amqp.AmqpService(AMQPService.createEventBusProxy((io.vertx.core.Vertx)vertx.getDelegate(), address));
     return ret;
   }
   /**

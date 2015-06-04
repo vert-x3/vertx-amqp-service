@@ -35,7 +35,7 @@ public class FortuneCookieServiceVerticle extends AbstractVerticle {
 
   int bound = 0;
 
-  AmqpService service;
+  AMQPService service;
 
   String serviceAddress = "fortune-cookie-service";
 
@@ -54,7 +54,7 @@ public class FortuneCookieServiceVerticle extends AbstractVerticle {
       throw new RuntimeException("Error setting up FortuneCookieServiceVerticle");
     }
 
-    service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+    service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp");
 
     ServiceOptions options = new ServiceOptions();
     service.registerService(
@@ -73,14 +73,14 @@ public class FortuneCookieServiceVerticle extends AbstractVerticle {
     vertx.eventBus().<JsonObject>consumer(serviceAddress, msg -> {
       JsonObject request = msg.body();
       // print(request.encodePrettily());
-      String linkId = request.getString(AmqpService.INCOMING_MSG_LINK_REF);
+      String linkId = request.getString(AMQPService.INCOMING_MSG_LINK_REF);
       print("Received a request for a fortune-cookie from client [%s]", linkId);
       print("reply-to %s", msg.replyAddress());
-      service.accept(request.getString(AmqpService.INCOMING_MSG_REF), result -> {
+      service.accept(request.getString(AMQPService.INCOMING_MSG_REF), result -> {
       });
 
       JsonObject response = new JsonObject();
-      response.put(AmqpService.OUTGOING_MSG_REF, linkId);
+      response.put(AMQPService.OUTGOING_MSG_REF, linkId);
       response.put("body", fortuneCookies.get(random.nextInt(bound)));
       msg.reply(response);
     });

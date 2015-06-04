@@ -16,27 +16,21 @@
 
 package io.vertx.ext.amqp;
 
-import io.vertx.ext.amqp.AmqpService;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
-import java.util.ArrayList;import java.util.HashSet;import java.util.List;import java.util.Map;import java.util.Set;import java.util.stream.Collectors;
-import io.vertx.serviceproxy.ProxyHelper;
-import io.vertx.ext.amqp.ServiceOptions;
-import io.vertx.ext.amqp.AmqpService;
-import io.vertx.ext.amqp.OutgoingLinkOptions;
-import io.vertx.core.Vertx;
+import java.util.ArrayList;import java.util.HashSet;import java.util.List;import java.util.Map;import java.util.Set;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.ext.amqp.IncomingLinkOptions;
 
 /*
   Generated Proxy code - DO NOT EDIT
   @author Roger the Robot
 */
-public class AmqpServiceVertxEBProxy implements AmqpService {
+public class AmqpServiceVertxEBProxy implements AMQPService {
 
   private Vertx _vertx;
   private String _address;
@@ -47,7 +41,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     this._address = address;
   }
 
-  public AmqpService establishIncomingLink(String amqpAddress, String eventbusAddress, String notificationAddress, IncomingLinkOptions options, Handler<AsyncResult<String>> result) {
+  public AMQPService establishIncomingLink(String amqpAddress, String eventbusAddress, String notificationAddress, IncomingLinkOptions options, Handler<AsyncResult<String>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
@@ -69,7 +63,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService fetch(String incomingLinkRef, int messages, Handler<AsyncResult<Void>> result) {
+  public AMQPService fetch(String incomingLinkRef, int messages, Handler<AsyncResult<Void>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
@@ -89,7 +83,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService cancelIncomingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result) {
+  public AMQPService cancelIncomingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
@@ -108,7 +102,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService establishOutgoingLink(String amqpAddress, String eventbusAddress, String notificationAddress, OutgoingLinkOptions options, Handler<AsyncResult<String>> result) {
+  public AMQPService establishOutgoingLink(String amqpAddress, String eventbusAddress, String notificationAddress, OutgoingLinkOptions options, Handler<AsyncResult<String>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
@@ -130,7 +124,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService cancelOutgoingLink(String outgoingLinkRef, Handler<AsyncResult<Void>> result) {
+  public AMQPService cancelOutgoingLink(String outgoingLinkRef, Handler<AsyncResult<Void>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
@@ -149,7 +143,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService accept(String msgRef, Handler<AsyncResult<Void>> result) {
+  public AMQPService accept(String msgRef, Handler<AsyncResult<Void>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
@@ -168,7 +162,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService reject(String msgRef, Handler<AsyncResult<Void>> result) {
+  public AMQPService reject(String msgRef, Handler<AsyncResult<Void>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
@@ -187,7 +181,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService release(String msgRef, Handler<AsyncResult<Void>> result) {
+  public AMQPService release(String msgRef, Handler<AsyncResult<Void>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
@@ -206,7 +200,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService registerService(String eventbusAddress, String notificationAddres, ServiceOptions options, Handler<AsyncResult<Void>> result) {
+  public AMQPService registerService(String eventbusAddress, String notificationAddres, ServiceOptions options, Handler<AsyncResult<Void>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
@@ -227,7 +221,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService unregisterService(String eventbusAddress, Handler<AsyncResult<Void>> result) {
+  public AMQPService unregisterService(String eventbusAddress, Handler<AsyncResult<Void>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
@@ -246,7 +240,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService issueCredits(String linkId, int credits, Handler<AsyncResult<Void>> result) {
+  public AMQPService issueCredits(String linkId, int credits, Handler<AsyncResult<Void>> result) {
     if (closed) {
       result.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
       return this;
@@ -266,7 +260,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService addInboundRoute(String pattern, String eventBusAddress) {
+  public AMQPService addInboundRoute(String pattern, String eventBusAddress) {
     if (closed) {
       throw new IllegalStateException("Proxy is closed");
     }
@@ -279,7 +273,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService removeInboundRoute(String pattern, String eventBusAddress) {
+  public AMQPService removeInboundRoute(String pattern, String eventBusAddress) {
     if (closed) {
       throw new IllegalStateException("Proxy is closed");
     }
@@ -292,7 +286,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService addOutboundRoute(String pattern, String amqpAddress) {
+  public AMQPService addOutboundRoute(String pattern, String amqpAddress) {
     if (closed) {
       throw new IllegalStateException("Proxy is closed");
     }
@@ -305,7 +299,7 @@ public class AmqpServiceVertxEBProxy implements AmqpService {
     return this;
   }
 
-  public AmqpService removeOutboundRoute(String pattern, String amqpAddress) {
+  public AMQPService removeOutboundRoute(String pattern, String amqpAddress) {
     if (closed) {
       throw new IllegalStateException("Proxy is closed");
     }

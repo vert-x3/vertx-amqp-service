@@ -43,7 +43,7 @@ import io.vertx.serviceproxy.ProxyHelper;
  */
 @VertxGen
 @ProxyGen
-public interface AmqpService {
+public interface AMQPService {
   /**
    * Unique identifier given by the vertx-amqp-service to an incoming message.
    * It can be accessed via msg.getString(AmqpService.INCOMING_MSG_REF), where
@@ -64,14 +64,14 @@ public interface AmqpService {
    * an application to identify the source of a message if it is receiving
    * from multiple sources. If the application established this link
    * themselves, the identity returned via the AsyncResult via the handler in
-   * {@link AmqpService#establishIncomingLink(String, String, String, IncomingLinkOptions, Handler)}
+   * {@link AMQPService#establishIncomingLink(String, String, String, IncomingLinkOptions, Handler)}
    * is the same reference, so you could correlate the message received to the
    * link created.
    */
   String INCOMING_MSG_LINK_REF = "vertx.amqp.incoming-msg-link-ref";
 
-  static AmqpService createEventBusProxy(Vertx vertx, String address) {
-    return ProxyHelper.createProxy(AmqpService.class, vertx, address);
+  static AMQPService createEventBusProxy(Vertx vertx, String address) {
+    return ProxyHelper.createProxy(AMQPService.class, vertx, address);
   }
 
   /**
@@ -99,7 +99,7 @@ public interface AmqpService {
    * @return A reference to the service.
    */
   @Fluent
-  public AmqpService establishIncomingLink(String amqpAddress, String eventbusAddress, String notificationAddress,
+  public AMQPService establishIncomingLink(String amqpAddress, String eventbusAddress, String notificationAddress,
                                            IncomingLinkOptions options, Handler<AsyncResult<String>> result);
 
   /**
@@ -116,7 +116,7 @@ public interface AmqpService {
    * @see IncomingLinkOptions on how to set prefetch.
    */
   @Fluent
-  public AmqpService fetch(String incomingLinkRef, int messages, Handler<AsyncResult<Void>> result);
+  public AMQPService fetch(String incomingLinkRef, int messages, Handler<AsyncResult<Void>> result);
 
   /**
    * Allows an application to cancel an incoming link and remove it's mapping
@@ -129,7 +129,7 @@ public interface AmqpService {
    * @return A reference to the service.
    */
   @Fluent
-  public AmqpService cancelIncomingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result);
+  public AMQPService cancelIncomingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result);
 
   /**
    * Allows an application to establish a link to an AMQP message-sink for
@@ -155,7 +155,7 @@ public interface AmqpService {
    * @return A reference to the service.
    */
   @Fluent
-  public AmqpService establishOutgoingLink(String amqpAddress, String eventbusAddress, String notificationAddress,
+  public AMQPService establishOutgoingLink(String amqpAddress, String eventbusAddress, String notificationAddress,
                                            OutgoingLinkOptions options, Handler<AsyncResult<String>> result);
 
   /**
@@ -169,7 +169,7 @@ public interface AmqpService {
    * @return A reference to the service.
    */
   @Fluent
-  public AmqpService cancelOutgoingLink(String outgoingLinkRef, Handler<AsyncResult<Void>> result);
+  public AMQPService cancelOutgoingLink(String outgoingLinkRef, Handler<AsyncResult<Void>> result);
 
   /**
    * Allows an application to accept a message it has received.
@@ -179,7 +179,7 @@ public interface AmqpService {
    * @return A reference to the service.
    */
   @Fluent
-  public AmqpService accept(String msgRef, Handler<AsyncResult<Void>> result);
+  public AMQPService accept(String msgRef, Handler<AsyncResult<Void>> result);
 
   /**
    * Allows an application to reject a message it has received.
@@ -189,7 +189,7 @@ public interface AmqpService {
    * @return A reference to the service.
    */
   @Fluent
-  public AmqpService reject(String msgRef, Handler<AsyncResult<Void>> result);
+  public AMQPService reject(String msgRef, Handler<AsyncResult<Void>> result);
 
   /**
    * Allows an application to release a message it has received.
@@ -199,7 +199,7 @@ public interface AmqpService {
    * @return A reference to the service.
    */
   @Fluent
-  public AmqpService release(String msgRef, Handler<AsyncResult<Void>> result);
+  public AMQPService release(String msgRef, Handler<AsyncResult<Void>> result);
 
   /**
    * Allows a vertx.application to register a Service it provides with the
@@ -221,7 +221,7 @@ public interface AmqpService {
    * @return A reference to the service.
    */
   @Fluent
-  public AmqpService registerService(String eventbusAddress, String notificationAddres, ServiceOptions options,
+  public AMQPService registerService(String eventbusAddress, String notificationAddres, ServiceOptions options,
                                      Handler<AsyncResult<Void>> result);
 
   /**
@@ -232,7 +232,7 @@ public interface AmqpService {
    * @return A reference to the service.
    */
   @Fluent
-  public AmqpService unregisterService(String eventbusAddress, Handler<AsyncResult<Void>> result);
+  public AMQPService unregisterService(String eventbusAddress, Handler<AsyncResult<Void>> result);
 
   /**
    * Allows the service to issue credits to a particular incoming link
@@ -251,7 +251,7 @@ public interface AmqpService {
    * @return A reference to the service.
    */
   @Fluent
-  public AmqpService issueCredits(String linkId, int credits, Handler<AsyncResult<Void>> result);
+  public AMQPService issueCredits(String linkId, int credits, Handler<AsyncResult<Void>> result);
 
   /**
    * Adds an entry to the inbound routing table. If an existing entry exists
@@ -264,7 +264,7 @@ public interface AmqpService {
    * @return A reference to the service.
    */
   @Fluent
-  public AmqpService addInboundRoute(String pattern, String eventBusAddress);
+  public AMQPService addInboundRoute(String pattern, String eventBusAddress);
 
   /**
    * Removes the entry from the inbound routing table.
@@ -275,7 +275,7 @@ public interface AmqpService {
    * @return
    */
   @Fluent
-  public AmqpService removeInboundRoute(String pattern, String eventBusAddress);
+  public AMQPService removeInboundRoute(String pattern, String eventBusAddress);
 
   /**
    * Adds an entry to the outbound routing table. If an existing entry exists
@@ -287,7 +287,7 @@ public interface AmqpService {
    * @return A reference to the service.
    */
   @Fluent
-  public AmqpService addOutboundRoute(String pattern, String amqpAddress);
+  public AMQPService addOutboundRoute(String pattern, String amqpAddress);
 
   /**
    * Removes the entry from the outbound routing table.
@@ -297,7 +297,7 @@ public interface AmqpService {
    * @return
    */
   @Fluent
-  public AmqpService removeOutboundRoute(String pattern, String amqpAddress);
+  public AMQPService removeOutboundRoute(String pattern, String amqpAddress);
 
   /**
    * Start the vertx-amqp-service

@@ -32,7 +32,7 @@ public enum CreditMode {
   /**
    * If this option is chosen, the application needs to explicitly manage it's
    * capacity by fetching the desired number of messages via
-   * {@link io.vertx.ext.amqp.AmqpService#fetch(String, int, io.vertx.core.Handler)}, once it is
+   * {@link io.vertx.ext.amqp.AMQPService#fetch(String, int, io.vertx.core.Handler)}, once it is
    * ready to process more.
    */
   EXPLICT;

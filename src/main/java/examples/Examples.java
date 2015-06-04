@@ -32,7 +32,7 @@ public class Examples extends AbstractVerticle {
   private int counter;
   private String outgoingLinkRef = null;
   private String incomingLinkRef = null;
-  private AmqpService service;
+  private AMQPService service;
   private JsonObject msg;
 
   public void exampleDeployServiceVerticle() {
@@ -52,13 +52,13 @@ public class Examples extends AbstractVerticle {
   // ----- Service interface
 
   public void obtainingRefToServiceProxy() {
-    AmqpService service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+    AMQPService service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp");
   }
 
   // ------ Sending messages
 
   public void establishOutgoingLink() {
-    AmqpService service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+    AMQPService service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp");
     OutgoingLinkOptions options = new OutgoingLinkOptions();
     options.setReliability(ReliabilityMode.AT_LEAST_ONCE); //<4>
     service.establishOutgoingLink("amqp://localhost:6672/my-queue", // <1>
@@ -84,7 +84,7 @@ public class Examples extends AbstractVerticle {
     JsonObject msg = new JsonObject();
     msg.put("body", "rajith");
     String msgRef = "msg-ref".concat(String.valueOf(counter++));
-    msg.put(AmqpService.OUTGOING_MSG_REF, msgRef); // <1>
+    msg.put(AMQPService.OUTGOING_MSG_REF, msgRef); // <1>
     vertx.eventBus().publish("my-pub-queue", msg); // <2>
 
     // ....
@@ -128,7 +128,7 @@ public class Examples extends AbstractVerticle {
 
   // ---- Receive messages
   public void establishIncomingLink() {
-    AmqpService service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+    AMQPService service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp");
     IncomingLinkOptions options = new IncomingLinkOptions();
     options.setReliability(ReliabilityMode.AT_LEAST_ONCE); // <4>
     options.setPrefetch(10); // <5>
@@ -163,7 +163,7 @@ public class Examples extends AbstractVerticle {
   }
 
   public void receivingMessagesReliably() {
-    service.accept(msg.getString(AmqpService.INCOMING_MSG_REF), result -> { // <1>
+    service.accept(msg.getString(AMQPService.INCOMING_MSG_REF), result -> { // <1>
       if (result.failed()) {
         // handle error
       }
@@ -190,7 +190,7 @@ public class Examples extends AbstractVerticle {
 
   // ----- Services
   public void registerService() {
-    AmqpService service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+    AMQPService service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp");
     ServiceOptions options = new ServiceOptions();
     options.setInitialCapacity(1); // <3>
     service.registerService(
@@ -227,7 +227,7 @@ public class Examples extends AbstractVerticle {
 
   //Manage routes
   public void manageRoutes() {
-    AmqpService service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+    AMQPService service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp");
     service.addInboundRoute("weather.us.*", "us-weather"); // <1>
     service.addInboundRoute("weather.us.bos.*", "bos-weather"); // <1>
 

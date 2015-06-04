@@ -73,7 +73,7 @@ public class LinkManager extends AbstractAmqpEventListener {
   private Map<String, ConnectionSettings> URL_CACHE;
 
   @SuppressWarnings("serial")
-  public LinkManager(Vertx vertx, AmqpServiceConfig config, AmqpServiceImpl parent) {
+  public LinkManager(Vertx vertx, AmqpServiceConfig config, AMQPServiceImpl parent) {
     DEFAULT_OUTGOING_LINK_OPTIONS.setReliability(ReliabilityMode.AT_LEAST_ONCE);
     _vertx = vertx;
     _config = config;
@@ -266,9 +266,9 @@ public class LinkManager extends AbstractAmqpEventListener {
   private void send(OutgoingLinkImpl link, OutgoingLinkOptions options, Message outMsg, JsonObject inMsg)
     throws MessagingException {
     if (options.getReliability() == ReliabilityMode.AT_LEAST_ONCE
-      && inMsg.containsKey(AmqpService.OUTGOING_MSG_REF)) {
+      && inMsg.containsKey(AMQPService.OUTGOING_MSG_REF)) {
       TrackerImpl tracker = link.send(outMsg);
-      tracker.setContext(inMsg.getString(AmqpService.OUTGOING_MSG_REF));
+      tracker.setContext(inMsg.getString(AMQPService.OUTGOING_MSG_REF));
     } else {
       link.send(outMsg);
     }

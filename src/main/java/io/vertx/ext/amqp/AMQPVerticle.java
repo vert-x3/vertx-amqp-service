@@ -19,27 +19,27 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.impl.LoggerFactory;
 import io.vertx.ext.amqp.impl.AmqpServiceConfig;
-import io.vertx.ext.amqp.impl.AmqpServiceImpl;
+import io.vertx.ext.amqp.impl.AMQPServiceImpl;
 import io.vertx.ext.amqp.impl.config.AmqpServiceConfigImpl;
 import io.vertx.serviceproxy.ProxyHelper;
 
-public class AmqpVerticle extends AbstractVerticle {
-  private static final Logger LOGGER = LoggerFactory.getLogger(AmqpVerticle.class);
+public class AMQPVerticle extends AbstractVerticle {
+  private static final Logger LOGGER = LoggerFactory.getLogger(AMQPVerticle.class);
 
-  private AmqpServiceImpl service;
+  private AMQPServiceImpl service;
 
   @Override
   public void start() throws Exception {
     super.start();
     AmqpServiceConfig config = new AmqpServiceConfigImpl(config());
     try {
-      service = new AmqpServiceImpl(vertx, config, this);
+      service = new AMQPServiceImpl(vertx, config, this);
       String address = config().getString("address");
       if (address == null) {
         throw new IllegalStateException("address field must be specified in config for service verticle");
       }
 
-      ProxyHelper.registerService(AmqpService.class, vertx, service, address);
+      ProxyHelper.registerService(AMQPService.class, vertx, service, address);
       service.start();
       LOGGER.info(String.format("AmqpService is now available via the address : %s", address));
     } catch (MessagingException e) {

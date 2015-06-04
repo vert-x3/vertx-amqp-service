@@ -59,7 +59,7 @@ public class NotificationMessageFactory {
   static JsonObject deliveryState(String msgRef, DeliveryState state, MessageDisposition disp) {
     JsonObject json = new JsonObject();
     json.put(NotificationHelper.TYPE, NotificationType.DELIVERY_STATE);
-    json.put(AmqpService.OUTGOING_MSG_REF, msgRef);
+    json.put(AMQPService.OUTGOING_MSG_REF, msgRef);
     json.put(NotificationHelper.DELIVERY_STATE, state);
     json.put(NotificationHelper.MSG_STATE, disp);
     return json;

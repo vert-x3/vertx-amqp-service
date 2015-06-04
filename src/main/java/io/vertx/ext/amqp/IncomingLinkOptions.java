@@ -74,7 +74,7 @@ public class IncomingLinkOptions {
    * to fetch. <br>
    * <i>If set to "zero"</i>, the vert.x application will need to explicitly
    * request messages using
-   * {@link AmqpService#fetch(String, int, io.vertx.core.Handler)}
+   * {@link AMQPService#fetch(String, int, io.vertx.core.Handler)}
    */
   public void setPrefetch(int prefetch) {
     this.prefetch = prefetch;

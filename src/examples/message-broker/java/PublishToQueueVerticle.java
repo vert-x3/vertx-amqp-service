@@ -41,7 +41,7 @@ public class PublishToQueueVerticle extends AbstractVerticle {
 
   @Override
   public void start() throws Exception {
-    final AmqpService service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+    final AMQPService service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp");
     registerForNotifications(service);
 
     // 1. Setup an outgoing-link to 'amqp://localhost:6672/my-queue' and map
@@ -61,7 +61,7 @@ public class PublishToQueueVerticle extends AbstractVerticle {
           // notification is set, you could use this ref to
           // correlate the tracker to the original message.
           System.out.println("Sending a message to vertx address my-pub-queue");
-          vertx.eventBus().publish("my-pub-queue", new JsonObject().put("body", "rajith").put(AmqpService.OUTGOING_MSG_REF, "msg-ref".concat(String.valueOf(i++))));
+          vertx.eventBus().publish("my-pub-queue", new JsonObject().put("body", "rajith").put(AMQPService.OUTGOING_MSG_REF, "msg-ref".concat(String.valueOf(i++))));
         } else {
           System.out.println("Error occured while setting up outgoing link from application to AMQP peer: "
             + result.cause());
@@ -70,7 +70,7 @@ public class PublishToQueueVerticle extends AbstractVerticle {
       });
   }
 
-  private void registerForNotifications(final AmqpService service) {
+  private void registerForNotifications(final AMQPService service) {
     vertx.eventBus().consumer("my-pub-notifications", msg -> {
       JsonObject json = (JsonObject) msg.body();
       NotificationType type = NotificationHelper.getType(json);

@@ -32,7 +32,7 @@ public class ServiceOptions {
    * (client). If not set, it defaults to zero. The AMQP peers (clients) will
    * not be able to send messages (requests) until the "service" explicitly
    * issues credits using
-   * {@link AmqpService#issueCredits(String, int, io.vertx.core.Handler)}
+   * {@link AMQPService#issueCredits(String, int, io.vertx.core.Handler)}
    */
   public final static String INITIAL_CAPACITY = "initial-capacity";
 

@@ -16,7 +16,7 @@
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.amqp.AmqpService;
+import io.vertx.ext.amqp.AMQPService;
 import io.vertx.ext.amqp.IncomingLinkOptions;
 import io.vertx.ext.amqp.ReliabilityMode;
 
@@ -42,7 +42,7 @@ public class ConsumeFromQueueVerticle extends AbstractVerticle {
 
   @Override
   public void start() throws Exception {
-    final AmqpService service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+    final AMQPService service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp");
 
     // 1. Create a vert.x consumer for address 'my-sub-queue'
     System.out.println("Creating a vertx consumer for my-sub-queue");
@@ -53,8 +53,8 @@ public class ConsumeFromQueueVerticle extends AbstractVerticle {
       System.out.println("Received a message: " + msg);
 
       // 5. Accept the message.
-      System.out.println("Accepting message: " + msg.getString(AmqpService.INCOMING_MSG_REF));
-      service.accept(msg.getString(AmqpService.INCOMING_MSG_REF), result -> {
+      System.out.println("Accepting message: " + msg.getString(AMQPService.INCOMING_MSG_REF));
+      service.accept(msg.getString(AMQPService.INCOMING_MSG_REF), result -> {
         if (result.failed()) {
           System.out.println("Error accepting the message : " + result.cause());
           result.cause().printStackTrace();
