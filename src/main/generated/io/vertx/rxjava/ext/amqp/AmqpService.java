@@ -16,7 +16,8 @@
 
 package io.vertx.rxjava.ext.amqp;
 
-import io.vertx.ext.amqp.AMQPService;
+import java.util.Map;
+import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
 import io.vertx.ext.amqp.ServiceOptions;
 import io.vertx.ext.amqp.OutgoingLinkOptions;
@@ -43,11 +44,11 @@ import io.vertx.ext.amqp.IncomingLinkOptions;
  * NOTE: This class has been automatically generated from the {@link io.vertx.ext.amqp.AMQPService original} non RX-ified interface using Vert.x codegen.
  */
 
-public class AmqpService {
+public class AMQPService {
 
-  final AMQPService delegate;
+  final io.vertx.ext.amqp.AMQPService delegate;
 
-  public AmqpService(AMQPService delegate) {
+  public AMQPService(io.vertx.ext.amqp.AMQPService delegate) {
     this.delegate = delegate;
   }
 
@@ -55,8 +56,8 @@ public class AmqpService {
     return delegate;
   }
 
-  public static AmqpService createEventBusProxy(Vertx vertx, String address) { 
-    AmqpService ret= AmqpService.newInstance(AMQPService.createEventBusProxy((io.vertx.core.Vertx) vertx.getDelegate(), address));
+  public static AMQPService createEventBusProxy(Vertx vertx, String address) { 
+    AMQPService ret= AMQPService.newInstance(io.vertx.ext.amqp.AMQPService.createEventBusProxy((io.vertx.core.Vertx) vertx.getDelegate(), address));
     return ret;
   }
 
@@ -73,7 +74,7 @@ public class AmqpService {
    * @param result The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association.
    * @return A reference to the service.
    */
-  public AmqpService establishIncomingLink(String amqpAddress, String eventbusAddress, String notificationAddress, IncomingLinkOptions options, Handler<AsyncResult<String>> result) { 
+  public AMQPService establishIncomingLink(String amqpAddress, String eventbusAddress, String notificationAddress, IncomingLinkOptions options, Handler<AsyncResult<String>> result) { 
     this.delegate.establishIncomingLink(amqpAddress, eventbusAddress, notificationAddress, options, result);
     return this;
   }
@@ -105,7 +106,7 @@ public class AmqpService {
    * @param result Notifies if there is an error.
    * @return A reference to the service.
    */
-  public AmqpService fetch(String incomingLinkRef, int messages, Handler<AsyncResult<Void>> result) { 
+  public AMQPService fetch(String incomingLinkRef, int messages, Handler<AsyncResult<Void>> result) { 
     this.delegate.fetch(incomingLinkRef, messages, result);
     return this;
   }
@@ -131,7 +132,7 @@ public class AmqpService {
    * @param result Notifies if there is an error.
    * @return A reference to the service.
    */
-  public AmqpService cancelIncomingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result) { 
+  public AMQPService cancelIncomingLink(String incomingLinkRef, Handler<AsyncResult<Void>> result) { 
     this.delegate.cancelIncomingLink(incomingLinkRef, result);
     return this;
   }
@@ -160,7 +161,7 @@ public class AmqpService {
    * @param result The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association.
    * @return A reference to the service.
    */
-  public AmqpService establishOutgoingLink(String amqpAddress, String eventbusAddress, String notificationAddress, OutgoingLinkOptions options, Handler<AsyncResult<String>> result) { 
+  public AMQPService establishOutgoingLink(String amqpAddress, String eventbusAddress, String notificationAddress, OutgoingLinkOptions options, Handler<AsyncResult<String>> result) { 
     this.delegate.establishOutgoingLink(amqpAddress, eventbusAddress, notificationAddress, options, result);
     return this;
   }
@@ -189,7 +190,7 @@ public class AmqpService {
    * @param result Notifies if there is an error.
    * @return A reference to the service.
    */
-  public AmqpService cancelOutgoingLink(String outgoingLinkRef, Handler<AsyncResult<Void>> result) { 
+  public AMQPService cancelOutgoingLink(String outgoingLinkRef, Handler<AsyncResult<Void>> result) { 
     this.delegate.cancelOutgoingLink(outgoingLinkRef, result);
     return this;
   }
@@ -212,7 +213,7 @@ public class AmqpService {
    * @param result Notifies if there is an error.
    * @return A reference to the service.
    */
-  public AmqpService accept(String msgRef, Handler<AsyncResult<Void>> result) { 
+  public AMQPService accept(String msgRef, Handler<AsyncResult<Void>> result) { 
     this.delegate.accept(msgRef, result);
     return this;
   }
@@ -234,7 +235,7 @@ public class AmqpService {
    * @param result Notifies if there is an error.
    * @return A reference to the service.
    */
-  public AmqpService reject(String msgRef, Handler<AsyncResult<Void>> result) { 
+  public AMQPService reject(String msgRef, Handler<AsyncResult<Void>> result) { 
     this.delegate.reject(msgRef, result);
     return this;
   }
@@ -256,7 +257,7 @@ public class AmqpService {
    * @param result Notifies if there is an error.
    * @return A reference to the service.
    */
-  public AmqpService release(String msgRef, Handler<AsyncResult<Void>> result) { 
+  public AMQPService release(String msgRef, Handler<AsyncResult<Void>> result) { 
     this.delegate.release(msgRef, result);
     return this;
   }
@@ -282,7 +283,7 @@ public class AmqpService {
    * @param result Notifies if there is an error.
    * @return A reference to the service.
    */
-  public AmqpService registerService(String eventbusAddress, String notificationAddres, ServiceOptions options, Handler<AsyncResult<Void>> result) { 
+  public AMQPService registerService(String eventbusAddress, String notificationAddres, ServiceOptions options, Handler<AsyncResult<Void>> result) { 
     this.delegate.registerService(eventbusAddress, notificationAddres, options, result);
     return this;
   }
@@ -308,7 +309,7 @@ public class AmqpService {
    * @param result Notifies if there is an error.
    * @return A reference to the service.
    */
-  public AmqpService unregisterService(String eventbusAddress, Handler<AsyncResult<Void>> result) { 
+  public AMQPService unregisterService(String eventbusAddress, Handler<AsyncResult<Void>> result) { 
     this.delegate.unregisterService(eventbusAddress, result);
     return this;
   }
@@ -334,7 +335,7 @@ public class AmqpService {
    * @param result Notifies if there is an error.
    * @return A reference to the service.
    */
-  public AmqpService issueCredits(String linkId, int credits, Handler<AsyncResult<Void>> result) { 
+  public AMQPService issueCredits(String linkId, int credits, Handler<AsyncResult<Void>> result) { 
     this.delegate.issueCredits(linkId, credits, result);
     return this;
   }
@@ -361,7 +362,7 @@ public class AmqpService {
    * @param eventBusAddress The Vert.x event-bus address the message should be sent to if matched.
    * @return A reference to the service.
    */
-  public AmqpService addInboundRoute(String pattern, String eventBusAddress) { 
+  public AMQPService addInboundRoute(String pattern, String eventBusAddress) { 
     this.delegate.addInboundRoute(pattern, eventBusAddress);
     return this;
   }
@@ -372,7 +373,7 @@ public class AmqpService {
    * @param eventBusAddress The Vert.x event-bus address the message should be sent to if matched.
    * @return 
    */
-  public AmqpService removeInboundRoute(String pattern, String eventBusAddress) { 
+  public AMQPService removeInboundRoute(String pattern, String eventBusAddress) { 
     this.delegate.removeInboundRoute(pattern, eventBusAddress);
     return this;
   }
@@ -384,7 +385,7 @@ public class AmqpService {
    * @param amqpAddress The AMQP address the message should be sent to if matched.
    * @return A reference to the service.
    */
-  public AmqpService addOutboundRoute(String pattern, String amqpAddress) { 
+  public AMQPService addOutboundRoute(String pattern, String amqpAddress) { 
     this.delegate.addOutboundRoute(pattern, amqpAddress);
     return this;
   }
@@ -395,7 +396,7 @@ public class AmqpService {
    * @param amqpAddress The AMQP address the message should be sent to if matched.
    * @return 
    */
-  public AmqpService removeOutboundRoute(String pattern, String amqpAddress) { 
+  public AMQPService removeOutboundRoute(String pattern, String amqpAddress) { 
     this.delegate.removeOutboundRoute(pattern, amqpAddress);
     return this;
   }
@@ -415,7 +416,7 @@ public class AmqpService {
   }
 
 
-  public static AmqpService newInstance(AMQPService arg) {
-    return new AmqpService(arg);
+  public static AMQPService newInstance(io.vertx.ext.amqp.AMQPService arg) {
+    return arg != null ? new AMQPService(arg) : null;
   }
 }

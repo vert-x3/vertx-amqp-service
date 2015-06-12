@@ -18,7 +18,7 @@ package io.vertx.ext.amqp.impl.protocol;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.impl.LoggerFactory;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.NetSocket;
 import io.vertx.ext.amqp.impl.ConnectionSettings;
 import io.vertx.ext.amqp.impl.CreditMode;

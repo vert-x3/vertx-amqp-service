@@ -51,7 +51,7 @@ If you run it standalone, you need to make sure the +++<u>cluster</u>+++ option 
 var config = {
   "amqp.inbound-host" : "10.10.52.86"
 };
-config."amqp.inbound-port" = 5672;
+config.amqp.inbound-port = 5672;
 var options = {
   "config" : config
 };
@@ -337,8 +337,8 @@ Please refer to the API documentation for more information.
 === AmqpService access via Proxy.
 [source, js]
 ----
-var AmqpService = require("vertx-amqp-js/amqp_service");
-var service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+var AMQPService = require("vertx-amqp-js/amqp_service");
+var service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp");
 
 ----
 
@@ -349,8 +349,9 @@ var service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
 
 [source, js]
 ----
-var AmqpService = require("vertx-amqp-js/amqp_service");
-var service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+var AMQPService = require("vertx-amqp-js/amqp_service");
+var outgoingLinkRef = null;
+var service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp");
 var options = {
 };
 options.reliability = 'AT_LEAST_ONCE';
@@ -382,8 +383,9 @@ availability. The application should register a handler with the event-bus to re
 
 [source, js]
 ----
-var AmqpService = require("vertx-amqp-js/amqp_service");
-var service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+var AMQPService = require("vertx-amqp-js/amqp_service");
+var incomingLinkRef = null;
+var service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp");
 var options = {
 };
 options.reliability = 'AT_LEAST_ONCE';
@@ -450,21 +452,21 @@ vertx.eventBus().consumer("my-pub-notifications", function (msg) {
 ----
 var msg = {
 };
-msg."body" = "rajith";
+msg.body = "rajith";
 
 var properties = {
 };
-msg."properties" = properties;
-properties."subject" = "<message-subject>";
-properties."reply-to" = "<reply-to-address>";
-properties."message_id" = "<message_id>";
-properties."correlation_id" = "<correlation_id>";
+msg.properties = properties;
+properties.subject = "<message-subject>";
+properties.reply-to = "<reply-to-address>";
+properties.message_id = "<message_id>";
+properties.correlation_id = "<correlation_id>";
 
 var appProps = {
 };
-msg."application-properties" = appProps;
-appProps."key_1" = "val_1";
-appProps."key_n" = "val_n";
+msg.application-properties = appProps;
+appProps.key_1 = "val_1";
+appProps.key_n = "val_n";
 
 ----
 <1> Use "body" to set the message content.
@@ -481,6 +483,8 @@ appProps."key_n" = "val_n";
 ==== Fetching messages explicitly when prefetch is disabled.
 [source, js]
 ----
+var service;
+var incomingLinkRef = null;
 service.fetch(incomingLinkRef, 10, function (result, result_err) {
   if (result_err == null) {
     // operation successfull.
@@ -528,8 +532,8 @@ Lets now look at how a __service__ could register with the Vert.x-AMQP-Service t
 ==== Registering a __Service__.
 [source, js]
 ----
-var AmqpService = require("vertx-amqp-js/amqp_service");
-var service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+var AMQPService = require("vertx-amqp-js/amqp_service");
+var service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp");
 var options = {
 };
 options.initialCapacity = 1;
@@ -563,6 +567,7 @@ This sections shows you how to,
 * How to control the flow of requests by managing request credits.
 [source, js]
 ----
+var service;
 vertx.eventBus().consumer("notice-address", function (msg) {
   var type = Java.type("io.vertx.ext.amqp.NotificationHelper").getType(msg.body());
   if (type === 'INCOMING_LINK_OPENED') {
@@ -586,8 +591,8 @@ For more info on how routing works, see <<routing>>
 
 [source, js]
 ----
-var AmqpService = require("vertx-amqp-js/amqp_service");
-var service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+var AMQPService = require("vertx-amqp-js/amqp_service");
+var service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp");
 service.addInboundRoute("weather.us.*", "us-weather");
 service.addInboundRoute("weather.us.bos.*", "bos-weather");
 

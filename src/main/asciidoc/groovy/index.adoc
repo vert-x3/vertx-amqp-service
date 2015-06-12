@@ -51,7 +51,7 @@ If you run it standalone, you need to make sure the +++<u>cluster</u>+++ option 
 def config = [
   amqp.inbound-host:"10.10.52.86"
 ]
-config."amqp.inbound-port" = 5672
+config.amqp.inbound-port = 5672
 def options = [
   config:config
 ]
@@ -337,8 +337,8 @@ Please refer to the API documentation for more information.
 === AmqpService access via Proxy.
 [source, groovy]
 ----
-import io.vertx.groovy.ext.amqp.AmqpService
-def service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp")
+import io.vertx.groovy.ext.amqp.AMQPService
+def service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp")
 
 ----
 
@@ -349,9 +349,11 @@ def service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp")
 
 [source, groovy]
 ----
-import io.vertx.groovy.ext.amqp.AmqpService
+import groovy.transform.Field
+import io.vertx.groovy.ext.amqp.AMQPService
 import io.vertx.ext.amqp.ReliabilityMode
-def service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp")
+@Field def outgoingLinkRef = null
+def service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp")
 def options = [:]
 options.reliability = ReliabilityMode.AT_LEAST_ONCE
 service.establishOutgoingLink("amqp://localhost:6672/my-queue", "my-pub-queue", "my-pub-notifications", options, { result ->
@@ -382,9 +384,11 @@ availability. The application should register a handler with the event-bus to re
 
 [source, groovy]
 ----
-import io.vertx.groovy.ext.amqp.AmqpService
+import groovy.transform.Field
+import io.vertx.groovy.ext.amqp.AMQPService
 import io.vertx.ext.amqp.ReliabilityMode
-def service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp")
+@Field def incomingLinkRef = null
+def service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp")
 def options = [:]
 options.reliability = ReliabilityMode.AT_LEAST_ONCE
 options.prefetch = 10
@@ -450,19 +454,19 @@ vertx.eventBus().consumer("my-pub-notifications", { msg ->
 [source, groovy]
 ----
 def msg = [:]
-msg."body" = "rajith"
+msg.body = "rajith"
 
 def properties = [:]
-msg."properties" = properties
-properties."subject" = "<message-subject>"
-properties."reply-to" = "<reply-to-address>"
-properties."message_id" = "<message_id>"
-properties."correlation_id" = "<correlation_id>"
+msg.properties = properties
+properties.subject = "<message-subject>"
+properties.reply-to = "<reply-to-address>"
+properties.message_id = "<message_id>"
+properties.correlation_id = "<correlation_id>"
 
 def appProps = [:]
-msg."application-properties" = appProps
-appProps."key_1" = "val_1"
-appProps."key_n" = "val_n"
+msg.application-properties = appProps
+appProps.key_1 = "val_1"
+appProps.key_n = "val_n"
 
 ----
 <1> Use "body" to set the message content.
@@ -479,6 +483,9 @@ appProps."key_n" = "val_n"
 ==== Fetching messages explicitly when prefetch is disabled.
 [source, groovy]
 ----
+import groovy.transform.Field
+@Field def service
+@Field def incomingLinkRef = null
 service.fetch(incomingLinkRef, 10, { result ->
   if (result.succeeded()) {
     // operation successfull.
@@ -526,8 +533,8 @@ Lets now look at how a __service__ could register with the Vert.x-AMQP-Service t
 ==== Registering a __Service__.
 [source, groovy]
 ----
-import io.vertx.groovy.ext.amqp.AmqpService
-def service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp")
+import io.vertx.groovy.ext.amqp.AMQPService
+def service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp")
 def options = [:]
 options.initialCapacity = 1
 service.registerService("fortune-cookie-service", "notice-address", options, { result ->
@@ -560,7 +567,9 @@ This sections shows you how to,
 * How to control the flow of requests by managing request credits.
 [source, groovy]
 ----
+import groovy.transform.Field
 import io.vertx.ext.amqp.NotificationType
+@Field def service
 vertx.eventBus().consumer("notice-address", { msg ->
   def type = io.vertx.ext.amqp.NotificationHelper.getType(msg.body())
   if (type == NotificationType.INCOMING_LINK_OPENED) {
@@ -584,8 +593,8 @@ For more info on how routing works, see <<routing>>
 
 [source, groovy]
 ----
-import io.vertx.groovy.ext.amqp.AmqpService
-def service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp")
+import io.vertx.groovy.ext.amqp.AMQPService
+def service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp")
 service.addInboundRoute("weather.us.*", "us-weather")
 service.addInboundRoute("weather.us.bos.*", "bos-weather")
 

@@ -19,7 +19,7 @@ var utils = require('vertx-js/util/utils');
 
 var io = Packages.io;
 var JsonObject = io.vertx.core.json.JsonObject;
-var JAmqpService = io.vertx.ext.amqp.AmqpService;
+var JAMQPService = io.vertx.ext.amqp.AMQPService;
 var IncomingLinkOptions = io.vertx.ext.amqp.IncomingLinkOptions;
 var OutgoingLinkOptions = io.vertx.ext.amqp.OutgoingLinkOptions;
 var ServiceOptions = io.vertx.ext.amqp.ServiceOptions;
@@ -40,9 +40,9 @@ var ServiceOptions = io.vertx.ext.amqp.ServiceOptions;
 
  @class
 */
-var AmqpService = function(j_val) {
+var AMQPService = function(j_val) {
 
-  var j_amqpService = j_val;
+  var j_aMQPService = j_val;
   var that = this;
 
   /**
@@ -58,12 +58,12 @@ var AmqpService = function(j_val) {
    @param notificationAddress {string} The event-bus address to which notifications about the incoming link is sent. Ex. Errors. The application should register a handler with the event-bus to receive these updates. Please see NotificationType and {@link NotificationHelper} for more details. 
    @param options {Object} Options to configure the link behavior (Ex prefetch, reliability). <a href="../../cheatsheet/IncomingLinkOptions.html">IncomingLinkOptions</a> 
    @param result {function} The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association. 
-   @return {AmqpService} A reference to the service.
+   @return {AMQPService} A reference to the service.
    */
   this.establishIncomingLink = function(amqpAddress, eventbusAddress, notificationAddress, options, result) {
     var __args = arguments;
     if (__args.length === 5 && typeof __args[0] === 'string' && typeof __args[1] === 'string' && typeof __args[2] === 'string' && typeof __args[3] === 'object' && typeof __args[4] === 'function') {
-      j_amqpService["establishIncomingLink(java.lang.String,java.lang.String,java.lang.String,io.vertx.ext.amqp.IncomingLinkOptions,io.vertx.core.Handler)"](amqpAddress, eventbusAddress, notificationAddress, options != null ? new IncomingLinkOptions(new JsonObject(JSON.stringify(options))) : null, function(ar) {
+      j_aMQPService["establishIncomingLink(java.lang.String,java.lang.String,java.lang.String,io.vertx.ext.amqp.IncomingLinkOptions,io.vertx.core.Handler)"](amqpAddress, eventbusAddress, notificationAddress, options != null ? new IncomingLinkOptions(new JsonObject(JSON.stringify(options))) : null, function(ar) {
       if (ar.succeeded()) {
         result(ar.result(), null);
       } else {
@@ -83,12 +83,12 @@ var AmqpService = function(j_val) {
    @param incomingLinkRef {string} The String ref return by the establishIncommingLink method. This uniquely identifies the incoming link and it's mapping to an event-bus address. 
    @param messages {number} The number of message to fetch. 
    @param result {function} Notifies if there is an error. 
-   @return {AmqpService} A reference to the service.
+   @return {AMQPService} A reference to the service.
    */
   this.fetch = function(incomingLinkRef, messages, result) {
     var __args = arguments;
     if (__args.length === 3 && typeof __args[0] === 'string' && typeof __args[1] ==='number' && typeof __args[2] === 'function') {
-      j_amqpService["fetch(java.lang.String,int,io.vertx.core.Handler)"](incomingLinkRef, messages, function(ar) {
+      j_aMQPService["fetch(java.lang.String,int,io.vertx.core.Handler)"](incomingLinkRef, messages, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -106,12 +106,12 @@ var AmqpService = function(j_val) {
    @public
    @param incomingLinkRef {string} The String ref return by the establishIncommingLink method. This uniquely identifies the incoming link and it's mapping to an event-bus address. 
    @param result {function} Notifies if there is an error. 
-   @return {AmqpService} A reference to the service.
+   @return {AMQPService} A reference to the service.
    */
   this.cancelIncomingLink = function(incomingLinkRef, result) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'function') {
-      j_amqpService["cancelIncomingLink(java.lang.String,io.vertx.core.Handler)"](incomingLinkRef, function(ar) {
+      j_aMQPService["cancelIncomingLink(java.lang.String,io.vertx.core.Handler)"](incomingLinkRef, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -134,12 +134,12 @@ var AmqpService = function(j_val) {
    @param notificationAddress {string} The event-bus address to which notifications about the outgoing link is sent. Ex. Errors, Delivery Status, credit availability. The application should register a handler with the event-bus to receive these updates. Please see NotificationType and {@link NotificationHelper} for more details. 
    @param options {Object} Options to configure the link behavior (Ex reliability). <a href="../../cheatsheet/IncomingLinkOptions.html">IncomingLinkOptions</a> 
    @param result {function} The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association. 
-   @return {AmqpService} A reference to the service.
+   @return {AMQPService} A reference to the service.
    */
   this.establishOutgoingLink = function(amqpAddress, eventbusAddress, notificationAddress, options, result) {
     var __args = arguments;
     if (__args.length === 5 && typeof __args[0] === 'string' && typeof __args[1] === 'string' && typeof __args[2] === 'string' && typeof __args[3] === 'object' && typeof __args[4] === 'function') {
-      j_amqpService["establishOutgoingLink(java.lang.String,java.lang.String,java.lang.String,io.vertx.ext.amqp.OutgoingLinkOptions,io.vertx.core.Handler)"](amqpAddress, eventbusAddress, notificationAddress, options != null ? new OutgoingLinkOptions(new JsonObject(JSON.stringify(options))) : null, function(ar) {
+      j_aMQPService["establishOutgoingLink(java.lang.String,java.lang.String,java.lang.String,io.vertx.ext.amqp.OutgoingLinkOptions,io.vertx.core.Handler)"](amqpAddress, eventbusAddress, notificationAddress, options != null ? new OutgoingLinkOptions(new JsonObject(JSON.stringify(options))) : null, function(ar) {
       if (ar.succeeded()) {
         result(ar.result(), null);
       } else {
@@ -157,12 +157,12 @@ var AmqpService = function(j_val) {
    @public
    @param outgoingLinkRef {string} The String ref return by the establishOutgoingLink method. This uniquely identifies the outgoing link and it's mapping to an event-bus address. 
    @param result {function} Notifies if there is an error. 
-   @return {AmqpService} A reference to the service.
+   @return {AMQPService} A reference to the service.
    */
   this.cancelOutgoingLink = function(outgoingLinkRef, result) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'function') {
-      j_amqpService["cancelOutgoingLink(java.lang.String,io.vertx.core.Handler)"](outgoingLinkRef, function(ar) {
+      j_aMQPService["cancelOutgoingLink(java.lang.String,io.vertx.core.Handler)"](outgoingLinkRef, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -179,12 +179,12 @@ var AmqpService = function(j_val) {
    @public
    @param msgRef {string} The string ref. Use  
    @param result {function} Notifies if there is an error. 
-   @return {AmqpService} A reference to the service.
+   @return {AMQPService} A reference to the service.
    */
   this.accept = function(msgRef, result) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'function') {
-      j_amqpService["accept(java.lang.String,io.vertx.core.Handler)"](msgRef, function(ar) {
+      j_aMQPService["accept(java.lang.String,io.vertx.core.Handler)"](msgRef, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -201,12 +201,12 @@ var AmqpService = function(j_val) {
    @public
    @param msgRef {string} The string ref. Use  
    @param result {function} Notifies if there is an error. 
-   @return {AmqpService} A reference to the service.
+   @return {AMQPService} A reference to the service.
    */
   this.reject = function(msgRef, result) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'function') {
-      j_amqpService["reject(java.lang.String,io.vertx.core.Handler)"](msgRef, function(ar) {
+      j_aMQPService["reject(java.lang.String,io.vertx.core.Handler)"](msgRef, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -223,12 +223,12 @@ var AmqpService = function(j_val) {
    @public
    @param msgRef {string} The string ref. Use  
    @param result {function} Notifies if there is an error. 
-   @return {AmqpService} A reference to the service.
+   @return {AMQPService} A reference to the service.
    */
   this.release = function(msgRef, result) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'function') {
-      j_amqpService["release(java.lang.String,io.vertx.core.Handler)"](msgRef, function(ar) {
+      j_aMQPService["release(java.lang.String,io.vertx.core.Handler)"](msgRef, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -249,12 +249,12 @@ var AmqpService = function(j_val) {
    @param notificationAddres {string} The event-bus address to which notifications about the service is sent. The application should register a handler with the event-bus to receive these updates. Ex notifies the application of an incoming link created by an AMQP peer to send requests. Please see NotificationType and {@link NotificationHelper} for more details. 
    @param options {Object} Options to configure the Service behavior (Ex initial capacity). <a href="../../cheatsheet/ServiceOptions.html">ServiceOptions</a> 
    @param result {function} Notifies if there is an error. 
-   @return {AmqpService} A reference to the service.
+   @return {AMQPService} A reference to the service.
    */
   this.registerService = function(eventbusAddress, notificationAddres, options, result) {
     var __args = arguments;
     if (__args.length === 4 && typeof __args[0] === 'string' && typeof __args[1] === 'string' && typeof __args[2] === 'object' && typeof __args[3] === 'function') {
-      j_amqpService["registerService(java.lang.String,java.lang.String,io.vertx.ext.amqp.ServiceOptions,io.vertx.core.Handler)"](eventbusAddress, notificationAddres, options != null ? new ServiceOptions(new JsonObject(JSON.stringify(options))) : null, function(ar) {
+      j_aMQPService["registerService(java.lang.String,java.lang.String,io.vertx.ext.amqp.ServiceOptions,io.vertx.core.Handler)"](eventbusAddress, notificationAddres, options != null ? new ServiceOptions(new JsonObject(JSON.stringify(options))) : null, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -271,12 +271,12 @@ var AmqpService = function(j_val) {
    @public
    @param eventbusAddress {string} The event-bus address used when registering the service 
    @param result {function} Notifies if there is an error. 
-   @return {AmqpService} A reference to the service.
+   @return {AMQPService} A reference to the service.
    */
   this.unregisterService = function(eventbusAddress, result) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'function') {
-      j_amqpService["unregisterService(java.lang.String,io.vertx.core.Handler)"](eventbusAddress, function(ar) {
+      j_aMQPService["unregisterService(java.lang.String,io.vertx.core.Handler)"](eventbusAddress, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -297,12 +297,12 @@ var AmqpService = function(j_val) {
    @param linkId {string} The ref for the incoming link. The service gets notified of an incoming link by registering for notifications. Please  and {@link NotificationHelper#getLinkRef} for more details. 
    @param credits {number} The number of message (requests) the AMQP peer is allowed to send. 
    @param result {function} Notifies if there is an error. 
-   @return {AmqpService} A reference to the service.
+   @return {AMQPService} A reference to the service.
    */
   this.issueCredits = function(linkId, credits, result) {
     var __args = arguments;
     if (__args.length === 3 && typeof __args[0] === 'string' && typeof __args[1] ==='number' && typeof __args[2] === 'function') {
-      j_amqpService["issueCredits(java.lang.String,int,io.vertx.core.Handler)"](linkId, credits, function(ar) {
+      j_aMQPService["issueCredits(java.lang.String,int,io.vertx.core.Handler)"](linkId, credits, function(ar) {
       if (ar.succeeded()) {
         result(null, null);
       } else {
@@ -320,12 +320,12 @@ var AmqpService = function(j_val) {
    @public
    @param pattern {string} The pattern to be matched against the chosen message-property from the incoming message. 
    @param eventBusAddress {string} The Vert.x event-bus address the message should be sent to if matched. 
-   @return {AmqpService} A reference to the service.
+   @return {AMQPService} A reference to the service.
    */
   this.addInboundRoute = function(pattern, eventBusAddress) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'string') {
-      j_amqpService["addInboundRoute(java.lang.String,java.lang.String)"](pattern, eventBusAddress);
+      j_aMQPService["addInboundRoute(java.lang.String,java.lang.String)"](pattern, eventBusAddress);
       return that;
     } else utils.invalidArgs();
   };
@@ -336,12 +336,12 @@ var AmqpService = function(j_val) {
    @public
    @param pattern {string} The pattern (key) used when adding the entry to the table. 
    @param eventBusAddress {string} The Vert.x event-bus address the message should be sent to if matched. 
-   @return {AmqpService} 
+   @return {AMQPService} 
    */
   this.removeInboundRoute = function(pattern, eventBusAddress) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'string') {
-      j_amqpService["removeInboundRoute(java.lang.String,java.lang.String)"](pattern, eventBusAddress);
+      j_aMQPService["removeInboundRoute(java.lang.String,java.lang.String)"](pattern, eventBusAddress);
       return that;
     } else utils.invalidArgs();
   };
@@ -353,12 +353,12 @@ var AmqpService = function(j_val) {
    @public
    @param pattern {string} The pattern to be matched against the chosen message-property from the outgoing message. 
    @param amqpAddress {string} The AMQP address the message should be sent to if matched. 
-   @return {AmqpService} A reference to the service.
+   @return {AMQPService} A reference to the service.
    */
   this.addOutboundRoute = function(pattern, amqpAddress) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'string') {
-      j_amqpService["addOutboundRoute(java.lang.String,java.lang.String)"](pattern, amqpAddress);
+      j_aMQPService["addOutboundRoute(java.lang.String,java.lang.String)"](pattern, amqpAddress);
       return that;
     } else utils.invalidArgs();
   };
@@ -369,12 +369,12 @@ var AmqpService = function(j_val) {
    @public
    @param pattern {string} The pattern (key) used when adding the entry to the table. 
    @param amqpAddress {string} The AMQP address the message should be sent to if matched. 
-   @return {AmqpService} 
+   @return {AMQPService} 
    */
   this.removeOutboundRoute = function(pattern, amqpAddress) {
     var __args = arguments;
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'string') {
-      j_amqpService["removeOutboundRoute(java.lang.String,java.lang.String)"](pattern, amqpAddress);
+      j_aMQPService["removeOutboundRoute(java.lang.String,java.lang.String)"](pattern, amqpAddress);
       return that;
     } else utils.invalidArgs();
   };
@@ -388,7 +388,7 @@ var AmqpService = function(j_val) {
   this.start = function() {
     var __args = arguments;
     if (__args.length === 0) {
-      j_amqpService["start()"]();
+      j_aMQPService["start()"]();
     } else utils.invalidArgs();
   };
 
@@ -401,14 +401,14 @@ var AmqpService = function(j_val) {
   this.stop = function() {
     var __args = arguments;
     if (__args.length === 0) {
-      j_amqpService["stop()"]();
+      j_aMQPService["stop()"]();
     } else utils.invalidArgs();
   };
 
   // A reference to the underlying Java delegate
   // NOTE! This is an internal API and must not be used in user code.
   // If you rely on this property your code is likely to break if we change it / remove it without warning.
-  this._jdel = j_amqpService;
+  this._jdel = j_aMQPService;
 };
 
 /**
@@ -416,14 +416,14 @@ var AmqpService = function(j_val) {
  @memberof module:vertx-amqp-js/amqp_service
  @param vertx {Vertx} 
  @param address {string} 
- @return {AmqpService}
+ @return {AMQPService}
  */
-AmqpService.createEventBusProxy = function(vertx, address) {
+AMQPService.createEventBusProxy = function(vertx, address) {
   var __args = arguments;
   if (__args.length === 2 && typeof __args[0] === 'object' && __args[0]._jdel && typeof __args[1] === 'string') {
-    return new AmqpService(JAmqpService["createEventBusProxy(io.vertx.core.Vertx,java.lang.String)"](vertx._jdel, address));
+    return utils.convReturnVertxGen(JAMQPService["createEventBusProxy(io.vertx.core.Vertx,java.lang.String)"](vertx._jdel, address), AMQPService);
   } else utils.invalidArgs();
 };
 
 // We export the Constructor function
-module.exports = AmqpService;
+module.exports = AMQPService;

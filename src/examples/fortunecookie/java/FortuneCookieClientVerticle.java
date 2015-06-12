@@ -34,7 +34,7 @@ public class FortuneCookieClientVerticle extends AbstractVerticle {
 
   String publishAddr = null;
 
-  AmqpService service;
+  AMQPService service;
 
   @Override
   public void start() throws Exception {
@@ -43,7 +43,7 @@ public class FortuneCookieClientVerticle extends AbstractVerticle {
     noticeAddr = "notice".concat("-").concat(id);
     publishAddr = "publish".concat("-").concat(id);
 
-    service = AmqpService.createEventBusProxy(vertx, "vertx.service-amqp");
+    service = AMQPService.createEventBusProxy(vertx, "vertx.service-amqp");
 
     OutgoingLinkOptions outOps = new OutgoingLinkOptions();
     outOps.setReliability(ReliabilityMode.AT_LEAST_ONCE);
@@ -82,7 +82,7 @@ public class FortuneCookieClientVerticle extends AbstractVerticle {
     vertx.eventBus().<JsonObject>send(publishAddr, new JsonObject(), resp -> {
       JsonObject msg = resp.result().body();
       print("Received my fortune cookie : '%s'", msg.getString("body"));
-      service.accept(msg.getString(AmqpService.INCOMING_MSG_REF), result -> {
+      service.accept(msg.getString(AMQPService.INCOMING_MSG_REF), result -> {
       });
       print("Accepted the cookie");
       print("====================================");
