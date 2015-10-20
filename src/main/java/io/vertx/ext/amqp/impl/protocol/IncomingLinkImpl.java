@@ -59,9 +59,9 @@ class IncomingLinkImpl extends BaseLink implements IncomingLink {
       // receiver.setDrain(true);
     }
     receiver.flow(credits);
-    print("\n==============================");
+    /*print("\n==============================");
     print("\nSetting credits=%s, for link '%s'", credits, this.getName());
-    print("\n==============================");
+    print("\n==============================");*/
     _ssn.getConnection().write();
   }
 
