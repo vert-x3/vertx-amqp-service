@@ -18,11 +18,12 @@ package io.vertx.ext.amqp.impl.protocol;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import io.vertx.core.logging.impl.LoggerFactory;
 import io.vertx.core.net.NetSocket;
 import io.vertx.ext.amqp.impl.ConnectionSettings;
 import io.vertx.ext.amqp.impl.CreditMode;
 import io.vertx.ext.amqp.ReliabilityMode;
+
 import org.apache.qpid.proton.Proton;
 import org.apache.qpid.proton.engine.*;
 import org.apache.qpid.proton.engine.Link;
