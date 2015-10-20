@@ -45,11 +45,17 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
 
   private Vertx _vertx;
   private String _address;
+  private DeliveryOptions _options;
   private boolean closed;
 
   public AMQPServiceVertxEBProxy(Vertx vertx, String address) {
+    this(vertx, address, null);
+  }
+
+  public AMQPServiceVertxEBProxy(Vertx vertx, String address, DeliveryOptions options) {
     this._vertx = vertx;
     this._address = address;
+    this._options = options;
   }
 
   public AMQPService establishIncomingLink(String amqpAddress, String eventbusAddress, String notificationAddress, IncomingLinkOptions options, Handler<AsyncResult<String>> result) {
@@ -62,7 +68,7 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
     _json.put("eventbusAddress", eventbusAddress);
     _json.put("notificationAddress", notificationAddress);
     _json.put("options", options == null ? null : options.toJson());
-    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "establishIncomingLink");
     _vertx.eventBus().<String>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
@@ -82,7 +88,7 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
     JsonObject _json = new JsonObject();
     _json.put("incomingLinkRef", incomingLinkRef);
     _json.put("messages", messages);
-    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "fetch");
     _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
@@ -101,7 +107,7 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
     }
     JsonObject _json = new JsonObject();
     _json.put("incomingLinkRef", incomingLinkRef);
-    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "cancelIncomingLink");
     _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
@@ -123,7 +129,7 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
     _json.put("eventbusAddress", eventbusAddress);
     _json.put("notificationAddress", notificationAddress);
     _json.put("options", options == null ? null : options.toJson());
-    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "establishOutgoingLink");
     _vertx.eventBus().<String>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
@@ -142,7 +148,7 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
     }
     JsonObject _json = new JsonObject();
     _json.put("outgoingLinkRef", outgoingLinkRef);
-    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "cancelOutgoingLink");
     _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
@@ -161,7 +167,7 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
     }
     JsonObject _json = new JsonObject();
     _json.put("msgRef", msgRef);
-    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "accept");
     _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
@@ -180,7 +186,7 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
     }
     JsonObject _json = new JsonObject();
     _json.put("msgRef", msgRef);
-    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "reject");
     _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
@@ -199,7 +205,7 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
     }
     JsonObject _json = new JsonObject();
     _json.put("msgRef", msgRef);
-    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "release");
     _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
@@ -220,7 +226,7 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
     _json.put("eventbusAddress", eventbusAddress);
     _json.put("notificationAddres", notificationAddres);
     _json.put("options", options == null ? null : options.toJson());
-    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "registerService");
     _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
@@ -239,7 +245,7 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
     }
     JsonObject _json = new JsonObject();
     _json.put("eventbusAddress", eventbusAddress);
-    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "unregisterService");
     _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
@@ -259,7 +265,7 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
     JsonObject _json = new JsonObject();
     _json.put("linkId", linkId);
     _json.put("credits", credits);
-    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "issueCredits");
     _vertx.eventBus().<Void>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
@@ -278,7 +284,7 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
     JsonObject _json = new JsonObject();
     _json.put("pattern", pattern);
     _json.put("eventBusAddress", eventBusAddress);
-    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "addInboundRoute");
     _vertx.eventBus().send(_address, _json, _deliveryOptions);
     return this;
@@ -291,7 +297,7 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
     JsonObject _json = new JsonObject();
     _json.put("pattern", pattern);
     _json.put("eventBusAddress", eventBusAddress);
-    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "removeInboundRoute");
     _vertx.eventBus().send(_address, _json, _deliveryOptions);
     return this;
@@ -304,7 +310,7 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
     JsonObject _json = new JsonObject();
     _json.put("pattern", pattern);
     _json.put("amqpAddress", amqpAddress);
-    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "addOutboundRoute");
     _vertx.eventBus().send(_address, _json, _deliveryOptions);
     return this;
@@ -317,7 +323,7 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
     JsonObject _json = new JsonObject();
     _json.put("pattern", pattern);
     _json.put("amqpAddress", amqpAddress);
-    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "removeOutboundRoute");
     _vertx.eventBus().send(_address, _json, _deliveryOptions);
     return this;
@@ -334,7 +340,7 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
     List<Character> list = new ArrayList<>();
     for (Object obj: arr) {
       Integer jobj = (Integer)obj;
-      list.add((char)jobj.intValue());
+      list.add((char)(int)jobj);
     }
     return list;
   }
@@ -343,7 +349,7 @@ public class AMQPServiceVertxEBProxy implements AMQPService {
     Set<Character> set = new HashSet<>();
     for (Object obj: arr) {
       Integer jobj = (Integer)obj;
-      set.add((char)jobj.intValue());
+      set.add((char)(int)jobj);
     }
     return set;
   }

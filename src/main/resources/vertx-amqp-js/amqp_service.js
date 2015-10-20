@@ -16,13 +16,14 @@
 
 /** @module vertx-amqp-js/amqp_service */
 var utils = require('vertx-js/util/utils');
+var Vertx = require('vertx-js/vertx');
 
 var io = Packages.io;
 var JsonObject = io.vertx.core.json.JsonObject;
 var JAMQPService = io.vertx.ext.amqp.AMQPService;
-var IncomingLinkOptions = io.vertx.ext.amqp.IncomingLinkOptions;
-var OutgoingLinkOptions = io.vertx.ext.amqp.OutgoingLinkOptions;
 var ServiceOptions = io.vertx.ext.amqp.ServiceOptions;
+var OutgoingLinkOptions = io.vertx.ext.amqp.OutgoingLinkOptions;
+var IncomingLinkOptions = io.vertx.ext.amqp.IncomingLinkOptions;
 
 /**
  AMQP service allows a Vert.x application to,
@@ -56,7 +57,7 @@ var AMQPService = function(j_val) {
    @param amqpAddress {string} A link will be created to the the AMQP message-source identified by this address. . 
    @param eventbusAddress {string} The event-bus address to be mapped to the above link. The application should register a handler for this address on the event bus to receive the messages. 
    @param notificationAddress {string} The event-bus address to which notifications about the incoming link is sent. Ex. Errors. The application should register a handler with the event-bus to receive these updates. Please see NotificationType and {@link NotificationHelper} for more details. 
-   @param options {Object} Options to configure the link behavior (Ex prefetch, reliability). <a href="../../cheatsheet/IncomingLinkOptions.html">IncomingLinkOptions</a> 
+   @param options {Object} Options to configure the link behavior (Ex prefetch, reliability). <a href="../../dataobjects.html#IncomingLinkOptions">IncomingLinkOptions</a> 
    @param result {function} The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association. 
    @return {AMQPService} A reference to the service.
    */
@@ -71,7 +72,7 @@ var AMQPService = function(j_val) {
       }
     });
       return that;
-    } else utils.invalidArgs();
+    } else throw new TypeError('function invoked with invalid arguments');
   };
 
   /**
@@ -96,7 +97,7 @@ var AMQPService = function(j_val) {
       }
     });
       return that;
-    } else utils.invalidArgs();
+    } else throw new TypeError('function invoked with invalid arguments');
   };
 
   /**
@@ -119,7 +120,7 @@ var AMQPService = function(j_val) {
       }
     });
       return that;
-    } else utils.invalidArgs();
+    } else throw new TypeError('function invoked with invalid arguments');
   };
 
   /**
@@ -132,7 +133,7 @@ var AMQPService = function(j_val) {
    @param amqpAddress {string} A link will be created to the the AMQP message-sink identified by this address. 
    @param eventbusAddress {string} The event-bus address to be mapped to the above link. The application should send the messages using this address. 
    @param notificationAddress {string} The event-bus address to which notifications about the outgoing link is sent. Ex. Errors, Delivery Status, credit availability. The application should register a handler with the event-bus to receive these updates. Please see NotificationType and {@link NotificationHelper} for more details. 
-   @param options {Object} Options to configure the link behavior (Ex reliability). <a href="../../cheatsheet/IncomingLinkOptions.html">IncomingLinkOptions</a> 
+   @param options {Object} Options to configure the link behavior (Ex reliability). <a href="../../dataobjects.html#IncomingLinkOptions">IncomingLinkOptions</a> 
    @param result {function} The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association. 
    @return {AMQPService} A reference to the service.
    */
@@ -147,7 +148,7 @@ var AMQPService = function(j_val) {
       }
     });
       return that;
-    } else utils.invalidArgs();
+    } else throw new TypeError('function invoked with invalid arguments');
   };
 
   /**
@@ -170,7 +171,7 @@ var AMQPService = function(j_val) {
       }
     });
       return that;
-    } else utils.invalidArgs();
+    } else throw new TypeError('function invoked with invalid arguments');
   };
 
   /**
@@ -192,7 +193,7 @@ var AMQPService = function(j_val) {
       }
     });
       return that;
-    } else utils.invalidArgs();
+    } else throw new TypeError('function invoked with invalid arguments');
   };
 
   /**
@@ -214,7 +215,7 @@ var AMQPService = function(j_val) {
       }
     });
       return that;
-    } else utils.invalidArgs();
+    } else throw new TypeError('function invoked with invalid arguments');
   };
 
   /**
@@ -236,7 +237,7 @@ var AMQPService = function(j_val) {
       }
     });
       return that;
-    } else utils.invalidArgs();
+    } else throw new TypeError('function invoked with invalid arguments');
   };
 
   /**
@@ -247,7 +248,7 @@ var AMQPService = function(j_val) {
    @public
    @param eventbusAddress {string} The event-bus address the service is listening for incoming requests. The application needs to register a handler with the event-bus using this address to receive the above requests. 
    @param notificationAddres {string} The event-bus address to which notifications about the service is sent. The application should register a handler with the event-bus to receive these updates. Ex notifies the application of an incoming link created by an AMQP peer to send requests. Please see NotificationType and {@link NotificationHelper} for more details. 
-   @param options {Object} Options to configure the Service behavior (Ex initial capacity). <a href="../../cheatsheet/ServiceOptions.html">ServiceOptions</a> 
+   @param options {Object} Options to configure the Service behavior (Ex initial capacity). <a href="../../dataobjects.html#ServiceOptions">ServiceOptions</a> 
    @param result {function} Notifies if there is an error. 
    @return {AMQPService} A reference to the service.
    */
@@ -262,7 +263,7 @@ var AMQPService = function(j_val) {
       }
     });
       return that;
-    } else utils.invalidArgs();
+    } else throw new TypeError('function invoked with invalid arguments');
   };
 
   /**
@@ -284,7 +285,7 @@ var AMQPService = function(j_val) {
       }
     });
       return that;
-    } else utils.invalidArgs();
+    } else throw new TypeError('function invoked with invalid arguments');
   };
 
   /**
@@ -310,7 +311,7 @@ var AMQPService = function(j_val) {
       }
     });
       return that;
-    } else utils.invalidArgs();
+    } else throw new TypeError('function invoked with invalid arguments');
   };
 
   /**
@@ -327,7 +328,7 @@ var AMQPService = function(j_val) {
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'string') {
       j_aMQPService["addInboundRoute(java.lang.String,java.lang.String)"](pattern, eventBusAddress);
       return that;
-    } else utils.invalidArgs();
+    } else throw new TypeError('function invoked with invalid arguments');
   };
 
   /**
@@ -343,7 +344,7 @@ var AMQPService = function(j_val) {
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'string') {
       j_aMQPService["removeInboundRoute(java.lang.String,java.lang.String)"](pattern, eventBusAddress);
       return that;
-    } else utils.invalidArgs();
+    } else throw new TypeError('function invoked with invalid arguments');
   };
 
   /**
@@ -360,7 +361,7 @@ var AMQPService = function(j_val) {
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'string') {
       j_aMQPService["addOutboundRoute(java.lang.String,java.lang.String)"](pattern, amqpAddress);
       return that;
-    } else utils.invalidArgs();
+    } else throw new TypeError('function invoked with invalid arguments');
   };
 
   /**
@@ -376,7 +377,7 @@ var AMQPService = function(j_val) {
     if (__args.length === 2 && typeof __args[0] === 'string' && typeof __args[1] === 'string') {
       j_aMQPService["removeOutboundRoute(java.lang.String,java.lang.String)"](pattern, amqpAddress);
       return that;
-    } else utils.invalidArgs();
+    } else throw new TypeError('function invoked with invalid arguments');
   };
 
   /**
@@ -389,7 +390,7 @@ var AMQPService = function(j_val) {
     var __args = arguments;
     if (__args.length === 0) {
       j_aMQPService["start()"]();
-    } else utils.invalidArgs();
+    } else throw new TypeError('function invoked with invalid arguments');
   };
 
   /**
@@ -402,7 +403,7 @@ var AMQPService = function(j_val) {
     var __args = arguments;
     if (__args.length === 0) {
       j_aMQPService["stop()"]();
-    } else utils.invalidArgs();
+    } else throw new TypeError('function invoked with invalid arguments');
   };
 
   // A reference to the underlying Java delegate
@@ -422,7 +423,7 @@ AMQPService.createEventBusProxy = function(vertx, address) {
   var __args = arguments;
   if (__args.length === 2 && typeof __args[0] === 'object' && __args[0]._jdel && typeof __args[1] === 'string') {
     return utils.convReturnVertxGen(JAMQPService["createEventBusProxy(io.vertx.core.Vertx,java.lang.String)"](vertx._jdel, address), AMQPService);
-  } else utils.invalidArgs();
+  } else throw new TypeError('function invoked with invalid arguments');
 };
 
 // We export the Constructor function

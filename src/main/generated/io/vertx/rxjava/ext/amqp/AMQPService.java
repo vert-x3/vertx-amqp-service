@@ -69,7 +69,7 @@ public class AMQPService {
    * this address.
    * @param amqpAddress A link will be created to the the AMQP message-source identified by this address. .
    * @param eventbusAddress The event-bus address to be mapped to the above link. The application should register a handler for this address on the event bus to receive the messages.
-   * @param notificationAddress The event-bus address to which notifications about the incoming link is sent. Ex. Errors. The application should register a handler with the event-bus to receive these updates. Please see {@link io.vertx.ext.amqp.NotificationType} and {@link io.vertx.ext.amqp.NotificationHelper} for more details.
+   * @param notificationAddress The event-bus address to which notifications about the incoming link is sent. Ex. Errors. The application should register a handler with the event-bus to receive these updates. Please see {@link io.vertx.rxjava.ext.amqp.NotificationType} and {@link io.vertx.rxjava.ext.amqp.NotificationHelper} for more details.
    * @param options Options to configure the link behavior (Ex prefetch, reliability). {@link io.vertx.ext.amqp.IncomingLinkOptions}
    * @param result The AsyncResult contains a ref (string) to the mapping created. This is required when changing behavior or canceling the link and it' association.
    * @return A reference to the service.
@@ -87,7 +87,7 @@ public class AMQPService {
    * this address.
    * @param amqpAddress A link will be created to the the AMQP message-source identified by this address. .
    * @param eventbusAddress The event-bus address to be mapped to the above link. The application should register a handler for this address on the event bus to receive the messages.
-   * @param notificationAddress The event-bus address to which notifications about the incoming link is sent. Ex. Errors. The application should register a handler with the event-bus to receive these updates. Please see {@link io.vertx.ext.amqp.NotificationType} and {@link io.vertx.ext.amqp.NotificationHelper} for more details.
+   * @param notificationAddress The event-bus address to which notifications about the incoming link is sent. Ex. Errors. The application should register a handler with the event-bus to receive these updates. Please see {@link io.vertx.rxjava.ext.amqp.NotificationType} and {@link io.vertx.rxjava.ext.amqp.NotificationHelper} for more details.
    * @param options Options to configure the link behavior (Ex prefetch, reliability). {@link io.vertx.ext.amqp.IncomingLinkOptions}
    * @return 
    */
@@ -173,7 +173,7 @@ public class AMQPService {
    * and forward it to the respective AMQP message sink.
    * @param amqpAddress A link will be created to the the AMQP message-sink identified by this address.
    * @param eventbusAddress The event-bus address to be mapped to the above link. The application should send the messages using this address.
-   * @param notificationAddress The event-bus address to which notifications about the outgoing link is sent. Ex. Errors, Delivery Status, credit availability. The application should register a handler with the event-bus to receive these updates. Please see {@link io.vertx.ext.amqp.NotificationType} and {@link io.vertx.ext.amqp.NotificationHelper} for more details.
+   * @param notificationAddress The event-bus address to which notifications about the outgoing link is sent. Ex. Errors, Delivery Status, credit availability. The application should register a handler with the event-bus to receive these updates. Please see {@link io.vertx.rxjava.ext.amqp.NotificationType} and {@link io.vertx.rxjava.ext.amqp.NotificationHelper} for more details.
    * @param options Options to configure the link behavior (Ex reliability). {@link io.vertx.ext.amqp.IncomingLinkOptions}
    * @return 
    */
@@ -293,7 +293,7 @@ public class AMQPService {
    * vertx-amqp-service. This allows any AMQP peer to interact with this
    * service by sending (and receiving) messages with the service.
    * @param eventbusAddress The event-bus address the service is listening for incoming requests. The application needs to register a handler with the event-bus using this address to receive the above requests.
-   * @param notificationAddres The event-bus address to which notifications about the service is sent. The application should register a handler with the event-bus to receive these updates. Ex notifies the application of an incoming link created by an AMQP peer to send requests. Please see {@link io.vertx.ext.amqp.NotificationType} and {@link io.vertx.ext.amqp.NotificationHelper} for more details.
+   * @param notificationAddres The event-bus address to which notifications about the service is sent. The application should register a handler with the event-bus to receive these updates. Ex notifies the application of an incoming link created by an AMQP peer to send requests. Please see {@link io.vertx.rxjava.ext.amqp.NotificationType} and {@link io.vertx.rxjava.ext.amqp.NotificationHelper} for more details.
    * @param options Options to configure the Service behavior (Ex initial capacity). {@link io.vertx.ext.amqp.ServiceOptions}
    * @return 
    */
@@ -345,7 +345,7 @@ public class AMQPService {
    * (created by a remote AMQP peer) for sending more service requests. This
    * allows the Service to always be in control of how many messages it
    * receives so it can maintain the required QoS requirements.
-   * @param linkId The ref for the incoming link. The service gets notified of an incoming link by registering for notifications. Please  and {@link io.vertx.ext.amqp.NotificationHelper#getLinkRef} for more details.
+   * @param linkId The ref for the incoming link. The service gets notified of an incoming link by registering for notifications. Please  and {@link io.vertx.rxjava.ext.amqp.NotificationHelper#getLinkRef} for more details.
    * @param credits The number of message (requests) the AMQP peer is allowed to send.
    * @return 
    */

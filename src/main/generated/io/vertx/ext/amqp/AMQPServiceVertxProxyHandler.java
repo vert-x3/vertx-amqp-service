@@ -60,10 +60,10 @@ public class AMQPServiceVertxProxyHandler extends ProxyHandler {
   private final long timeoutSeconds;
 
   public AMQPServiceVertxProxyHandler(Vertx vertx, AMQPService service) {
-    this(vertx, service, DEFAULT_CONNECTION_TIMEOUT);  }
+    this(vertx, service, DEFAULT_CONNECTION_TIMEOUT);
+  }
 
-  public AMQPServiceVertxProxyHandler(Vertx vertx, AMQPService service,
-    long timeoutInSecond) {
+  public AMQPServiceVertxProxyHandler(Vertx vertx, AMQPService service, long timeoutInSecond) {
     this(vertx, service, true, timeoutInSecond);
   }
 
@@ -109,87 +109,93 @@ public class AMQPServiceVertxProxyHandler extends ProxyHandler {
   }
 
   public void handle(Message<JsonObject> msg) {
-    JsonObject json = msg.body();
-    String action = msg.headers().get("action");
-    if (action == null) {
-      throw new IllegalStateException("action not specified");
-    }
-    accessed();
-    switch (action) {
+    try {
+      JsonObject json = msg.body();
+      String action = msg.headers().get("action");
+      if (action == null) {
+        throw new IllegalStateException("action not specified");
+      }
+      accessed();
+      switch (action) {
 
-      case "establishIncomingLink": {
-        service.establishIncomingLink((java.lang.String)json.getValue("amqpAddress"), (java.lang.String)json.getValue("eventbusAddress"), (java.lang.String)json.getValue("notificationAddress"), json.getJsonObject("options") == null ? null : new io.vertx.ext.amqp.IncomingLinkOptions(json.getJsonObject("options")), createHandler(msg));
-        break;
+        case "establishIncomingLink": {
+          service.establishIncomingLink((java.lang.String)json.getValue("amqpAddress"), (java.lang.String)json.getValue("eventbusAddress"), (java.lang.String)json.getValue("notificationAddress"), json.getJsonObject("options") == null ? null : new io.vertx.ext.amqp.IncomingLinkOptions(json.getJsonObject("options")), createHandler(msg));
+          break;
+        }
+        case "fetch": {
+          service.fetch((java.lang.String)json.getValue("incomingLinkRef"), json.getValue("messages") == null ? null : (json.getLong("messages").intValue()), createHandler(msg));
+          break;
+        }
+        case "cancelIncomingLink": {
+          service.cancelIncomingLink((java.lang.String)json.getValue("incomingLinkRef"), createHandler(msg));
+          break;
+        }
+        case "establishOutgoingLink": {
+          service.establishOutgoingLink((java.lang.String)json.getValue("amqpAddress"), (java.lang.String)json.getValue("eventbusAddress"), (java.lang.String)json.getValue("notificationAddress"), json.getJsonObject("options") == null ? null : new io.vertx.ext.amqp.OutgoingLinkOptions(json.getJsonObject("options")), createHandler(msg));
+          break;
+        }
+        case "cancelOutgoingLink": {
+          service.cancelOutgoingLink((java.lang.String)json.getValue("outgoingLinkRef"), createHandler(msg));
+          break;
+        }
+        case "accept": {
+          service.accept((java.lang.String)json.getValue("msgRef"), createHandler(msg));
+          break;
+        }
+        case "reject": {
+          service.reject((java.lang.String)json.getValue("msgRef"), createHandler(msg));
+          break;
+        }
+        case "release": {
+          service.release((java.lang.String)json.getValue("msgRef"), createHandler(msg));
+          break;
+        }
+        case "registerService": {
+          service.registerService((java.lang.String)json.getValue("eventbusAddress"), (java.lang.String)json.getValue("notificationAddres"), json.getJsonObject("options") == null ? null : new io.vertx.ext.amqp.ServiceOptions(json.getJsonObject("options")), createHandler(msg));
+          break;
+        }
+        case "unregisterService": {
+          service.unregisterService((java.lang.String)json.getValue("eventbusAddress"), createHandler(msg));
+          break;
+        }
+        case "issueCredits": {
+          service.issueCredits((java.lang.String)json.getValue("linkId"), json.getValue("credits") == null ? null : (json.getLong("credits").intValue()), createHandler(msg));
+          break;
+        }
+        case "addInboundRoute": {
+          service.addInboundRoute((java.lang.String)json.getValue("pattern"), (java.lang.String)json.getValue("eventBusAddress"));
+          break;
+        }
+        case "removeInboundRoute": {
+          service.removeInboundRoute((java.lang.String)json.getValue("pattern"), (java.lang.String)json.getValue("eventBusAddress"));
+          break;
+        }
+        case "addOutboundRoute": {
+          service.addOutboundRoute((java.lang.String)json.getValue("pattern"), (java.lang.String)json.getValue("amqpAddress"));
+          break;
+        }
+        case "removeOutboundRoute": {
+          service.removeOutboundRoute((java.lang.String)json.getValue("pattern"), (java.lang.String)json.getValue("amqpAddress"));
+          break;
+        }
+        case "start": {
+          service.start();
+          break;
+        }
+        case "stop": {
+          service.stop();
+          break;
+        }
+        default: {
+          throw new IllegalStateException("Invalid action: " + action);
+        }
       }
-      case "fetch": {
-        service.fetch((java.lang.String)json.getValue("incomingLinkRef"), (int)json.getValue("messages"), createHandler(msg));
-        break;
-      }
-      case "cancelIncomingLink": {
-        service.cancelIncomingLink((java.lang.String)json.getValue("incomingLinkRef"), createHandler(msg));
-        break;
-      }
-      case "establishOutgoingLink": {
-        service.establishOutgoingLink((java.lang.String)json.getValue("amqpAddress"), (java.lang.String)json.getValue("eventbusAddress"), (java.lang.String)json.getValue("notificationAddress"), json.getJsonObject("options") == null ? null : new io.vertx.ext.amqp.OutgoingLinkOptions(json.getJsonObject("options")), createHandler(msg));
-        break;
-      }
-      case "cancelOutgoingLink": {
-        service.cancelOutgoingLink((java.lang.String)json.getValue("outgoingLinkRef"), createHandler(msg));
-        break;
-      }
-      case "accept": {
-        service.accept((java.lang.String)json.getValue("msgRef"), createHandler(msg));
-        break;
-      }
-      case "reject": {
-        service.reject((java.lang.String)json.getValue("msgRef"), createHandler(msg));
-        break;
-      }
-      case "release": {
-        service.release((java.lang.String)json.getValue("msgRef"), createHandler(msg));
-        break;
-      }
-      case "registerService": {
-        service.registerService((java.lang.String)json.getValue("eventbusAddress"), (java.lang.String)json.getValue("notificationAddres"), json.getJsonObject("options") == null ? null : new io.vertx.ext.amqp.ServiceOptions(json.getJsonObject("options")), createHandler(msg));
-        break;
-      }
-      case "unregisterService": {
-        service.unregisterService((java.lang.String)json.getValue("eventbusAddress"), createHandler(msg));
-        break;
-      }
-      case "issueCredits": {
-        service.issueCredits((java.lang.String)json.getValue("linkId"), (int)json.getValue("credits"), createHandler(msg));
-        break;
-      }
-      case "addInboundRoute": {
-        service.addInboundRoute((java.lang.String)json.getValue("pattern"), (java.lang.String)json.getValue("eventBusAddress"));
-        break;
-      }
-      case "removeInboundRoute": {
-        service.removeInboundRoute((java.lang.String)json.getValue("pattern"), (java.lang.String)json.getValue("eventBusAddress"));
-        break;
-      }
-      case "addOutboundRoute": {
-        service.addOutboundRoute((java.lang.String)json.getValue("pattern"), (java.lang.String)json.getValue("amqpAddress"));
-        break;
-      }
-      case "removeOutboundRoute": {
-        service.removeOutboundRoute((java.lang.String)json.getValue("pattern"), (java.lang.String)json.getValue("amqpAddress"));
-        break;
-      }
-      case "start": {
-        service.start();
-        break;
-      }
-      case "stop": {
-        service.stop();
-        break;
-      }
-      default: {
-        throw new IllegalStateException("Invalid action: " + action);
-      }
+    } catch (Throwable t) {
+      msg.fail(-1, t.getMessage());
+      throw t;
     }
   }
+
   private <T> Handler<AsyncResult<T>> createHandler(Message msg) {
     return res -> {
       if (res.failed()) {
@@ -199,6 +205,7 @@ public class AMQPServiceVertxProxyHandler extends ProxyHandler {
       }
     };
   }
+
   private <T> Handler<AsyncResult<List<T>>> createListHandler(Message msg) {
     return res -> {
       if (res.failed()) {
@@ -208,6 +215,7 @@ public class AMQPServiceVertxProxyHandler extends ProxyHandler {
       }
     };
   }
+
   private <T> Handler<AsyncResult<Set<T>>> createSetHandler(Message msg) {
     return res -> {
       if (res.failed()) {
@@ -217,6 +225,7 @@ public class AMQPServiceVertxProxyHandler extends ProxyHandler {
       }
     };
   }
+
   private Handler<AsyncResult<List<Character>>> createListCharHandler(Message msg) {
     return res -> {
       if (res.failed()) {
@@ -224,12 +233,13 @@ public class AMQPServiceVertxProxyHandler extends ProxyHandler {
       } else {
         JsonArray arr = new JsonArray();
         for (Character chr: res.result()) {
-          arr.add((int)chr);
+          arr.add((int) chr);
         }
         msg.reply(arr);
       }
     };
   }
+
   private Handler<AsyncResult<Set<Character>>> createSetCharHandler(Message msg) {
     return res -> {
       if (res.failed()) {
@@ -237,18 +247,21 @@ public class AMQPServiceVertxProxyHandler extends ProxyHandler {
       } else {
         JsonArray arr = new JsonArray();
         for (Character chr: res.result()) {
-          arr.add((int)chr);
+          arr.add((int) chr);
         }
         msg.reply(arr);
       }
     };
   }
+
   private <T> Map<String, T> convertMap(Map map) {
     return (Map<String, T>)map;
   }
+
   private <T> List<T> convertList(List list) {
     return (List<T>)list;
   }
+
   private <T> Set<T> convertSet(List list) {
     return new HashSet<T>((List<T>)list);
   }

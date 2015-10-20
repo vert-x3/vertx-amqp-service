@@ -603,7 +603,7 @@
  * @author <a href="mailto:rajith@rajith.lk">Rajith Muditha Attapattu</a>
  */
 @Document(fileName = "index.adoc")
-@GenModule(name = "vertx-amqp") package io.vertx.ext.amqp;
+@ModuleGen(name = "vertx-amqp", groupPackage = "io.vertx") package io.vertx.ext.amqp;
 
-import io.vertx.codegen.annotations.GenModule;
+import io.vertx.codegen.annotations.ModuleGen;
 import io.vertx.docgen.Document;
